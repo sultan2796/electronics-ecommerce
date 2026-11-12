@@ -1,16 +1,8 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import RouteEffects from "./components/common/RouteEffects";
 import Layout from "./components/layout/Layout";
-import AdminCategories from "./pages/admin/AdminCategories";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminEmails from "./pages/admin/AdminEmails";
-import AdminReviews from "./pages/admin/AdminReviews";
-import AdminInventory from "./pages/admin/AdminInventory";
-import AdminLayout from "./pages/admin/AdminLayout";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminUsers from "./pages/admin/AdminUsers";
-import ProductForm from "./pages/admin/ProductForm";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Compare from "./pages/Compare";
@@ -28,11 +20,24 @@ import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import ResetPassword from "./pages/ResetPassword";
 import Wishlist from "./pages/Wishlist";
+import Spinner from "./components/common/Spinner";
+
+const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminEmails = lazy(() => import("./pages/admin/AdminEmails"));
+const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
+const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
+const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const ProductForm = lazy(() => import("./pages/admin/ProductForm"));
 
 export default function App() {
   return (
     <>
       <RouteEffects />
+      <Suspense fallback={<Spinner />}>
       <Routes>
         <Route element={<ProtectedRoute permission="dashboard:read" />}>
           <Route path="admin" element={<AdminLayout />}>
@@ -51,6 +56,9 @@ export default function App() {
             </Route>
             <Route element={<ProtectedRoute permission="reviews:moderate" />}>
               <Route path="reviews" element={<AdminReviews />} />
+            </Route>
+            <Route element={<ProtectedRoute permission="products:write" />}>
+              <Route path="coupons" element={<AdminCoupons />} />
             </Route>
             <Route element={<ProtectedRoute permission="emails:read" />}>
               <Route path="emails" element={<AdminEmails />} />
@@ -83,6 +91,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      </Suspense>
     </>
   );
 }

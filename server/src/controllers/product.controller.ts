@@ -3,6 +3,7 @@ import { ProductCreateInput, ProductQuery, ProductUpdateInput } from "../models/
 import { buildProductOrderBy, buildProductWhere, getFacets, getFeaturedProducts, productInclude, toSpecData } from "../services/product.service";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
+import { notifyBackInStock } from "../services/stockAlert.service";
 
 export const listProducts = asyncHandler(async (req, res) => {
   const query = req.query as unknown as ProductQuery;
@@ -66,6 +67,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
     },
     include: productInclude,
   });
+  if (product.stock > 0) void notifyBackInStock(product.id);
   res.json(product);
 });
 

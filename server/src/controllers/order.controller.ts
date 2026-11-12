@@ -10,10 +10,11 @@ import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { getErrorText } from "../utils/errorText";
 import { currentUser } from "../utils/currentUser";
+import { redeemCoupon } from "../services/coupon.service";
 
 export const checkout = asyncHandler(async (req, res) => {
   const userId = currentUser(req).id;
-  const { shippingAddress, paymentMethod } = req.body as CheckoutInput;
+  const { shippingAddress, paymentMethod, couponCode, saveAddress } = req.body as CheckoutInput;
 
   if (paymentMethod === PaymentMethod.CARD && !activeProvider()) {
     throw new AppError(400, "Kartla ödəniş hazırda mümkün deyil. Qapıda ödəniş seçin.");
@@ -35,15 +36,26 @@ export const checkout = asyncHandler(async (req, res) => {
       if (reserved.count === 0) throw new AppError(409, `${item.product.name} üçün kifayət qədər stok yoxdur`);
     }
 
-    const total = cart.items.reduce(
+    const subtotal = cart.items.reduce(
       (sum, item) => sum.add(item.product.price.mul(item.quantity)),
       new Prisma.Decimal(0),
     );
+    const coupon = couponCode ? await redeemCoupon(tx, couponCode, subtotal) : null;
+    const discount = coupon?.discount ?? new Prisma.Decimal(0);
+    const total = subtotal.sub(discount);
+
+    if (saveAddress && (await tx.address.count({ where: { userId } })) < 10) {
+      const isDefault = (await tx.address.count({ where: { userId } })) === 0;
+      await tx.address.create({ data: { ...shippingAddress, userId, label: shippingAddress.city, isDefault } });
+    }
 
     const created = await tx.order.create({
       data: {
         userId,
         total,
+        subtotal,
+        discount,
+        couponCode: coupon?.code ?? null,
         paymentMethod,
         shippingAddress: shippingAddress as Prisma.InputJsonObject,
         items: {

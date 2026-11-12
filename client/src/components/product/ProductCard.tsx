@@ -35,7 +35,7 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <article className="tile-shape relative flex h-[221px] flex-col bg-tile shadow-tile">
+    <article className="tile-shape group relative flex h-[221px] flex-col bg-tile shadow-tile transition duration-300 hover:-translate-y-1 hover:shadow-[0_12px_28px_-10px_rgba(16,24,40,0.25)]">
       <button
         type="button"
         onClick={() => setMessage(compare.toggle(product))}

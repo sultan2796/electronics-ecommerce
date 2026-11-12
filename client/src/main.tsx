@@ -9,6 +9,9 @@ import { CompareProvider } from "./context/CompareContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import "./index.css";
+import { installErrorReporter } from "./utils/errorReporter";
+
+installErrorReporter();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

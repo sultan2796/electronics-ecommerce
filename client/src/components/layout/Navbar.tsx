@@ -1,4 +1,3 @@
-import { FormEvent, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -6,6 +5,7 @@ import { useCompare } from "../../context/CompareContext";
 import { useWishlist } from "../../context/WishlistContext";
 import FigmaIcon from "../common/FigmaIcon";
 import ThemeToggle from "../common/ThemeToggle";
+import SearchBox from "./SearchBox";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `relative whitespace-nowrap text-sm transition ${isActive ? "font-medium text-brand-600" : "text-ink/70 hover:text-ink"}`;
@@ -25,12 +25,7 @@ export default function Navbar() {
   const { items: wishlist } = useWishlist();
   const { items: compare } = useCompare();
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
 
-  const onSearch = (event: FormEvent) => {
-    event.preventDefault();
-    navigate(search.trim() ? `/products?q=${encodeURIComponent(search.trim())}` : "/products");
-  };
 
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
@@ -38,16 +33,7 @@ export default function Navbar() {
         <Link to="/" className="text-lg font-bold text-brand-600">
           ElectroShop
         </Link>
-        <form onSubmit={onSearch} className="relative hidden min-w-[180px] flex-1 lg:block">
-          <FigmaIcon name="search" className="pointer-events-none absolute left-[14px] top-1/2 size-4 -translate-y-1/2 dark:invert" />
-          <input
-            className="h-10 w-full rounded-full border border-ink/20 bg-surface pl-[45px] pr-4 text-sm outline-none placeholder:text-muted focus:border-brand-500"
-            type="search"
-            placeholder="Məhsul, brend və ya model axtar"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </form>
+        <SearchBox className="hidden min-w-[180px] flex-1 lg:block" />
         <nav className="ml-auto flex items-center gap-4 lg:gap-6">
           <NavLink to="/products" className={(state) => `${linkClass(state)} hidden md:block`}>
             Məhsullar

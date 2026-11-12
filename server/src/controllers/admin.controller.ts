@@ -7,6 +7,7 @@ import { productInclude } from "../services/product.service";
 const adminOrderInclude = { ...orderInclude, user: { select: { name: true, email: true } } } satisfies Prisma.OrderInclude;
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
+import { notifyBackInStock } from "../services/stockAlert.service";
 
 const LOW_STOCK_THRESHOLD = 5;
 const revenueStatuses = [OrderStatus.PAID, OrderStatus.PROCESSING, OrderStatus.SHIPPED, OrderStatus.DELIVERED];
@@ -213,6 +214,7 @@ export const listInventory = asyncHandler(async (req, res) => {
 export const updateStock = asyncHandler(async (req, res) => {
   const { stock } = req.body as { stock: number };
   const product = await prisma.product.update({ where: { id: req.params.id }, data: { stock }, include: productInclude });
+  if (stock > 0) void notifyBackInStock(product.id);
   res.json(product);
 });
 

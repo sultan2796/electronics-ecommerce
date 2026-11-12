@@ -63,6 +63,8 @@ model User {
   refreshTokens RefreshToken[]
   resetTokens   PasswordResetToken[]
   reviews       Review[]
+  addresses     Address[]
+  stockAlerts   StockAlert[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -117,6 +119,7 @@ model Product {
   @@index([brand])
   @@index([price])
   @@index([isActive, createdAt])
+  stockAlerts   StockAlert[]
 }
 
 model TechSpecification {
@@ -184,6 +187,9 @@ model Order {
   paymentMethod   PaymentMethod @default(CASH_ON_DELIVERY)
   paidAt          DateTime?
   total           Decimal       @db.Decimal(12, 2)
+  subtotal        Decimal       @default(0) @db.Decimal(12, 2)
+  discount        Decimal       @default(0) @db.Decimal(12, 2)
+  couponCode      String?
   shippingAddress Json
   items           OrderItem[]
   payments        Payment[]
@@ -265,4 +271,60 @@ model EmailLog {
   createdAt DateTime    @default(now())
 
   @@index([createdAt])
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+model Coupon {
+  id        String     @id @default(cuid())
+  code      String     @unique
+  type      CouponType
+  value     Decimal    @db.Decimal(12, 2)
+  minTotal  Decimal    @default(0) @db.Decimal(12, 2)
+  maxUses   Int?
+  usedCount Int        @default(0)
+  expiresAt DateTime?
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String
+  fullName   String
+  phone      String
+  line1      String
+  line2      String?
+  city       String
+  postalCode String
+  country    String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model StockAlert {
+  id         String    @id @default(cuid())
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([productId, userId])
+}
+
+model Upload {
+  id        String   @id @default(cuid())
+  mimeType  String
+  data      Bytes
+  size      Int
+  createdAt DateTime @default(now())
 }

@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from "react";
+import { reportError } from "../../utils/errorReporter";
 
 interface State {
   error: Error | null;
@@ -13,6 +14,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error("Gözlənilməz xəta", error, info.componentStack);
+    reportError(error.message, `${error.stack ?? ""}\n${info.componentStack ?? ""}`);
   }
 
   render() {

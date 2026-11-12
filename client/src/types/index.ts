@@ -192,6 +192,9 @@ export interface Order {
   paidAt: string | null;
   payments?: PaymentRecord[];
   total: string;
+  subtotal?: string;
+  discount?: string;
+  couponCode?: string | null;
   shippingAddress: ShippingAddress;
   items: OrderItem[];
   createdAt: string;
@@ -310,4 +313,32 @@ export interface EmailLogEntry {
   error: string | null;
   html: string | null;
   createdAt: string;
+}
+
+export interface SavedAddress extends ShippingAddress {
+  id: string;
+  label: string;
+  isDefault: boolean;
+}
+
+export type CouponType = "PERCENT" | "FIXED";
+
+export interface Coupon {
+  id: string;
+  code: string;
+  type: CouponType;
+  value: string;
+  minTotal: string;
+  maxUses: number | null;
+  usedCount: number;
+  expiresAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface CouponCheck {
+  code: string;
+  discount: string;
+  subtotal: string;
+  total: string;
 }

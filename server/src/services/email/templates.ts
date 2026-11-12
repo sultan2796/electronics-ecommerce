@@ -150,3 +150,10 @@ export const passwordChangedEmail = (user: Recipient): EmailContent => ({
   ),
   text: `Şifrəniz dəyişdirildi. Bunu siz etməmisinizsə: ${clientUrl}/forgot-password`,
 });
+
+export const backInStockEmail = (user: Recipient, productName: string, url: string): EmailContent => ({
+  template: "back-in-stock",
+  subject: `${productName} yenidən stokdadır`,
+  html: layout("Gözlədiyiniz məhsul stokdadır", paragraph(`Hörmətli ${escapeHtml(user.name)},`) + paragraph(`<strong>${escapeHtml(productName)}</strong> yenidən satışdadır. Tükənməmiş sifariş edin.`), { label: "Məhsula bax", url }),
+  text: `${productName} yenidən stokdadır: ${url}`,
+});

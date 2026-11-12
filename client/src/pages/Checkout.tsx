@@ -1,13 +1,14 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import EmptyState from "../components/common/EmptyState";
 import { useCart } from "../context/CartContext";
 import { useAsync } from "../hooks/useAsync";
 import { getErrorMessage } from "../services/api";
+import { extraService } from "../services/extra.service";
 import { orderService } from "../services/order.service";
 import { goToPayment, paymentService } from "../services/payment.service";
-import { PaymentMethod, ShippingAddress } from "../types";
+import { CouponCheck, PaymentMethod, SavedAddress, ShippingAddress } from "../types";
 import { formatPrice } from "../utils/format";
 
 const fields: { name: keyof ShippingAddress; label: string; required: boolean; type?: string; autoComplete?: string }[] = [
@@ -43,6 +44,52 @@ export default function Checkout() {
   const [method, setMethod] = useState<PaymentMethod | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState<SavedAddress[]>([]);
+  const [saveAddress, setSaveAddress] = useState(false);
+  const [code, setCode] = useState("");
+  const [coupon, setCoupon] = useState<CouponCheck | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
+
+  useEffect(() => {
+    extraService
+      .addresses()
+      .then((list) => {
+        setSaved(list);
+        const preferred = list.find((item) => item.isDefault) ?? list[0];
+        if (preferred) pickAddress(preferred);
+      })
+      .catch(() => setSaved([]));
+  }, []);
+
+  useEffect(() => {
+    setCoupon(null);
+  }, [cart?.subtotal]);
+
+  const pickAddress = (item: SavedAddress) =>
+    setAddress({
+      fullName: item.fullName,
+      phone: item.phone,
+      line1: item.line1,
+      line2: item.line2 ?? "",
+      city: item.city,
+      postalCode: item.postalCode,
+      country: item.country,
+    });
+
+  const applyCoupon = async () => {
+    if (!code.trim()) return;
+    setChecking(true);
+    setCouponError(null);
+    try {
+      setCoupon(await extraService.checkCoupon(code.trim()));
+    } catch (err) {
+      setCoupon(null);
+      setCouponError(getErrorMessage(err));
+    } finally {
+      setChecking(false);
+    }
+  };
 
   const methods = config.data?.methods ?? ["CASH_ON_DELIVERY"];
   const selected: PaymentMethod = method && methods.includes(method) ? method : methods[0];
@@ -66,7 +113,10 @@ export default function Checkout() {
     setError(null);
     try {
       const { line2, ...rest } = address;
-      const result = await orderService.checkout(line2?.trim() ? address : rest, selected);
+      const result = await orderService.checkout(line2?.trim() ? address : rest, selected, {
+        couponCode: coupon?.code,
+        saveAddress: saveAddress || undefined,
+      });
       await refresh();
       if (result.payment?.redirectUrl) {
         goToPayment(result.payment.redirectUrl, navigate);
@@ -89,6 +139,23 @@ export default function Checkout() {
         <section className="card space-y-4 p-6">
           <h1 className="text-2xl font-bold">Çatdırılma məlumatları</h1>
           {error && <Alert>{error}</Alert>}
+          {saved.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {saved.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => pickAddress(item)}
+                  className={`rounded-xl border px-3 py-2 text-left text-xs transition ${
+                    address.line1 === item.line1 && address.phone === item.phone ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10" : "border-line hover:border-brand-500/50"
+                  }`}
+                >
+                  <span className="block font-semibold">{item.label}</span>
+                  <span className="text-muted">{item.line1}, {item.city}</span>
+                </button>
+              ))}
+            </div>
+          )}
           <div className="grid gap-4 sm:grid-cols-2">
             {fields.map((field) => (
               <label key={field.name} className={`space-y-1 ${field.name.startsWith("line") ? "sm:col-span-2" : ""}`}>
@@ -104,6 +171,10 @@ export default function Checkout() {
               </label>
             ))}
           </div>
+          <label className="flex items-center gap-2 text-sm text-muted">
+            <input type="checkbox" className="accent-brand-600" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} />
+            Bu ünvanı növbəti sifarişlər üçün yadda saxla
+          </label>
         </section>
 
         <section className="card space-y-4 p-6">
@@ -147,13 +218,44 @@ export default function Checkout() {
             <span className="shrink-0">{formatPrice(Number(item.product.price) * item.quantity)}</span>
           </div>
         ))}
-        <div className="flex justify-between border-t border-line pt-3 text-sm">
+        <div className="space-y-2 border-t border-line pt-3">
+          <div className="flex gap-2">
+            <input
+              className="input py-2 text-sm uppercase"
+              placeholder="Promo kod"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void applyCoupon();
+                }
+              }}
+            />
+            <button type="button" className="btn-outline shrink-0 py-2 text-sm" disabled={checking || !code.trim()} onClick={applyCoupon}>
+              {checking ? "..." : "Tətbiq et"}
+            </button>
+          </div>
+          {couponError && <p className="text-xs text-red-600">{couponError}</p>}
+          {coupon && (
+            <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
+              <span>
+                Endirim ({coupon.code}){" "}
+                <button type="button" className="text-xs text-muted underline" onClick={() => setCoupon(null)}>
+                  sil
+                </button>
+              </span>
+              <span>−{formatPrice(coupon.discount)}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex justify-between text-sm">
           <span className="text-muted">Çatdırılma</span>
           <span className="text-emerald-600 dark:text-emerald-400">Pulsuz</span>
         </div>
         <div className="flex justify-between text-lg font-bold">
           <span>Cəmi</span>
-          <span>{formatPrice(cart?.subtotal ?? 0)}</span>
+          <span>{formatPrice(coupon ? coupon.total : cart?.subtotal ?? 0)}</span>
         </div>
         <button type="submit" className="btn-primary w-full" disabled={submitting || !cart}>
           {submitting ? "Göndərilir..." : selected === "CARD" ? "Ödənişə keç" : "Sifarişi təsdiqlə"}

@@ -8,6 +8,7 @@ import { getErrorMessage } from "../../services/api";
 import { adminService } from "../../services/admin.service";
 import { productService } from "../../services/product.service";
 import { Product, ProductPayload, StorageType } from "../../types";
+import { extraService, fileToDataUrl } from "../../services/extra.service";
 
 const storageTypes: StorageType[] = ["SSD", "NVME", "HDD", "EMMC", "UFS"];
 
@@ -151,6 +152,8 @@ export default function ProductForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (existing.data) {
@@ -209,6 +212,24 @@ export default function ProductForm() {
 
   if ((isEdit && existing.loading && !existing.data) || categories.loading) return <Spinner />;
   if (isEdit && existing.error) return <Alert>{existing.error}</Alert>;
+
+  const uploadFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        if (file.size > 2 * 1024 * 1024) throw new Error(`${file.name} 2 MB-dan böyükdür`);
+        urls.push((await extraService.upload(await fileToDataUrl(file))).url);
+      }
+      update("images", [form.images.trim(), ...urls].filter(Boolean).join("\n"));
+    } catch (err) {
+      setUploadError(getErrorMessage(err));
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const previewImage = form.images.split("\n").map((line) => line.trim()).find(Boolean);
   const category = categories.data?.find((item) => item.id === form.categoryId);
@@ -310,6 +331,11 @@ export default function ProductForm() {
             <div className="flex aspect-square items-center justify-center rounded-[20px] bg-chip">
               <ProductImage src={previewImage} category={category?.slug} alt={form.name || "Önizləmə"} className="size-[80%]" />
             </div>
+            <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-line px-4 py-3 text-sm font-medium transition hover:border-brand-500 hover:text-brand-600 ${uploading ? "pointer-events-none opacity-60" : ""}`}>
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple className="sr-only" onChange={(event) => void uploadFiles(event.target.files)} />
+              {uploading ? "Yüklənir..." : "Kompüterdən şəkil yüklə (maks. 2 MB)"}
+            </label>
+            {uploadError && <p className="text-xs text-red-600">{uploadError}</p>}
             <Field label="Şəkil linkləri (hər sətirdə bir)">
               <textarea
                 className="input min-h-[100px] rounded-xl font-mono text-xs"

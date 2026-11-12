@@ -30,6 +30,7 @@ export default function ProductImage({ src, alt, category, className = "" }: Pro
       src={real ? src : fallbackImage(category)}
       alt={alt}
       loading="lazy"
+      decoding="async"
       onError={(event) => {
         const fallback = fallbackImage(category);
         if (!event.currentTarget.src.endsWith(fallback)) event.currentTarget.src = fallback;

@@ -13,7 +13,7 @@ export const createApp = () => {
   app.disable("x-powered-by");
   app.use(helmet());
   app.use(cors({ origin: corsOrigins, credentials: true }));
-  app.use(express.json({ limit: "1mb" }));
+  app.use(express.json({ limit: "3mb" }));
   app.use(express.urlencoded({ extended: false, limit: "1mb" }));
   app.use(cookieParser());
 

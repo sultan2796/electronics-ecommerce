@@ -36,22 +36,22 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-[10px] px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/25 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white shadow-cta hover:bg-brand-700;
+    @apply btn bg-gradient-to-b from-brand-500 to-brand-600 text-white shadow-cta hover:from-brand-600 hover:to-brand-700 hover:shadow-lg hover:shadow-brand-600/20;
   }
   .btn-outline {
-    @apply btn border border-ink/20 bg-surface text-ink hover:border-brand-600 hover:text-brand-600;
+    @apply btn border border-line bg-surface text-ink hover:border-brand-500 hover:bg-brand-50/60 hover:text-brand-600 dark:hover:bg-brand-500/10;
   }
   .btn-danger {
     @apply btn bg-red-600 text-white hover:bg-red-700;
   }
   .input {
-    @apply w-full rounded-full border border-ink/20 bg-surface px-4 py-2 text-sm text-ink outline-none placeholder:text-muted focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20;
+    @apply w-full rounded-xl border border-line bg-surface px-4 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted hover:border-ink/30 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10;
   }
   .card {
-    @apply rounded-[20px] bg-surface shadow-tile dark:shadow-none dark:ring-1 dark:ring-line;
+    @apply rounded-[20px] bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_16px_-4px_rgba(16,24,40,0.08)] ring-1 ring-line/70 dark:shadow-none dark:ring-line;
   }
   .link {
     @apply text-sm font-medium text-brand-600 hover:text-brand-700;
@@ -67,5 +67,35 @@
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@layer base {
+  ::selection {
+    @apply bg-brand-500/20 text-ink;
+  }
+  :focus-visible {
+    outline-color: rgb(var(--brand, 249 120 71));
+  }
+}
+
+@layer utilities {
+  .animate-page {
+    animation: page-in 0.35s ease-out both;
+  }
+  @keyframes page-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-page {
+      animation: none;
+    }
   }
 }

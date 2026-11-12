@@ -111,6 +111,12 @@ export default function OrderDetail() {
               </li>
             ))}
           </ul>
+          {Number(order.discount ?? 0) > 0 && (
+            <div className="mt-4 flex justify-between border-t border-chip pt-4 text-sm text-emerald-600 dark:text-emerald-400">
+              <span>Endirim{order.couponCode ? ` (${order.couponCode})` : ""}</span>
+              <span>−{formatPrice(order.discount ?? 0)}</span>
+            </div>
+          )}
           <div className="mt-4 flex justify-between border-t border-chip pt-4 text-lg font-bold">
             <span>Cəmi</span>
             <span className="text-brand-600">{formatPrice(order.total)}</span>

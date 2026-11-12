@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import { roleLabels, useAuth } from "../context/AuthContext";
 import { getErrorMessage } from "../services/api";
+import AddressBook from "../components/account/AddressBook";
 
 export default function Profile() {
   const { user, updateProfile, changePassword, isStaff, logout } = useAuth();
@@ -135,6 +136,8 @@ export default function Profile() {
           {savingPassword ? "Dəyişdirilir..." : "Şifrəni dəyiş"}
         </button>
       </form>
+
+      <AddressBook />
     </div>
   );
 }

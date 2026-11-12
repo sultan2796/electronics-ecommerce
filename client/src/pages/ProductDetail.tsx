@@ -17,6 +17,8 @@ import { TechSpecification } from "../types";
 import { discountOf, formatPrice, formatStorage, priceBeforeDiscount } from "../utils/format";
 import { productRating, reviewCountLabel } from "../utils/rating";
 import { rememberProduct } from "../utils/recentlyViewed";
+import { extraService } from "../services/extra.service";
+import { useSeo } from "../hooks/useSeo";
 
 const specRows = (specs: TechSpecification): [string, string | null][] => [
   ["Prosessor (CPU)", specs.cpu],
@@ -57,10 +59,35 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (product) {
-      document.title = `${product.name} · ElectroShop`;
       rememberProduct(product);
     }
   }, [product]);
+
+  useSeo({
+    title: product?.name ?? "Məhsul",
+    description: product ? `${product.name} — ${product.brand}. ${product.description.slice(0, 140)}` : undefined,
+    image: product?.images[0],
+    jsonLd: product
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: product.name,
+          sku: product.sku,
+          brand: { "@type": "Brand", name: product.brand },
+          description: product.description,
+          image: product.images,
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "AZN",
+            price: Number(product.price).toFixed(2),
+            availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          },
+          ...(product.reviewCount && product.ratingAverage
+            ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.ratingAverage, reviewCount: product.reviewCount } }
+            : {}),
+        }
+      : undefined,
+  });
 
   if (loading) return <Spinner />;
   if (error || !product) return <Alert>{error ?? "Məhsul tapılmadı"}</Alert>;
@@ -188,6 +215,22 @@ export default function ProductDetail() {
 
           <div className="mt-auto space-y-3 pt-10">
             {message && <p className="text-center text-xs text-muted">{message}</p>}
+            {soldOut && (
+              <button
+                type="button"
+                className="btn-outline w-full"
+                onClick={async () => {
+                  if (!requireUser()) return;
+                  try {
+                    setMessage((await extraService.stockAlert(product.id)).message);
+                  } catch (err) {
+                    setMessage(getErrorMessage(err));
+                  }
+                }}
+              >
+                Stoka gələndə xəbər ver
+              </button>
+            )}
             <button
               type="button"
               onClick={buyNow}

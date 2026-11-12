@@ -23,6 +23,8 @@ export const shippingAddressSchema = z.object({
 export const checkoutSchema = z.object({
   shippingAddress: shippingAddressSchema,
   paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.CASH_ON_DELIVERY),
+  couponCode: z.string().trim().max(40).optional(),
+  saveAddress: z.boolean().optional(),
 });
 
 export const orderStatusSchema = z.object({ status: z.nativeEnum(OrderStatus) });
