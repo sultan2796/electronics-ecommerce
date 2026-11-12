@@ -18,5 +18,15 @@ if [ -z "$DATABASE_URL" ]; then
   exit 1
 fi
 
-npx prisma migrate deploy
+attempt=1
+until npx prisma migrate deploy; do
+  if [ "$attempt" -ge 5 ]; then
+    echo "Migrasiya 5 cəhddən sonra alınmadı"
+    exit 1
+  fi
+  echo "Migrasiya alınmadı, $((attempt * 5)) saniyə sonra yenidən cəhd ($attempt/5)"
+  sleep $((attempt * 5))
+  attempt=$((attempt + 1))
+done
+
 exec node dist/index.js
