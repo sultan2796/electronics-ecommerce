@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { discountOf, formatDate, formatStorage, priceBeforeDiscount } from "./format";
+import { discountOf, formatDate, formatPrice, formatStorage, priceBeforeDiscount } from "./format";
 
 describe("formatlama", () => {
+  it("qiyməti Azərbaycan formatında yazır", () => {
+    expect(formatPrice(14.17)).toBe("14,17 ₼");
+    expect(formatPrice("1999.9")).toBe("1 999,90 ₼");
+    expect(formatPrice(2500)).toBe("2 500 ₼");
+  });
+
   it("yaddaşı GB/TB ilə göstərir", () => {
     expect(formatStorage(512)).toBe("512 GB");
     expect(formatStorage(1024)).toBe("1 TB");

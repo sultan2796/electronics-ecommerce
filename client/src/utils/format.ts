@@ -1,8 +1,11 @@
 import { OrderStatus, PaymentMethod, PaymentStatus } from "../types";
 
-const currency = new Intl.NumberFormat("az-AZ", { style: "currency", currency: "AZN", currencyDisplay: "narrowSymbol", minimumFractionDigits: 0, maximumFractionDigits: 2 });
-
-export const formatPrice = (value: number | string) => currency.format(Number(value));
+export const formatPrice = (value: number | string) => {
+  const amount = Math.round(Number(value) * 100) / 100;
+  const [whole, fraction] = Math.abs(amount).toFixed(2).split(".");
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return `${amount < 0 ? "−" : ""}${grouped}${fraction === "00" ? "" : `,${fraction}`} ₼`;
+};
 
 export const discountOf = (product: { specs: { extra?: { discountPercentage?: number | null } | null } | null }) => {
   const value = product.specs?.extra?.discountPercentage;

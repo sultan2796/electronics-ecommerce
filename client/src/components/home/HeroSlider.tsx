@@ -22,7 +22,7 @@ function BrandSlide({ active }: { active: boolean }) {
     <div className="relative h-full overflow-hidden bg-[#0f172a]">
       <img src="/figma/hero.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-[center_35%] opacity-90" />
       <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/60 to-transparent" />
-      <div className="relative flex h-full max-w-xl flex-col justify-center gap-4 px-6 text-white sm:px-12">
+      <div className="relative flex h-full max-w-xl flex-col justify-center gap-4 px-6 pb-10 text-white sm:px-12 sm:pb-12">
         <span className="w-fit rounded-full border border-white/25 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-white/90">{t("hero.newCollection")}</span>
         <h2 className="text-2xl font-bold leading-tight sm:text-[42px] sm:leading-[1.1]">{t("hero.title")}</h2>
         <p className="max-w-md text-sm text-white/75 sm:text-base">{t("hero.text")}</p>
@@ -40,9 +40,9 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
   const price = pricing(product);
   return (
     <div className={`h-full bg-gradient-to-br ${theme.bg}`}>
-      <div className="grid h-full grid-cols-[1fr_auto] items-center gap-4 px-6 sm:grid-cols-2 sm:gap-8 sm:px-12">
+      <div className="grid h-full grid-cols-[1fr_auto] items-center gap-4 px-6 pb-10 pt-6 sm:grid-cols-2 sm:gap-8 sm:px-12 sm:pb-12">
         <div className="min-w-0 space-y-3 sm:space-y-4">
-          <p className={`text-xs font-semibold uppercase tracking-wider ${theme.accent}`}>
+          <p className={`text-sm font-semibold ${theme.accent}`}>
             {product.campaign?.name ?? product.category?.name ?? product.brand}
           </p>
           <h2 className="line-clamp-2 text-xl font-bold leading-tight text-slate-900 sm:text-[38px] sm:leading-[1.15]">{product.name}</h2>
@@ -61,12 +61,12 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
         </div>
         <div className="flex h-full items-center justify-center py-6">
           <div className="relative flex aspect-square w-[120px] items-center justify-center sm:w-[340px]">
-            <div className="absolute inset-[8%] rounded-full bg-white/70 blur-2xl" />
+            <div className="absolute inset-[10%] rounded-full bg-white/80 blur-3xl" />
             <ProductImage
               src={product.images[0]}
               category={product.category?.slug}
               alt={product.name}
-              className="relative size-full object-contain drop-shadow-[0_24px_30px_rgba(15,23,42,0.25)]"
+              className="relative size-full object-contain mix-blend-multiply dark:rounded-none dark:bg-transparent"
             />
           </div>
         </div>
@@ -146,7 +146,7 @@ export default function HeroSlider({ products }: { products: Product[] }) {
       </div>
 
       {count > 1 && (
-        <div className="absolute bottom-4 left-6 flex items-center gap-2 sm:bottom-6 sm:left-12">
+        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/10 px-3 backdrop-blur-sm sm:bottom-4">
           {slides.map((slide, position) => {
             const current = position === index;
             const dark = slides[index]?.kind === "brand";
