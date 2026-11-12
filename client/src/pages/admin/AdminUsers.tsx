@@ -1,3 +1,4 @@
+import Select from "../../components/common/Select";
 import { FormEvent, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Alert from "../../components/common/Alert";
@@ -130,17 +131,14 @@ export default function AdminUsers() {
                         {disabled ? (
                           <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${roleStyles[item.role]}`}>{roleLabels[item.role]}</span>
                         ) : (
-                          <select
-                            className="input w-auto py-1.5"
+                          <Select
+                            className="w-36"
+                            size="sm"
+                            ariaLabel="Rol"
                             value={item.role}
-                            onChange={(e) => change(item, { role: e.target.value as Role })}
-                          >
-                            {roles.map((value) => (
-                              <option key={value} value={value}>
-                                {roleLabels[value]}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(role) => change(item, { role: role as Role })}
+                            options={roles.map((value) => ({ value, label: roleLabels[value], hint: roleDescriptions[value] }))}
+                          />
                         )}
                       </td>
                       <td className="px-4 py-3">{item._count.orders}</td>

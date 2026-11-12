@@ -1,7 +1,7 @@
+import ProductSkeletonGrid from "../components/product/ProductSkeleton";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Alert from "../components/common/Alert";
-import Spinner from "../components/common/Spinner";
 import Benefits from "../components/home/Benefits";
 import Countdown from "../components/home/Countdown";
 import HeroSlider from "../components/home/HeroSlider";
@@ -117,6 +117,7 @@ export default function Home() {
           </section>
         )}
 
+        {picks.loading && !picks.data && <ProductSkeletonGrid count={5} />}
         {picks.data && picks.data.length > 0 && (
           <section>
             <SectionHeader title={t("home.picks")} hint={t("home.picksHint")} to="/products" linkLabel={t("home.seeAll")} />
@@ -142,7 +143,7 @@ export default function Home() {
             ))}
           </div>
           {categoriesState.loading || products.loading ? (
-            <Spinner />
+            <ProductSkeletonGrid count={10} />
           ) : products.error ? (
             <Alert>{products.error}</Alert>
           ) : !active ? null : !products.data?.items.length ? (

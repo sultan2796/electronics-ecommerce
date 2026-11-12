@@ -1,3 +1,4 @@
+import { confirmDialog } from "../common/Overlays";
 import { FormEvent, useState } from "react";
 import { useAsync } from "../../hooks/useAsync";
 import { getErrorMessage } from "../../services/api";
@@ -121,7 +122,7 @@ export default function AddressBook() {
                 <button
                   type="button"
                   className="text-red-600"
-                  onClick={() => window.confirm("Ünvan silinsin?") && run(() => extraService.deleteAddress(address.id))}
+                  onClick={async () => (await confirmDialog("Ünvan silinsin?", { confirmLabel: "Sil" })) && run(() => extraService.deleteAddress(address.id))}
                 >
                   Sil
                 </button>

@@ -1,3 +1,4 @@
+import { confirmDialog } from "../../components/common/Overlays";
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import Alert from "../../components/common/Alert";
@@ -41,7 +42,7 @@ function CategoryRow({ category, onChanged, onDeleted }: { category: Category; o
   };
 
   const remove = async () => {
-    if (!window.confirm(`"${category.name}" kateqoriyası silinsin?`)) return;
+    if (!(await confirmDialog(`"${category.name}" kateqoriyası silinsin?`, { confirmLabel: "Sil" }))) return;
     setBusy(true);
     setError(null);
     try {

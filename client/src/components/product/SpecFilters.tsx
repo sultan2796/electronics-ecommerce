@@ -1,3 +1,4 @@
+import Select from "../common/Select";
 import { FormEvent, useEffect, useState } from "react";
 import { Category, Facets, ProductFilters } from "../../types";
 import { countActiveFilters, emptyFilters } from "../../utils/filters";
@@ -114,14 +115,12 @@ export default function SpecFilters({ facets, categories, filters, onChange }: S
 
       <label className="block space-y-2">
         <span className="text-sm font-semibold text-ink">Kateqoriya</span>
-        <select className="input" value={filters.category} onChange={(e) => onChange({ ...emptyFilters, q: filters.q, sort: filters.sort, category: e.target.value })}>
-          <option value="">Bütün kateqoriyalar</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.slug}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+        <Select
+          ariaLabel="Kateqoriya"
+          value={filters.category}
+          onChange={(category) => onChange({ ...emptyFilters, q: filters.q, sort: filters.sort, category })}
+          options={[{ value: "", label: "Bütün kateqoriyalar" }, ...categories.map((category) => ({ value: category.slug, label: category.name }))]}
+        />
       </label>
 
       <label className="flex items-center gap-2 text-sm">
@@ -133,8 +132,8 @@ export default function SpecFilters({ facets, categories, filters, onChange }: S
         title="Qiymət (AZN)"
         min={filters.minPrice}
         max={filters.maxPrice}
-        placeholderMin={facets ? String(Math.floor(facets.price.min)) : "Min"}
-        placeholderMax={facets ? String(Math.ceil(facets.price.max)) : "Max"}
+        placeholderMin={facets?.price ? String(Math.floor(facets.price.min)) : "Min"}
+        placeholderMax={facets?.price ? String(Math.ceil(facets.price.max)) : "Max"}
         onApply={(minPrice, maxPrice) => onChange({ minPrice, maxPrice })}
       />
 
@@ -166,8 +165,8 @@ export default function SpecFilters({ facets, categories, filters, onChange }: S
         min={filters.minScreen}
         max={filters.maxScreen}
         step="0.1"
-        placeholderMin={facets?.screen.min ? String(facets.screen.min) : "Min"}
-        placeholderMax={facets?.screen.max ? String(facets.screen.max) : "Max"}
+        placeholderMin={facets?.screen?.min ? String(facets.screen.min) : "Min"}
+        placeholderMax={facets?.screen?.max ? String(facets.screen.max) : "Max"}
         onApply={(minScreen, maxScreen) => onChange({ minScreen, maxScreen })}
       />
     </aside>

@@ -1,3 +1,5 @@
+import { confirmDialog } from "../../components/common/Overlays";
+import Select from "../../components/common/Select";
 import { FormEvent, useState } from "react";
 import Alert from "../../components/common/Alert";
 import Spinner from "../../components/common/Spinner";
@@ -83,14 +85,12 @@ export default function AdminCampaigns() {
         </label>
         <label className="space-y-1">
           <span className="text-sm font-medium">Kateqoriya</span>
-          <select className="input" value={form.categoryId} onChange={(e) => set("categoryId", e.target.value)}>
-            <option value="">Bütün məhsullar</option>
-            {categories.data?.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+          <Select
+            ariaLabel="Kateqoriya"
+            value={form.categoryId}
+            onChange={(categoryId) => set("categoryId", categoryId)}
+            options={[{ value: "", label: "Bütün məhsullar" }, ...(categories.data ?? []).map((category) => ({ value: category.id, label: category.name }))]}
+          />
         </label>
         <label className="space-y-1">
           <span className="text-sm font-medium">Başlayır</span>
@@ -137,7 +137,7 @@ export default function AdminCampaigns() {
                     <button
                       type="button"
                       className="text-red-600"
-                      onClick={() => window.confirm(`${campaign.name} silinsin?`) && act(() => extraService.deleteCampaign(campaign.id))}
+                      onClick={async () => (await confirmDialog(`${campaign.name} silinsin?`, { confirmLabel: "Sil" })) && act(() => extraService.deleteCampaign(campaign.id))}
                     >
                       Sil
                     </button>

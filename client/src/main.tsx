@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
+import Overlays from "./components/common/Overlays";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
               <WishlistProvider>
                 <CompareProvider>
                   <App />
+                  <Overlays />
                 </CompareProvider>
               </WishlistProvider>
             </CartProvider>

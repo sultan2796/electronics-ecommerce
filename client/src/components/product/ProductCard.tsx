@@ -1,3 +1,4 @@
+import { toast } from "../common/Overlays";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -50,6 +51,7 @@ export default function ProductCard({ product }: { product: Product }) {
     try {
       await addItem(product.id);
       flash(t("card.added"));
+      toast(`${product.name} səbətə əlavə edildi`);
     } catch (error) {
       flash(getErrorMessage(error));
     }
@@ -59,6 +61,7 @@ export default function ProductCard({ product }: { product: Product }) {
     if (!requireUser()) return;
     try {
       await wishlist.toggle(product.id);
+      toast(liked ? "İstək siyahısından çıxarıldı" : "İstək siyahısına əlavə edildi", liked ? "info" : "success");
     } catch (error) {
       flash(getErrorMessage(error));
     }
@@ -104,7 +107,7 @@ export default function ProductCard({ product }: { product: Product }) {
       </Link>
 
       <div className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
-        <p className="truncate text-[11px] font-medium uppercase tracking-wide text-muted">{product.brand}</p>
+        <p lang="en" className="truncate text-[11px] font-medium uppercase tracking-wide text-muted">{product.brand}</p>
         <Link to={`/products/${product.slug}`} className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-ink transition hover:text-brand-600">
           {product.name}
         </Link>

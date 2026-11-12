@@ -1,3 +1,5 @@
+import { confirmDialog } from "../../components/common/Overlays";
+import Select from "../../components/common/Select";
 import { FormEvent, useState } from "react";
 import Alert from "../../components/common/Alert";
 import Spinner from "../../components/common/Spinner";
@@ -59,7 +61,7 @@ export default function AdminCoupons() {
   };
 
   const remove = async (coupon: Coupon) => {
-    if (!window.confirm(`${coupon.code} silinsin?`)) return;
+    if (!(await confirmDialog(`${coupon.code} silinsin?`, { confirmLabel: "Sil" }))) return;
     try {
       await extraService.deleteCoupon(coupon.id);
       coupons.setData((current) => current?.filter((item) => item.id !== coupon.id) ?? null);
@@ -84,10 +86,15 @@ export default function AdminCoupons() {
         </label>
         <label className="space-y-1">
           <span className="text-sm font-medium">Növ</span>
-          <select className="input" value={form.type} onChange={(e) => set("type", e.target.value)}>
-            <option value="PERCENT">Faiz (%)</option>
-            <option value="FIXED">Məbləğ (₼)</option>
-          </select>
+          <Select
+            ariaLabel="Növ"
+            value={form.type}
+            onChange={(type) => set("type", type)}
+            options={[
+              { value: "PERCENT", label: "Faiz (%)", hint: "Məbləğin faizi qədər" },
+              { value: "FIXED", label: "Məbləğ (₼)", hint: "Sabit məbləğ çıxılır" },
+            ]}
+          />
         </label>
         <label className="space-y-1">
           <span className="text-sm font-medium">Dəyər</span>

@@ -1,9 +1,10 @@
+import ProductSkeletonGrid from "../components/product/ProductSkeleton";
+import Select from "../components/common/Select";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import EmptyState from "../components/common/EmptyState";
 import Pagination from "../components/common/Pagination";
-import Spinner from "../components/common/Spinner";
 import ProductCard from "../components/product/ProductCard";
 import SpecFilters from "../components/product/SpecFilters";
 import { useAsync } from "../hooks/useAsync";
@@ -49,18 +50,19 @@ export default function Products() {
           </div>
           <label className="flex items-center gap-2 text-sm">
             Sırala
-            <select className="input w-auto" value={filters.sort} onChange={(e) => updateFilters({ sort: e.target.value as ProductSort })}>
-              {Object.entries(sortLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            <Select
+              className="w-52"
+              ariaLabel="Sırala"
+              align="right"
+              value={filters.sort}
+              onChange={(sort) => updateFilters({ sort: sort as ProductSort })}
+              options={Object.entries(sortLabels).map(([value, label]) => ({ value, label }))}
+            />
           </label>
         </div>
 
         {products.loading ? (
-          <Spinner />
+          <ProductSkeletonGrid count={9} className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3" />
         ) : products.error ? (
           <Alert>{products.error}</Alert>
         ) : !products.data?.items.length ? (
@@ -74,7 +76,7 @@ export default function Products() {
           />
         ) : (
           <>
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
               {products.data.items.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

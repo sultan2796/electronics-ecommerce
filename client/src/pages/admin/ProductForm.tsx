@@ -1,3 +1,4 @@
+import Select from "../../components/common/Select";
 import { FormEvent, ReactNode, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Alert from "../../components/common/Alert";
@@ -280,13 +281,13 @@ export default function ProductForm() {
             <Field label="SKU *">{input("sku", { required: true })}</Field>
             <Field label="Brend *">{input("brand", { required: true })}</Field>
             <Field label="Kateqoriya *">
-              <select className="input rounded-xl" required value={form.categoryId} onChange={(event) => update("categoryId", event.target.value)}>
-                {categories.data?.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
+              <Select
+                ariaLabel="Kateqoriya"
+                placeholder="Kateqoriya seçin"
+                value={form.categoryId}
+                onChange={(categoryId) => update("categoryId", categoryId)}
+                options={(categories.data ?? []).map((item) => ({ value: item.id, label: item.name }))}
+              />
             </Field>
             <Field label="Qiymət (AZN) *">{input("price", { type: "number", step: "0.01", required: true })}</Field>
             <Field label="Stok *">{input("stock", { type: "number", step: "1", required: true })}</Field>
@@ -306,14 +307,12 @@ export default function ProductForm() {
             <Field label="RAM (GB)">{input("ramGb", { type: "number" })}</Field>
             <Field label="Daxili yaddaş (GB)">{input("storageGb", { type: "number" })}</Field>
             <Field label="Yaddaş növü">
-              <select className="input rounded-xl" value={form.storageType} onChange={(event) => update("storageType", event.target.value)}>
-                <option value="">—</option>
-                {storageTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+              <Select
+                ariaLabel="Yaddaş növü"
+                value={form.storageType}
+                onChange={(storageType) => update("storageType", storageType)}
+                options={[{ value: "", label: "—" }, ...storageTypes.map((type) => ({ value: type, label: type }))]}
+              />
             </Field>
             <Field label="Ekran (düym)">{input("screenSizeInch", { type: "number", step: "0.1" })}</Field>
             <Field label="Ölçü (piksel)">{input("resolution", { placeholder: "1920x1080" })}</Field>

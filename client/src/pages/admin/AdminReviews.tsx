@@ -1,3 +1,4 @@
+import { confirmDialog } from "../../components/common/Overlays";
 import { FormEvent, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Alert from "../../components/common/Alert";
@@ -35,7 +36,7 @@ export default function AdminReviews() {
   };
 
   const remove = async (id: string) => {
-    if (!window.confirm("Bu rəy silinsin? Məhsulun reytinqi yenidən hesablanacaq.")) return;
+    if (!(await confirmDialog("Bu rəy silinsin?", { description: "Məhsulun reytinqi yenidən hesablanacaq.", confirmLabel: "Sil" }))) return;
     setBusyId(id);
     setError(null);
     try {

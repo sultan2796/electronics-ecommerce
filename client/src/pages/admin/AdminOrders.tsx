@@ -1,3 +1,4 @@
+import Select from "../../components/common/Select";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Alert from "../../components/common/Alert";
@@ -53,18 +54,13 @@ export default function AdminOrders() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Sifarişlərin izlənməsi</h1>
-        <select
-          className="input w-auto"
+        <Select
+          className="w-52"
+          ariaLabel="Status filtri"
           value={status ?? ""}
-          onChange={(e) => setParams(e.target.value ? { status: e.target.value } : {})}
-        >
-          <option value="">Bütün statuslar</option>
-          {statuses.map((value) => (
-            <option key={value} value={value}>
-              {orderStatusLabels[value]}
-            </option>
-          ))}
-        </select>
+          onChange={(next) => setParams(next ? { status: next } : {})}
+          options={[{ value: "", label: "Bütün statuslar" }, ...statuses.map((value) => ({ value, label: orderStatusLabels[value] }))]}
+        />
       </div>
       {error && <Alert>{error}</Alert>}
 
@@ -116,18 +112,16 @@ export default function AdminOrders() {
                       {!can("orders:write") ? (
                         <span className="text-xs text-muted">Yalnız baxış</span>
                       ) : optionsFor(order).length ? (
-                        <select
-                          className="input w-auto"
+                        <Select
+                          className="w-44"
+                          size="sm"
+                          align="right"
+                          ariaLabel="Statusu dəyiş"
+                          placeholder="Statusu dəyiş"
                           value=""
-                          onChange={(e) => e.target.value && changeStatus(order.id, e.target.value as OrderStatus)}
-                        >
-                          <option value="">Statusu dəyiş</option>
-                          {optionsFor(order).map((next) => (
-                            <option key={next} value={next}>
-                              {orderStatusLabels[next]}
-                            </option>
-                          ))}
-                        </select>
+                          onChange={(next) => changeStatus(order.id, next as OrderStatus)}
+                          options={optionsFor(order).map((next) => ({ value: next, label: orderStatusLabels[next] }))}
+                        />
                       ) : (
                         <span className="text-xs text-muted">Tamamlanıb</span>
                       )}

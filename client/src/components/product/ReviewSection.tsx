@@ -1,3 +1,5 @@
+import { confirmDialog } from "../common/Overlays";
+import Select from "../common/Select";
 import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -83,7 +85,7 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
   };
 
   const remove = async (id: string) => {
-    if (!window.confirm("Rəy silinsin?")) return;
+    if (!(await confirmDialog("Rəy silinsin?", { description: "Bu əməliyyatı geri qaytarmaq olmaz.", confirmLabel: "Sil" }))) return;
     try {
       await reviewService.remove(id);
       if (mine?.review?.id === id) {
@@ -106,21 +108,17 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold text-ink">Müştəri rəyləri</h2>
         {summary && summary.count > 1 && (
-          <select
-            className="input w-auto py-1.5 text-sm"
+          <Select
+            className="w-40"
+            size="sm"
+            ariaLabel="Rəyləri sırala"
             value={sort}
-            aria-label="Rəyləri sırala"
-            onChange={(e) => {
-              setSort(e.target.value as ReviewSort);
+            onChange={(next) => {
+              setSort(next);
               setPage(1);
             }}
-          >
-            {(Object.keys(sortLabels) as ReviewSort[]).map((key) => (
-              <option key={key} value={key}>
-                {sortLabels[key]}
-              </option>
-            ))}
-          </select>
+            options={(Object.keys(sortLabels) as ReviewSort[]).map((key) => ({ value: key, label: sortLabels[key] }))}
+          />
         )}
       </div>
 

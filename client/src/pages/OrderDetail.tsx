@@ -1,3 +1,4 @@
+import { confirmDialog } from "../components/common/Overlays";
 import { useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Alert from "../components/common/Alert";
@@ -44,7 +45,7 @@ export default function OrderDetail() {
   };
 
   const cancel = async () => {
-    if (!window.confirm("Sifariş ləğv edilsin?")) return;
+    if (!(await confirmDialog("Sifariş ləğv edilsin?", { description: "Məhsullar anbara qaytarılacaq, istifadə etdiyiniz bonus balları geri yüklənəcək.", confirmLabel: "Ləğv et" }))) return;
     setCancelling(true);
     setActionError(null);
     try {

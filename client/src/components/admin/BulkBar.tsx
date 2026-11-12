@@ -1,3 +1,5 @@
+import { confirmDialog } from "../common/Overlays";
+import Select from "../common/Select";
 import { useState } from "react";
 import { getErrorMessage } from "../../services/api";
 import { BulkAction, extraService } from "../../services/extra.service";
@@ -23,7 +25,7 @@ export default function BulkBar({ ids, categories, onDone, onClear }: { ids: str
   const apply = async () => {
     if (needsNumber && (value.trim() === "" || Number.isNaN(Number(value)))) return setError("Rəqəm daxil edin");
     if (action === "setCategory" && !value) return setError("Kateqoriya seçin");
-    if (!window.confirm(`${ids.length} məhsula "${current.label}" tətbiq olunsun?`)) return;
+    if (!(await confirmDialog(`${ids.length} məhsula tətbiq olunsun?`, { description: current.label, confirmLabel: "Tətbiq et", tone: "default" }))) return;
     setBusy(true);
     setError(null);
     try {
@@ -40,31 +42,29 @@ export default function BulkBar({ ids, categories, onDone, onClear }: { ids: str
   return (
     <div className="sticky top-20 z-20 flex flex-wrap items-center gap-2 rounded-2xl border border-brand-500/40 bg-surface p-3 shadow-lg">
       <span className="rounded-lg bg-brand-600 px-2.5 py-1 text-sm font-semibold text-white">{ids.length} seçildi</span>
-      <select
-        className="input w-auto py-2"
+      <Select
+        className="w-56"
+        size="sm"
+        ariaLabel="Əməliyyat"
         value={action}
-        onChange={(e) => {
-          setAction(e.target.value as BulkAction);
+        onChange={(next) => {
+          setAction(next);
           setValue("");
           setError(null);
         }}
-      >
-        {actions.map((item) => (
-          <option key={item.value} value={item.value}>
-            {item.label}
-          </option>
-        ))}
-      </select>
+        options={actions.map((item) => ({ value: item.value, label: item.label }))}
+      />
       {needsNumber && <input className="input w-40 py-2" type="number" placeholder={current.placeholder} value={value} onChange={(e) => setValue(e.target.value)} />}
       {action === "setCategory" && (
-        <select className="input w-auto py-2" value={value} onChange={(e) => setValue(e.target.value)}>
-          <option value="">Kateqoriya seçin</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+        <Select
+          className="w-52"
+          size="sm"
+          ariaLabel="Kateqoriya"
+          placeholder="Kateqoriya seçin"
+          value={value}
+          onChange={setValue}
+          options={categories.map((category) => ({ value: category.id, label: category.name }))}
+        />
       )}
       <button type="button" className="btn-primary py-2" disabled={busy} onClick={apply}>
         {busy ? "Tətbiq olunur..." : "Tətbiq et"}
