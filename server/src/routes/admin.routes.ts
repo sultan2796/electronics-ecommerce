@@ -9,6 +9,11 @@ import {
   updateStock,
 } from "../controllers/admin.controller";
 import { listUsers, updateUser } from "../controllers/user.controller";
+import { listAllReviews } from "../controllers/review.controller";
+import { listEmails } from "../controllers/email.controller";
+import { adminReviewQuerySchema } from "../models/review.model";
+import { EmailStatus } from "@prisma/client";
+import { z } from "zod";
 import { authenticate, requirePermission } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { idParamSchema } from "../models/common.model";
@@ -42,3 +47,17 @@ adminRouter.post("/import", requirePermission("catalog:import"), validate({ body
 
 adminRouter.get("/users", requirePermission("users:read"), validate({ query: userQuerySchema }), listUsers);
 adminRouter.patch("/users/:id", requirePermission("users:write"), validate({ params: idParamSchema, body: userUpdateSchema }), updateUser);
+adminRouter.get("/reviews", requirePermission("reviews:moderate"), validate({ query: adminReviewQuerySchema }), listAllReviews);
+adminRouter.get(
+  "/emails",
+  requirePermission("emails:read"),
+  validate({
+    query: z.object({
+      q: z.string().trim().optional(),
+      status: z.nativeEnum(EmailStatus).optional(),
+      page: z.coerce.number().int().min(1).default(1),
+      limit: z.coerce.number().int().min(1).max(100).default(20),
+    }),
+  }),
+  listEmails,
+);

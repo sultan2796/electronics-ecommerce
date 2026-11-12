@@ -1,10 +1,13 @@
+import crypto from "crypto";
 import { CookieOptions, Response } from "express";
 import bcrypt from "bcryptjs";
 import { Role, User } from "@prisma/client";
-import { env, isProduction } from "../config/env";
+import { clientUrl, env, isProduction } from "../config/env";
 import { permissionsFor } from "../config/permissions";
 import { prisma } from "../config/prisma";
 import { ChangePasswordInput, LoginInput, RegisterInput } from "../models/auth.model";
+import { queueEmail } from "../services/email";
+import { passwordChangedEmail, passwordResetEmail, welcomeEmail } from "../services/email/templates";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { currentUser } from "../utils/currentUser";
@@ -50,6 +53,7 @@ export const register = asyncHandler(async (req, res) => {
     data: { email, name, passwordHash: await bcrypt.hash(password, 12), lastLoginAt: new Date() },
   });
   const accessToken = await issueTokens(res, user);
+  queueEmail({ ...welcomeEmail(user), to: user.email, userId: user.id });
   res.status(201).json({ user: toPublicUser(user), accessToken });
 });
 
@@ -119,5 +123,54 @@ export const changePassword = asyncHandler(async (req, res) => {
   const updated = await prisma.user.update({ where: { id }, data: { passwordHash: await bcrypt.hash(newPassword, 12) } });
   await revokeAllSessions(id);
   const accessToken = await issueTokens(res, updated);
+  queueEmail({ ...passwordChangedEmail(updated), to: updated.email, userId: updated.id });
   res.json({ user: toPublicUser(updated), accessToken });
+});
+
+const RESET_MESSAGE = "Əgər bu e-poçt qeydiyyatdadırsa, şifrə bərpası linki göndərildi. Poçt qutunuzu yoxlayın.";
+
+const findValidResetToken = async (token: string) => {
+  const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash: hashToken(token) }, include: { user: true } });
+  if (!record || record.usedAt || record.expiresAt < new Date()) return null;
+  return record;
+};
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body as { email: string };
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (user && !user.isBlocked) {
+    const token = crypto.randomBytes(32).toString("hex");
+    const ttl = env.PASSWORD_RESET_TTL_MINUTES;
+    await prisma.$transaction([
+      prisma.passwordResetToken.updateMany({ where: { userId: user.id, usedAt: null }, data: { usedAt: new Date() } }),
+      prisma.passwordResetToken.create({
+        data: { userId: user.id, tokenHash: hashToken(token), expiresAt: new Date(Date.now() + ttl * 60 * 1000) },
+      }),
+    ]);
+    queueEmail({ ...passwordResetEmail(user, `${clientUrl}/reset-password?token=${token}`, ttl), to: user.email, userId: user.id });
+  }
+
+  res.json({ message: RESET_MESSAGE });
+});
+
+export const validateResetToken = asyncHandler(async (req, res) => {
+  const { token } = req.query as { token: string };
+  res.json({ valid: Boolean(await findValidResetToken(token)) });
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token, password } = req.body as { token: string; password: string };
+  const record = await findValidResetToken(token);
+  if (!record) throw new AppError(400, "Link etibarsızdır və ya vaxtı bitib. Yeni link istəyin.");
+  if (record.user.isBlocked) throw new AppError(403, BLOCKED_MESSAGE);
+
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: record.userId }, data: { passwordHash: await bcrypt.hash(password, 12) } }),
+    prisma.passwordResetToken.updateMany({ where: { userId: record.userId, usedAt: null }, data: { usedAt: new Date() } }),
+    prisma.refreshToken.updateMany({ where: { userId: record.userId, revokedAt: null }, data: { revokedAt: new Date() } }),
+  ]);
+  queueEmail({ ...passwordChangedEmail(record.user), to: record.user.email, userId: record.userId });
+
+  res.json({ message: "Şifrəniz yeniləndi. İndi yeni şifrə ilə daxil ola bilərsiniz." });
 });

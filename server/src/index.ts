@@ -1,12 +1,14 @@
 import { createApp } from "./app";
 import { env } from "./config/env";
 import { prisma } from "./config/prisma";
+import { bootstrap } from "./services/bootstrap.service";
 import { expireUnpaidOrders } from "./services/order.service";
 
 const app = createApp();
 
 const server = app.listen(env.PORT, () => {
   console.log(`API ready on port ${env.PORT}`);
+  void bootstrap();
 });
 
 const EXPIRY_INTERVAL_MS = 5 * 60 * 1000;

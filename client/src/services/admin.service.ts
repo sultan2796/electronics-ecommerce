@@ -1,4 +1,4 @@
-import { AdminStats, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role } from "../types";
+import { AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role } from "../types";
 import { api } from "./api";
 
 export const adminService = {
@@ -22,6 +22,11 @@ export const adminService = {
   getProduct: (id: string) => api.get<Product>(`/admin/products/${id}`).then((r) => r.data),
   createProduct: (payload: ProductPayload) => api.post<Product>("/products", payload).then((r) => r.data),
   updateProduct: (id: string, payload: Partial<ProductPayload>) => api.patch<Product>(`/products/${id}`, payload).then((r) => r.data),
+  reviews: (params: { q?: string; rating?: number; page?: number }) =>
+    api.get<Paginated<AdminReview>>("/admin/reviews", { params }).then((r) => r.data),
+  deleteReview: (id: string) => api.delete(`/reviews/${id}`),
+  emails: (params: { q?: string; status?: EmailStatus; page?: number }) =>
+    api.get<Paginated<EmailLogEntry> & { mode: string }>("/admin/emails", { params }).then((r) => r.data),
   importCatalog: (replaceDemo: boolean) =>
     api.post<ImportResult>("/admin/import", { replaceDemo }, { timeout: 120000 }).then((r) => r.data),
 };

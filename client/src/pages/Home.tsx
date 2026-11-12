@@ -3,7 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import FigmaIcon from "../components/common/FigmaIcon";
 import Spinner from "../components/common/Spinner";
+import Benefits from "../components/home/Benefits";
 import HeroSlider from "../components/home/HeroSlider";
+import RecentlyViewed from "../components/home/RecentlyViewed";
 import CategoryChips from "../components/product/CategoryChips";
 import ProductCard from "../components/product/ProductCard";
 import { useAuth } from "../context/AuthContext";
@@ -89,6 +91,8 @@ export default function Home() {
           />
         </form>
 
+        <Benefits />
+
         {picks.data && picks.data.length > 0 && (
           <section className="space-y-4">
             <div className="flex items-center justify-between px-[10px]">
@@ -132,6 +136,8 @@ export default function Home() {
             </div>
           )}
         </section>
+
+        <RecentlyViewed />
       </div>
     </div>
   );

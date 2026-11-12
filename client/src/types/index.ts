@@ -8,7 +8,9 @@ export type Permission =
   | "orders:read"
   | "orders:write"
   | "users:read"
-  | "users:write";
+  | "users:write"
+  | "reviews:moderate"
+  | "emails:read";
 export type StorageType = "SSD" | "NVME" | "HDD" | "EMMC" | "UFS";
 export type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 export type PaymentStatus = "PENDING" | "SUCCEEDED" | "FAILED" | "REFUNDED";
@@ -85,6 +87,8 @@ export interface Product {
   categoryId: string;
   category?: Pick<Category, "id" | "name" | "slug">;
   specs: TechSpecification | null;
+  ratingAverage?: number | null;
+  reviewCount?: number;
 }
 
 export interface Paginated<T> {
@@ -253,4 +257,57 @@ export interface ProductPayload {
     weightGrams?: number;
     connectivity: string[];
   };
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  title: string | null;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  author: string;
+}
+
+export interface ReviewSummary {
+  average: number | null;
+  count: number;
+  distribution: Record<number, number>;
+}
+
+export interface ReviewPage extends Paginated<Review> {
+  summary: ReviewSummary;
+}
+
+export interface MyReviewStatus {
+  canReview: boolean;
+  hasPurchased: boolean;
+  review: Review | null;
+}
+
+export type ReviewSort = "newest" | "highest" | "lowest";
+
+export interface AdminReview {
+  id: string;
+  rating: number;
+  title: string | null;
+  comment: string;
+  createdAt: string;
+  user: { name: string; email: string };
+  product: { name: string; slug: string };
+}
+
+export type EmailStatus = "SENT" | "FAILED" | "LOGGED";
+
+export interface EmailLogEntry {
+  id: string;
+  to: string;
+  subject: string;
+  template: string;
+  status: EmailStatus;
+  provider: string;
+  error: string | null;
+  html: string | null;
+  createdAt: string;
 }

@@ -22,9 +22,18 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
         <div className="card max-w-md space-y-4 p-8 text-center">
           <h1 className="text-xl font-bold">Gözlənilməz xəta baş verdi</h1>
           <p className="text-sm text-muted">Səhifəni yeniləyin. Problem təkrarlanarsa, bizimlə əlaqə saxlayın.</p>
-          <button type="button" className="btn-primary" onClick={() => window.location.reload()}>
-            Səhifəni yenilə
-          </button>
+          <details className="rounded-lg bg-chip p-3 text-left text-xs text-muted">
+            <summary className="cursor-pointer font-medium">Texniki məlumat</summary>
+            <p className="mt-2 break-words font-mono">{this.state.error.message}</p>
+          </details>
+          <div className="flex justify-center gap-2">
+            <button type="button" className="btn-primary" onClick={() => window.location.reload()}>
+              Səhifəni yenilə
+            </button>
+            <a href="/" className="btn-outline">
+              Ana səhifə
+            </a>
+          </div>
         </div>
       </div>
     );

@@ -3,6 +3,8 @@ import { hasPermission } from "../config/permissions";
 import { prisma } from "../config/prisma";
 import { CheckoutInput } from "../models/order.model";
 import { orderInclude, restockAndCancel } from "../services/order.service";
+import { queueEmail } from "../services/email";
+import { orderConfirmationEmail } from "../services/email/templates";
 import { activeProvider, startPayment } from "../services/payment";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -59,6 +61,9 @@ export const checkout = asyncHandler(async (req, res) => {
     await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
     return created;
   });
+
+  const customer = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } });
+  if (customer) queueEmail({ ...orderConfirmationEmail(customer, order), to: customer.email, userId });
 
   if (paymentMethod !== PaymentMethod.CARD) {
     res.status(201).json({ order, payment: null });

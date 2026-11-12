@@ -4,6 +4,8 @@ import RouteEffects from "./components/common/RouteEffects";
 import Layout from "./components/layout/Layout";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminEmails from "./pages/admin/AdminEmails";
+import AdminReviews from "./pages/admin/AdminReviews";
 import AdminInventory from "./pages/admin/AdminInventory";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOrders from "./pages/admin/AdminOrders";
@@ -12,6 +14,7 @@ import ProductForm from "./pages/admin/ProductForm";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Compare from "./pages/Compare";
+import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -23,6 +26,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Products from "./pages/Products";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
+import ResetPassword from "./pages/ResetPassword";
 import Wishlist from "./pages/Wishlist";
 
 export default function App() {
@@ -45,6 +49,12 @@ export default function App() {
             <Route element={<ProtectedRoute permission="users:read" />}>
               <Route path="users" element={<AdminUsers />} />
             </Route>
+            <Route element={<ProtectedRoute permission="reviews:moderate" />}>
+              <Route path="reviews" element={<AdminReviews />} />
+            </Route>
+            <Route element={<ProtectedRoute permission="emails:read" />}>
+              <Route path="emails" element={<AdminEmails />} />
+            </Route>
             <Route element={<ProtectedRoute permission="products:write" />}>
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/:id" element={<ProductForm />} />
@@ -58,6 +68,8 @@ export default function App() {
           <Route path="compare" element={<Compare />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="reset-password" element={<ResetPassword />} />
           <Route element={<ProtectedRoute />}>
             <Route path="cart" element={<Cart />} />
             <Route path="wishlist" element={<Wishlist />} />

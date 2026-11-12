@@ -3,6 +3,8 @@ import crypto from "crypto";
 import { env, isProduction } from "../../config/env";
 import { prisma } from "../../config/prisma";
 import { AppError } from "../../utils/AppError";
+import { queueEmail } from "../email";
+import { paymentSucceededEmail } from "../email/templates";
 import { epointProvider } from "./epoint.provider";
 import { mockProvider } from "./mock.provider";
 import { PaymentOutcome, PaymentProvider } from "./types";
@@ -64,7 +66,8 @@ export const startPayment = async (orderId: string) => {
 export const finalizePayment = async (reference: string, outcome: PaymentOutcome, raw?: unknown) => {
   if (outcome === "pending") return prisma.payment.findUnique({ where: { reference } });
 
-  return prisma.$transaction(async (tx) => {
+  const outcomeState: { paidOrderId: string | null } = { paidOrderId: null };
+  const result = await prisma.$transaction(async (tx) => {
     const payment = await tx.payment.findUnique({ where: { reference }, include: { order: true } });
     if (!payment) throw new AppError(404, "Ödəniş tapılmadı");
     if (payment.status !== PaymentStatus.PENDING) return payment;
@@ -79,6 +82,7 @@ export const finalizePayment = async (reference: string, outcome: PaymentOutcome
     });
 
     if (succeeded) {
+      outcomeState.paidOrderId = payment.orderId;
       await tx.order.update({
         where: { id: payment.orderId },
         data: {
@@ -92,6 +96,12 @@ export const finalizePayment = async (reference: string, outcome: PaymentOutcome
     }
     return updated;
   });
+
+  if (outcomeState.paidOrderId) {
+    const order = await prisma.order.findUnique({ where: { id: outcomeState.paidOrderId }, include: { items: true, user: { select: { name: true, email: true } } } });
+    if (order) queueEmail({ ...paymentSucceededEmail(order.user, order), to: order.user.email, userId: order.userId });
+  }
+  return result;
 };
 
 export const refreshPaymentStatus = async (orderId: string) => {

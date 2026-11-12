@@ -1,6 +1,8 @@
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 import { env } from "../config/env";
 import { prisma } from "../config/prisma";
+import { queueEmail } from "./email";
+import { orderStatusEmail } from "./email/templates";
 
 export const orderInclude = {
   items: true,
@@ -34,6 +36,14 @@ export const expireUnpaidOrders = async () => {
         await restockAndCancel(tx, order.id);
       }
     });
+    await notifyOrderStatus(order.id, OrderStatus.CANCELLED);
   }
   return stale.length;
+};
+
+export const notifyOrderStatus = async (orderId: string, status: OrderStatus) => {
+  const order = await prisma.order.findUnique({ where: { id: orderId }, include: { items: true, user: { select: { name: true, email: true } } } });
+  if (!order) return;
+  const email = orderStatusEmail(order.user, order, status);
+  if (email) queueEmail({ ...email, to: order.user.email, userId: order.userId });
 };

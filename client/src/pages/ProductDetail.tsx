@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import FigmaIcon from "../components/common/FigmaIcon";
 import Spinner from "../components/common/Spinner";
 import ProductImage from "../components/product/ProductImage";
+import ReviewSection from "../components/product/ReviewSection";
+import RecentlyViewed from "../components/home/RecentlyViewed";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useCompare } from "../context/CompareContext";
@@ -13,6 +15,8 @@ import { getErrorMessage } from "../services/api";
 import { productService } from "../services/product.service";
 import { TechSpecification } from "../types";
 import { discountOf, formatPrice, formatStorage, priceBeforeDiscount } from "../utils/format";
+import { productRating, reviewCountLabel } from "../utils/rating";
+import { rememberProduct } from "../utils/recentlyViewed";
 
 const specRows = (specs: TechSpecification): [string, string | null][] => [
   ["Prosessor (CPU)", specs.cpu],
@@ -33,7 +37,7 @@ const specRows = (specs: TechSpecification): [string, string | null][] => [
 
 export default function ProductDetail() {
   const { slug = "" } = useParams();
-  const { data: product, loading, error } = useAsync(() => productService.get(slug), [slug]);
+  const { data: product, loading, error, setData } = useAsync(() => productService.get(slug), [slug]);
   const { user } = useAuth();
   const { addItem, busy } = useCart();
   const wishlist = useWishlist();
@@ -41,15 +45,28 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const [message, setMessage] = useState<string | null>(null);
 
+  const syncRating = useCallback(
+    (average: number | null, count: number) =>
+      setData((current) =>
+        current && (current.ratingAverage !== average || current.reviewCount !== count)
+          ? { ...current, ratingAverage: average, reviewCount: count }
+          : current,
+      ),
+    [setData],
+  );
+
   useEffect(() => {
-    if (product) document.title = `${product.name} · ElectroShop`;
+    if (product) {
+      document.title = `${product.name} · ElectroShop`;
+      rememberProduct(product);
+    }
   }, [product]);
 
   if (loading) return <Spinner />;
   if (error || !product) return <Alert>{error ?? "Məhsul tapılmadı"}</Alert>;
 
   const soldOut = product.stock === 0;
-  const rating = product.specs?.extra?.rating;
+  const rating = productRating(product);
   const discount = discountOf(product);
   const inWishlist = wishlist.has(product.id);
   const rows = product.specs ? specRows(product.specs).filter(([, value]) => value) : [];
@@ -138,7 +155,17 @@ export default function ProductDetail() {
           </div>
           <p className={`mt-1 flex items-center gap-1.5 text-xs ${soldOut ? "text-red-600" : "text-rating"}`}>
             <FigmaIcon name="star" className="h-[11px] w-3" />
-            {typeof rating === "number" && <span>{rating.toFixed(1)} ·</span>}
+            {rating && (
+              <span>
+                {rating.value.toFixed(1)}
+                {rating.fromReviews && (
+                  <a href="#reviews" className="ml-1 text-muted underline-offset-2 hover:underline">
+                    ({reviewCountLabel(rating.count)})
+                  </a>
+                )}{" "}
+                ·
+              </span>
+            )}
             {soldOut ? "Stokda yoxdur" : `Stokda ${product.stock} ədəd var`}
           </p>
           <p className="mt-1 text-xs text-muted">
@@ -183,6 +210,10 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+      </div>
+      <ReviewSection productId={product.id} productSlug={product.slug} onSummaryChange={syncRating} />
+      <div className="mt-10">
+        <RecentlyViewed key={product.id} excludeId={product.id} title="Bunlara da baxmısınız" />
       </div>
     </div>
   );

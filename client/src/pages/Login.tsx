@@ -39,7 +39,12 @@ export default function Login() {
         <input className="input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       <label className="block space-y-1">
-        <span className="text-sm font-medium">Şifrə</span>
+        <span className="flex items-center justify-between text-sm font-medium">
+          Şifrə
+          <Link to="/forgot-password" className="text-xs font-normal text-brand-600 hover:underline">
+            Şifrəni unutmusunuz?
+          </Link>
+        </span>
         <input className="input" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
       </label>
       <button className="btn-primary w-full" disabled={submitting}>

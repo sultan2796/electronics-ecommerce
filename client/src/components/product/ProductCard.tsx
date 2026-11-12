@@ -8,6 +8,7 @@ import { Product } from "../../types";
 import { discountOf, formatPrice } from "../../utils/format";
 import FigmaIcon from "../common/FigmaIcon";
 import ProductImage from "./ProductImage";
+import { productRating } from "../../utils/rating";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { user } = useAuth();
@@ -17,7 +18,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const [message, setMessage] = useState<string | null>(null);
   const inCompare = compare.has(product.id);
   const soldOut = product.stock === 0;
-  const rating = product.specs?.extra?.rating;
+  const rating = productRating(product);
   const discount = discountOf(product);
 
   const addToCart = async () => {
@@ -67,10 +68,11 @@ export default function ProductCard({ product }: { product: Product }) {
         <p className={`mt-1 flex items-center gap-1 text-xs ${soldOut ? "text-red-600" : "text-rating"}`}>
           {message ?? (
             <>
-              {typeof rating === "number" && (
+              {rating && (
                 <>
                   <FigmaIcon name="star" className="h-[11px] w-3" />
-                  <span>{rating.toFixed(1)}</span>
+                  <span>{rating.value.toFixed(1)}</span>
+                  {rating.fromReviews && <span className="text-muted">({rating.count})</span>}
                   <span className="text-muted">·</span>
                 </>
               )}

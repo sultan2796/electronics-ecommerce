@@ -1,9 +1,28 @@
 import { Router } from "express";
-import { changePassword, login, logout, me, refresh, register, updateProfile } from "../controllers/auth.controller";
+import {
+  changePassword,
+  forgotPassword,
+  login,
+  logout,
+  me,
+  refresh,
+  register,
+  resetPassword,
+  updateProfile,
+  validateResetToken,
+} from "../controllers/auth.controller";
 import { authenticate } from "../middleware/auth";
 import { authLimiter } from "../middleware/rateLimit";
 import { validate } from "../middleware/validate";
-import { changePasswordSchema, loginSchema, registerSchema, updateProfileSchema } from "../models/auth.model";
+import {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+  resetTokenQuerySchema,
+  updateProfileSchema,
+} from "../models/auth.model";
 
 export const authRouter = Router();
 
@@ -14,3 +33,6 @@ authRouter.post("/logout", logout);
 authRouter.get("/me", authenticate, me);
 authRouter.patch("/me", authenticate, validate({ body: updateProfileSchema }), updateProfile);
 authRouter.post("/change-password", authLimiter, authenticate, validate({ body: changePasswordSchema }), changePassword);
+authRouter.post("/forgot-password", authLimiter, validate({ body: forgotPasswordSchema }), forgotPassword);
+authRouter.get("/reset-password/validate", authLimiter, validate({ query: resetTokenQuerySchema }), validateResetToken);
+authRouter.post("/reset-password", authLimiter, validate({ body: resetPasswordSchema }), resetPassword);

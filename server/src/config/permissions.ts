@@ -10,14 +10,24 @@ export const allPermissions = [
   "orders:write",
   "users:read",
   "users:write",
+  "reviews:moderate",
+  "emails:read",
 ] as const;
 
 export type Permission = (typeof allPermissions)[number];
 
 export const rolePermissions: Record<Role, readonly Permission[]> = {
   ADMIN: allPermissions,
-  MANAGER: ["dashboard:read", "products:write", "inventory:write", "categories:write", "catalog:import", "orders:read"],
-  SUPPORT: ["dashboard:read", "orders:read", "orders:write", "users:read"],
+  MANAGER: [
+    "dashboard:read",
+    "products:write",
+    "inventory:write",
+    "categories:write",
+    "catalog:import",
+    "orders:read",
+    "reviews:moderate",
+  ],
+  SUPPORT: ["dashboard:read", "orders:read", "orders:write", "users:read", "reviews:moderate"],
   CUSTOMER: [],
 };
 

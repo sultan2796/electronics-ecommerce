@@ -1,7 +1,7 @@
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
 import { importCatalog } from "../services/catalogImport.service";
-import { orderInclude, restockAndCancel } from "../services/order.service";
+import { notifyOrderStatus, orderInclude, restockAndCancel } from "../services/order.service";
 import { productInclude } from "../services/product.service";
 
 const adminOrderInclude = { ...orderInclude, user: { select: { name: true, email: true } } } satisfies Prisma.OrderInclude;
@@ -179,6 +179,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     return tx.order.findUniqueOrThrow({ where: { id: existing.id }, include: adminOrderInclude });
   });
 
+  void notifyOrderStatus(order.id, status);
   res.json(order);
 });
 

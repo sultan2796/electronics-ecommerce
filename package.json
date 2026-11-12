@@ -9,6 +9,7 @@
     "dev": "npm --prefix server run dev & npm --prefix client run dev; wait",
     "import": "npm --prefix server run import:products",
     "migrate": "cd server && npx prisma migrate dev",
-    "db:update": "cd server && npx prisma migrate deploy && npx prisma generate"
+    "db:update": "cd server && npx prisma migrate deploy && npx prisma generate",
+    "test": "npm --prefix server test && npm --prefix client test"
   }
 }

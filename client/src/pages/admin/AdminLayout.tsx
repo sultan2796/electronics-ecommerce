@@ -4,7 +4,7 @@ import ThemeToggle from "../../components/common/ThemeToggle";
 import { roleLabels, useAuth } from "../../context/AuthContext";
 import { Permission } from "../../types";
 
-type IconName = "dashboard" | "orders" | "inventory" | "categories" | "users" | "plus";
+type IconName = "dashboard" | "orders" | "inventory" | "categories" | "users" | "plus" | "reviews" | "emails";
 
 const iconPaths: Record<IconName, ReactNode> = {
   dashboard: <path d="M4 13h6V4H4zm10 7h6V11h-6zM4 20h6v-4H4zm10-11h6V4h-6z" />,
@@ -13,6 +13,8 @@ const iconPaths: Record<IconName, ReactNode> = {
   categories: <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" />,
   users: <path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-1a4 4 0 0 0-3-3.9M16 4.1a3.5 3.5 0 0 1 0 6.8" />,
   plus: <path d="M12 5v14M5 12h14" />,
+  reviews: <path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z" />,
+  emails: <path d="M3 6h18v12H3zM3 7l9 6 9-6" />,
 };
 
 function Icon({ name }: { name: IconName }) {
@@ -29,6 +31,8 @@ const links: { to: string; label: string; end: boolean; permission: Permission; 
   { to: "/admin/inventory", label: "Anbar", end: false, permission: "inventory:write", icon: "inventory" },
   { to: "/admin/categories", label: "Kateqoriyalar", end: false, permission: "categories:write", icon: "categories" },
   { to: "/admin/users", label: "İstifadəçilər", end: false, permission: "users:read", icon: "users" },
+  { to: "/admin/reviews", label: "Rəylər", end: false, permission: "reviews:moderate", icon: "reviews" },
+  { to: "/admin/emails", label: "E-poçtlar", end: false, permission: "emails:read", icon: "emails" },
   { to: "/admin/products/new", label: "Yeni məhsul", end: true, permission: "products:write", icon: "plus" },
 ];
 
@@ -38,6 +42,8 @@ const titleFor = (pathname: string) => {
   if (pathname.startsWith("/admin/inventory")) return "Anbar";
   if (pathname.startsWith("/admin/categories")) return "Kateqoriyalar";
   if (pathname.startsWith("/admin/users")) return "İstifadəçilər";
+  if (pathname.startsWith("/admin/reviews")) return "Rəylər";
+  if (pathname.startsWith("/admin/emails")) return "E-poçtlar";
   if (pathname === "/admin/products/new") return "Yeni məhsul";
   if (pathname.startsWith("/admin/products/")) return "Məhsulu redaktə et";
   return "Admin panel";

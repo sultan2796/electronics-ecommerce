@@ -10,4 +10,9 @@ export const authService = {
   updateProfile: (name: string) => api.patch<{ user: User }>("/auth/me", { name }).then((r) => r.data.user),
   changePassword: (currentPassword: string, newPassword: string) =>
     api.post<AuthResponse>("/auth/change-password", { currentPassword, newPassword }).then((r) => r.data),
+  forgotPassword: (email: string) => api.post<{ message: string }>("/auth/forgot-password", { email }).then((r) => r.data),
+  validateResetToken: (token: string) =>
+    api.get<{ valid: boolean }>("/auth/reset-password/validate", { params: { token } }).then((r) => r.data.valid),
+  resetPassword: (token: string, password: string) =>
+    api.post<{ message: string }>("/auth/reset-password", { token, password }).then((r) => r.data),
 };

@@ -32,6 +32,12 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum EmailStatus {
+  SENT
+  FAILED
+  LOGGED
+}
+
 enum PaymentMethod {
   CARD
   CASH_ON_DELIVERY
@@ -56,6 +62,8 @@ model User {
   orders        Order[]
   wishlist      WishlistItem[]
   refreshTokens RefreshToken[]
+  resetTokens   PasswordResetToken[]
+  reviews       Review[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -100,6 +108,9 @@ model Product {
   cartItems    CartItem[]
   orderItems   OrderItem[]
   wishlistedBy WishlistItem[]
+  reviews       Review[]
+  ratingAverage Float?
+  reviewCount   Int                @default(0)
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
 
@@ -212,4 +223,47 @@ model Payment {
   updatedAt   DateTime      @updatedAt
 
   @@index([orderId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  title     String?
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, userId])
+  @@index([productId, createdAt])
+}
+
+model EmailLog {
+  id        String      @id @default(cuid())
+  to        String
+  subject   String
+  template  String
+  status    EmailStatus
+  provider  String
+  html      String?
+  error     String?
+  userId    String?
+  createdAt DateTime    @default(now())
+
+  @@index([createdAt])
 }

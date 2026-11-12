@@ -12,7 +12,6 @@ const dayLabel = (date: string) => formatDay(new Date(`${date}T00:00:00`));
 export default function SalesChart({ data }: { data: SalesPoint[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
   const max = Math.max(...data.map((point) => point.revenue), 1);
-
   const total = data.reduce((sum, point) => sum + point.revenue, 0);
   const orders = data.reduce((sum, point) => sum + point.orders, 0);
   const active = hovered !== null ? data[hovered] : null;
@@ -25,23 +24,15 @@ export default function SalesChart({ data }: { data: SalesPoint[] }) {
           <p className="text-xs text-muted">Ləğv edilməmiş sifarişlər üzrə</p>
         </div>
         <div className="text-right">
-          <p className="text-xl font-bold text-brand-600">
-            {formatPrice(active ? active.revenue : total)}
-          </p>
+          <p className="text-xl font-bold text-brand-600">{formatPrice(active ? active.revenue : total)}</p>
           <p className="text-xs text-muted">
-            {active
-              ? `${dayLabel(active.date)} · ${active.orders} sifariş`
-              : `${orders} sifariş`}
+            {active ? `${dayLabel(active.date)} · ${active.orders} sifariş` : `${orders} sifariş`}
           </p>
         </div>
       </div>
-      <div
-        className="flex h-44 items-end gap-1.5"
-        onMouseLeave={() => setHovered(null)}
-      >
+      <div className="flex h-44 items-end gap-1.5" onMouseLeave={() => setHovered(null)}>
         {data.map((point, index) => {
-          const height =
-            point.revenue > 0 ? Math.max(6, (point.revenue / max) * 100) : 2;
+          const height = point.revenue > 0 ? Math.max(6, (point.revenue / max) * 100) : 2;
           return (
             <button
               key={point.date}
@@ -53,11 +44,7 @@ export default function SalesChart({ data }: { data: SalesPoint[] }) {
             >
               <span
                 className={`block w-full rounded-t-md transition-colors ${
-                  hovered === index
-                    ? "bg-brand-600"
-                    : point.revenue > 0
-                      ? "bg-brand-500/70"
-                      : "bg-chip"
+                  hovered === index ? "bg-brand-600" : point.revenue > 0 ? "bg-brand-500/70" : "bg-chip"
                 }`}
                 style={{ height: `${height}%` }}
               />

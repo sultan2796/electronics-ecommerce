@@ -1,7 +1,23 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { AuthResponse } from "../types";
 
-const baseURL = import.meta.env.DEV ? "/api" : import.meta.env.VITE_API_URL || "/api";
+const configuredApiUrl = (import.meta.env.VITE_API_URL ?? "").trim().replace(/\/$/, "");
+
+export const apiOrigin = import.meta.env.DEV ? "/api" : configuredApiUrl || "/api";
+
+export const apiIsConfigured = import.meta.env.DEV || Boolean(configuredApiUrl);
+
+const baseURL = apiOrigin;
+
+const BACKEND_MISSING =
+  "Server API-si tapılmadı. Vercel-də VITE_API_URL dəyişənini backend ünvanı ilə təyin edin (məsələn https://electroshop-api.onrender.com/api) və yenidən deploy edin.";
+
+export class ApiUnavailableError extends Error {
+  constructor(message = BACKEND_MISSING) {
+    super(message);
+    this.name = "ApiUnavailableError";
+  }
+}
 
 let accessToken: string | null = null;
 let refreshPromise: Promise<AuthResponse | null> | null = null;
@@ -17,6 +33,17 @@ export const onAuthFailure = (handler: () => void) => {
 
 export const api = axios.create({ baseURL, withCredentials: true });
 
+const looksLikeHtml = (response: { headers: unknown; data: unknown }) => {
+  const headers = response.headers as Record<string, string> | undefined;
+  const type = headers?.["content-type"] ?? "";
+  return type.includes("text/html") || (typeof response.data === "string" && response.data.trimStart().startsWith("<"));
+};
+
+api.interceptors.response.use((response) => {
+  if (looksLikeHtml(response)) throw new ApiUnavailableError();
+  return response;
+});
+
 api.interceptors.request.use((config) => {
   if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
   return config;
@@ -27,6 +54,10 @@ export const refreshSession = (): Promise<AuthResponse | null> => {
     refreshPromise = axios
       .post<AuthResponse>(`${baseURL}/auth/refresh`, {}, { withCredentials: true })
       .then((response) => {
+        if (!response.data || typeof response.data !== "object" || !response.data.accessToken) {
+          setAccessToken(null);
+          return null;
+        }
         setAccessToken(response.data.accessToken);
         return response.data;
       })
@@ -59,7 +90,10 @@ api.interceptors.response.use(
 );
 
 export const getErrorMessage = (error: unknown): string => {
+  if (error instanceof ApiUnavailableError) return error.message;
   if (axios.isAxiosError(error)) {
+    if (!error.response) return apiIsConfigured ? "Serverə qoşulmaq mümkün olmadı. İnternet bağlantısını və ya backend-in işlək olduğunu yoxlayın." : BACKEND_MISSING;
+    if (error.response.status === 404 && !apiIsConfigured) return BACKEND_MISSING;
     const data = error.response?.data as { message?: string } | undefined;
     return data?.message ?? error.message;
   }

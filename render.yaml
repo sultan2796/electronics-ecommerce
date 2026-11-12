@@ -6,7 +6,8 @@ services:
     dockerContext: ./server
     dockerfilePath: ./server/Dockerfile
     healthCheckPath: /health
-    autoDeploy: false
+    region: frankfurt
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
@@ -22,3 +23,15 @@ services:
         value: "7"
       - key: CLIENT_URL
         sync: false
+      - key: API_PUBLIC_URL
+        sync: false
+      - key: PAYMENT_PROVIDER
+        value: mock
+      - key: EMAIL_PROVIDER
+        value: console
+      - key: AUTO_IMPORT_CATALOG
+        value: "true"
+      - key: ADMIN_EMAIL
+        value: admin@example.com
+      - key: ADMIN_PASSWORD
+        generateValue: true
