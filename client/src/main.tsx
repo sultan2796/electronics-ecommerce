@@ -3,12 +3,13 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import Overlays from "./components/common/Overlays";
+import QuickView from "./components/product/QuickView";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { CompareProvider } from "./context/CompareContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import { I18nProvider } from "./context/I18nContext";
+import { I18nProvider, LocaleBoundary } from "./context/I18nContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import "./index.css";
 import { installErrorReporter } from "./utils/errorReporter";
@@ -28,14 +29,17 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <I18nProvider>
         <BrowserRouter>
           <AuthProvider>
+            <LocaleBoundary>
             <CartProvider>
               <WishlistProvider>
                 <CompareProvider>
                   <App />
                   <Overlays />
+                  <QuickView />
                 </CompareProvider>
               </WishlistProvider>
             </CartProvider>
+            </LocaleBoundary>
           </AuthProvider>
         </BrowserRouter>
         </I18nProvider>

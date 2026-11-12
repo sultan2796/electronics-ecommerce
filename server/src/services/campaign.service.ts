@@ -1,3 +1,4 @@
+import { localizeProduct } from "./localize.service";
 import { Campaign, Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
 
@@ -26,7 +27,8 @@ export const effectivePrice = (product: { price: Prisma.Decimal; categoryId: str
   return campaign ? discounted(product.price, campaign.discountPercent) : product.price;
 };
 
-export const withPricing = <T extends { price: Prisma.Decimal; categoryId: string }>(product: T) => {
+export const withPricing = <T extends { price: Prisma.Decimal; categoryId: string }>(input: T) => {
+  const product = localizeProduct(input as T & { sku?: string });
   const campaign = campaignFor(product.categoryId);
   if (!campaign) return { ...product, compareAtPrice: null, campaign: null };
   return {

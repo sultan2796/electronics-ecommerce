@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client";
 import { env } from "../config/env";
 import { prisma } from "../config/prisma";
-import { importCatalog } from "./catalogImport.service";
+import { enrichImportedSpecs, importCatalog } from "./catalogImport.service";
 
 const ensureAdmin = async () => {
   if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD) return;
@@ -29,6 +29,8 @@ export const bootstrap = async () => {
   try {
     await ensureAdmin();
     await ensureCatalog();
+    const enriched = await enrichImportedSpecs();
+    if (enriched) console.log(`${enriched} məhsulun ölçüləri mənbədən əlavə edildi`);
   } catch (error) {
     console.error("İlkin quraşdırma alınmadı", error);
   }

@@ -6,6 +6,7 @@ import Layout from "./components/layout/Layout";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Compare from "./pages/Compare";
+import Contact from "./pages/Contact";
 import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -87,6 +88,7 @@ export default function App() {
           <Route path="products" element={<Products />} />
           <Route path="products/:slug" element={<ProductDetail />} />
           <Route path="compare" element={<Compare />} />
+          <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="forgot-password" element={<ForgotPassword />} />

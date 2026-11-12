@@ -1,3 +1,4 @@
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../../config/contact";
 import { ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -77,10 +78,13 @@ export default function Navbar() {
             {t("benefit.delivery")} · {t("benefit.deliveryText")}
           </span>
           <div className="flex items-center gap-5">
-            <a href="tel:+994120000000" className="flex items-center gap-1.5 text-surface/80 transition hover:text-surface">
+            <a href={`tel:${CONTACT_PHONE_TEL}`} className="flex items-center gap-1.5 text-surface/80 transition hover:text-surface">
               <Icon name="phone" className="size-3.5" />
-              *0000
+              {CONTACT_PHONE_DISPLAY}
             </a>
+            <Link to="/contact" className="text-surface/80 transition hover:text-surface">
+              Əlaqə
+            </Link>
             <div className="flex overflow-hidden rounded-md ring-1 ring-surface/20" role="group" aria-label="Dil">
               {locales.map((item) => (
                 <button

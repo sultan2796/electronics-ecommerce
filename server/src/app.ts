@@ -1,3 +1,4 @@
+import { localeMiddleware } from "./config/locale";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -13,6 +14,7 @@ export const createApp = () => {
   app.disable("x-powered-by");
   app.use(helmet());
   app.use(cors({ origin: corsOrigins, credentials: true }));
+  app.use(localeMiddleware);
   app.use(express.json({ limit: "3mb" }));
   app.use(express.urlencoded({ extended: false, limit: "1mb" }));
   app.use(cookieParser());

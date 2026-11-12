@@ -1,3 +1,4 @@
+import { localizeCategory } from "../services/localize.service";
 import { prisma } from "../config/prisma";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -8,7 +9,7 @@ export const listCategories = asyncHandler(async (_req, res) => {
     orderBy: { name: "asc" },
     include: { _count: { select: { products: { where: { isActive: true } } } } },
   });
-  res.json(categories);
+  res.json(categories.map((category) => localizeCategory(category)));
 });
 
 export const createCategory = asyncHandler(async (req, res) => {

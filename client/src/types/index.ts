@@ -49,6 +49,13 @@ export interface SpecExtra {
   warranty?: string | null;
   shipping?: string | null;
   returnPolicy?: string | null;
+  dimensions?: { width: number; height: number; depth: number; unit?: string } | null;
+  color?: string | null;
+  material?: string | null;
+  model3d?: string | null;
+  lengthCm?: number | null;
+  widthCm?: number | null;
+  heightCm?: number | null;
 }
 
 export interface TechSpecification {

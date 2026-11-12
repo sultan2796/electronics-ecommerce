@@ -1,5 +1,5 @@
 import { toast } from "../common/Overlays";
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -11,6 +11,7 @@ import { Product } from "../../types";
 import { formatPrice, monthlyPayment, pricing } from "../../utils/format";
 import { productRating } from "../../utils/rating";
 import ProductImage from "./ProductImage";
+import { openQuickView } from "./QuickView";
 
 const Icon = ({ d, className = "size-4" }: { d: string; className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -57,6 +58,11 @@ export default function ProductCard({ product }: { product: Product }) {
     }
   };
 
+  const openPreview = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+    if (openQuickView(product)) event.preventDefault();
+  };
+
   const toggleWishlist = async () => {
     if (!requireUser()) return;
     try {
@@ -96,7 +102,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </button>
       </div>
 
-      <Link to={`/products/${product.slug}`} className="relative flex aspect-square items-center justify-center bg-[#f6f7f9] p-6 dark:bg-white">
+      <Link to={`/products/${product.slug}`} onClick={openPreview} className="relative flex aspect-square items-center justify-center bg-[#f6f7f9] p-6 dark:bg-white">
         <ProductImage
           src={product.images[0]}
           category={product.category?.slug}
@@ -108,7 +114,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
         <p lang="en" className="truncate text-[11px] font-medium uppercase tracking-wide text-muted">{product.brand}</p>
-        <Link to={`/products/${product.slug}`} className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-ink transition hover:text-brand-600">
+        <Link to={`/products/${product.slug}`} onClick={openPreview} translate="no" className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-ink transition hover:text-brand-600">
           {product.name}
         </Link>
         <div className="flex h-4 items-center gap-1 text-xs text-muted">

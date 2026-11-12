@@ -1,16 +1,15 @@
+import { WHATSAPP_URL } from "../../config/contact";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "../../context/I18nContext";
 
-const number = (import.meta.env.VITE_WHATSAPP_NUMBER ?? "").replace(/\D/g, "");
 
 export default function WhatsAppButton() {
   const { t } = useI18n();
   const { pathname } = useLocation();
-  if (!number) return null;
   const text = encodeURIComponent(`Salam! ${window.location.origin}${pathname} haqqında sualım var.`);
   return (
     <a
-      href={`https://wa.me/${number}?text=${text}`}
+      href={`${WHATSAPP_URL}?text=${text}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={t("chat.whatsapp")}

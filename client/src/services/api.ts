@@ -20,6 +20,11 @@ export class ApiUnavailableError extends Error {
 }
 
 let accessToken: string | null = null;
+let requestLocale = "az";
+
+export const setRequestLocale = (locale: string) => {
+  requestLocale = locale;
+};
 let refreshPromise: Promise<AuthResponse | null> | null = null;
 let authFailureHandler: (() => void) | null = null;
 
@@ -46,6 +51,7 @@ api.interceptors.response.use((response) => {
 
 api.interceptors.request.use((config) => {
   if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  config.headers["X-Locale"] = requestLocale;
   return config;
 });
 

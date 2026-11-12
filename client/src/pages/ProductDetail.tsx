@@ -1,9 +1,11 @@
+import ProductViewer from "../components/product/ProductViewer";
+import { productSpecGroups } from "../utils/productSpecs";
+import { useI18n } from "../context/I18nContext";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import FigmaIcon from "../components/common/FigmaIcon";
 import Spinner from "../components/common/Spinner";
-import ProductImage from "../components/product/ProductImage";
 import ReviewSection from "../components/product/ReviewSection";
 import RecentlyViewed from "../components/home/RecentlyViewed";
 import { useAuth } from "../context/AuthContext";
@@ -13,8 +15,7 @@ import { useWishlist } from "../context/WishlistContext";
 import { useAsync } from "../hooks/useAsync";
 import { getErrorMessage } from "../services/api";
 import { productService } from "../services/product.service";
-import { TechSpecification } from "../types";
-import { formatPrice, formatStorage, monthlyPayment, pricing } from "../utils/format";
+import { formatPrice, monthlyPayment, pricing } from "../utils/format";
 import RelatedProducts from "../components/product/RelatedProducts";
 import Countdown from "../components/home/Countdown";
 import { productRating, reviewCountLabel } from "../utils/rating";
@@ -22,27 +23,12 @@ import { rememberProduct } from "../utils/recentlyViewed";
 import { extraService } from "../services/extra.service";
 import { useSeo } from "../hooks/useSeo";
 
-const specRows = (specs: TechSpecification): [string, string | null][] => [
-  ["Prosessor (CPU)", specs.cpu],
-  ["Qrafik (GPU)", specs.gpu],
-  ["Operativ yaddaş", specs.ramGb ? `${specs.ramGb} GB` : null],
-  ["Daxili yaddaş", specs.storageGb ? `${formatStorage(specs.storageGb)} ${specs.storageType ?? ""}`.trim() : null],
-  ["Ekran", specs.screenSizeInch ? `${Number(specs.screenSizeInch)}″` : null],
-  ["Ölçü (piksel)", specs.resolution],
-  ["Yenilənmə tezliyi", specs.refreshRateHz ? `${specs.refreshRateHz} Hz` : null],
-  ["Batareya", specs.batteryMah ? `${specs.batteryMah} mAh` : null],
-  ["Əməliyyat sistemi", specs.os],
-  ["Çəki", specs.weightGrams ? `${specs.weightGrams} q` : null],
-  ["Bağlantı", specs.connectivity.length ? specs.connectivity.join(", ") : null],
-  ["Zəmanət", specs.extra?.warranty ?? null],
-  ["Çatdırılma", specs.extra?.shipping ?? null],
-  ["Qaytarılma", specs.extra?.returnPolicy ?? null],
-];
 
 export default function ProductDetail() {
   const { slug = "" } = useParams();
   const { data: product, loading, error, setData } = useAsync(() => productService.get(slug), [slug]);
   const { user } = useAuth();
+  const { locale } = useI18n();
   const { addItem, busy } = useCart();
   const wishlist = useWishlist();
   const compare = useCompare();
@@ -98,7 +84,7 @@ export default function ProductDetail() {
   const rating = productRating(product);
   const price = pricing(product);
   const inWishlist = wishlist.has(product.id);
-  const rows = product.specs ? specRows(product.specs).filter(([, value]) => value) : [];
+  const rows = productSpecGroups(product, locale).flatMap((group) => group.rows);
 
   const requireUser = () => {
     if (!user) navigate("/login", { state: { from: `/products/${product.slug}` } });
@@ -137,19 +123,14 @@ export default function ProductDetail() {
   return (
     <div className="-mx-4 -mt-8 sm:mx-0 sm:mt-0">
       <div className="grid overflow-hidden bg-surface sm:rounded-phone sm:shadow-tile lg:grid-cols-2">
-        <div className="relative flex items-center justify-center bg-chip pb-0 pt-[34px] lg:min-h-[560px] lg:pt-0">
-          <ProductImage
-            src={product.images[0]}
-            category={product.category?.slug}
-            alt={product.name}
-            className="aspect-square w-full max-w-[383px] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)]"
-          />
+        <div className="relative p-5 pt-[34px] lg:p-8">
+          <ProductViewer images={product.images} alt={product.name} category={product.category?.slug} model3d={product.specs?.extra?.model3d} />
           <button
             type="button"
             onClick={toggleWishlist}
             aria-pressed={inWishlist}
             aria-label="İstək siyahısı"
-            className={`absolute right-[34px] top-[37px] rounded-full transition ${inWishlist ? "" : "opacity-60 grayscale hover:opacity-100 hover:grayscale-0"}`}
+            className={`absolute right-[34px] top-[40px] z-10 rounded-full lg:right-10 lg:top-10 transition ${inWishlist ? "" : "opacity-60 grayscale hover:opacity-100 hover:grayscale-0"}`}
           >
             <FigmaIcon name="heart-detail" className="size-[22.5px]" />
           </button>
@@ -171,7 +152,7 @@ export default function ProductDetail() {
           </nav>
           <p className="text-xs text-muted">{product.category?.name ?? product.brand}</p>
           <div className="flex items-start justify-between gap-4">
-            <h1 className="text-base font-semibold text-ink lg:text-2xl">{product.name}</h1>
+            <h1 translate="no" className="text-base font-semibold text-ink lg:text-2xl">{product.name}</h1>
             <div className="-mt-1 shrink-0 text-right">
               <p className={`text-xl font-bold lg:text-3xl ${price.percent > 0 ? "text-red-600" : "text-ink"}`}>{formatPrice(price.price)}</p>
               {price.was && (
@@ -219,7 +200,7 @@ export default function ProductDetail() {
           </p>
 
           <h2 className="mt-[18px] text-base font-bold text-ink">Məhsul haqqında</h2>
-          <p className="mt-4 text-xs leading-[1.5] text-ink">{product.description}</p>
+          <p translate="no" className="mt-4 text-sm leading-relaxed text-ink/80">{product.description}</p>
 
           {rows.length > 0 && (
             <dl className="mt-6 divide-y divide-chip rounded-[20px] bg-chip/60 px-4 text-xs">

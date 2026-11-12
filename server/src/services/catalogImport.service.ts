@@ -27,6 +27,7 @@ interface SourceProduct {
   tags?: string[];
   images?: string[];
   thumbnail?: string;
+  dimensions?: { width?: number; height?: number; depth?: number };
 }
 
 export interface ImportResult {
@@ -64,6 +65,30 @@ const toProductData = (product: SourceProduct, categoryId: string) => ({
   categoryId,
 });
 
+const dimensionsOf = (product: SourceProduct) => {
+  const { width, height, depth } = product.dimensions ?? {};
+  return typeof width === "number" && typeof height === "number" && typeof depth === "number" ? { width, height, depth, unit: "cm" } : null;
+};
+
+export const enrichImportedSpecs = async () => {
+  const pending = await prisma.techSpecification.findMany({
+    where: { product: { sku: { startsWith: IMPORT_SKU_PREFIX } } },
+    select: { id: true, extra: true, product: { select: { sku: true } } },
+  });
+  const missing = pending.filter((spec) => !(spec.extra && typeof spec.extra === "object" && "dimensions" in spec.extra));
+  if (!missing.length) return 0;
+  const batches = await Promise.all(categoryMap.map((entry) => fetchCategory(entry.source)));
+  const bySku = new Map(batches.flat().map((product) => [`${IMPORT_SKU_PREFIX}${product.id}`, product]));
+  let updated = 0;
+  for (const spec of missing) {
+    const source = bySku.get(spec.product.sku);
+    const extra = { ...((spec.extra as Prisma.JsonObject | null) ?? {}), dimensions: source ? dimensionsOf(source) : null };
+    await prisma.techSpecification.update({ where: { id: spec.id }, data: { extra } });
+    updated += 1;
+  }
+  return updated;
+};
+
 const toSpecData = (product: SourceProduct) => {
   const extra: Prisma.InputJsonObject = {
     source: "dummyjson",
@@ -74,6 +99,7 @@ const toSpecData = (product: SourceProduct) => {
     shipping: product.shippingInformation ?? null,
     returnPolicy: product.returnPolicy ?? null,
     tags: product.tags ?? [],
+    dimensions: dimensionsOf(product),
   };
   return { connectivity: [] as string[], extra };
 };
