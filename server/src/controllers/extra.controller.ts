@@ -5,6 +5,7 @@ import { assertCouponUsable, calculateDiscount, normalizeCode } from "../service
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { currentUser } from "../utils/currentUser";
+import { audit } from "../services/audit.service";
 
 const MAX_UPLOAD_BYTES = 2 * 1024 * 1024;
 
@@ -23,16 +24,19 @@ export const listCoupons = asyncHandler(async (_req, res) => {
 
 export const createCoupon = asyncHandler(async (req, res) => {
   res.status(201).json(await prisma.coupon.create({ data: { ...req.body, code: normalizeCode(req.body.code) } }));
+  audit(req, "coupon.create", "Coupon", req.params.id ?? null, req.body);
 });
 
 export const updateCoupon = asyncHandler(async (req, res) => {
   const data = { ...req.body, ...(req.body.code && { code: normalizeCode(req.body.code) }) };
   res.json(await prisma.coupon.update({ where: { id: req.params.id }, data }));
+  audit(req, "coupon.update", "Coupon", req.params.id ?? null, req.body);
 });
 
 export const deleteCoupon = asyncHandler(async (req, res) => {
   await prisma.coupon.delete({ where: { id: req.params.id } });
   res.status(204).end();
+  audit(req, "coupon.delete", "Coupon", req.params.id ?? null, req.body);
 });
 
 export const listAddresses = asyncHandler(async (req, res) => {

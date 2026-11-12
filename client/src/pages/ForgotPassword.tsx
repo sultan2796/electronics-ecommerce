@@ -47,7 +47,7 @@ export default function ForgotPassword() {
             {submitting ? "Göndərilir..." : "Link göndər"}
           </button>
           <p className="text-center text-sm">
-            <Link to="/login" className="text-brand-600 hover:underline">
+            <Link to="/login" className="text-brand-600">
               Girişə qayıt
             </Link>
           </p>

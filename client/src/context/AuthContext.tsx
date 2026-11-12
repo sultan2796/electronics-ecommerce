@@ -1,3 +1,4 @@
+import { extraService } from "../services/extra.service";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { onAuthFailure, refreshSession, setAccessToken } from "../services/api";
 import { authService } from "../services/auth.service";
@@ -14,6 +15,8 @@ interface AuthContextValue {
   logout: () => Promise<void>;
   updateProfile: (name: string) => Promise<User>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  googleLogin: (credential: string) => Promise<User>;
+  reloadUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -77,6 +80,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const can = useCallback((permission: Permission) => Boolean(user?.permissions?.includes(permission)), [user]);
 
+  const googleLogin = useCallback(
+    async (credential: string) => applySession((await extraService.googleLogin(credential)) as AuthResponse),
+    [applySession],
+  );
+
+  const reloadUser = useCallback(async () => {
+    try {
+      setUser(await authService.me());
+    } catch {
+      return;
+    }
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -89,8 +105,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       updateProfile,
       changePassword,
+      googleLogin,
+      reloadUser,
     }),
-    [user, initializing, can, login, register, logout, updateProfile, changePassword],
+    [user, initializing, can, login, register, logout, updateProfile, changePassword, googleLogin, reloadUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -76,10 +76,10 @@ function CategoryRow({ category, onChanged, onDeleted }: { category: Category; o
           </>
         ) : (
           <>
-            <button type="button" className="text-xs text-brand-600 hover:underline" onClick={() => setEditing(true)}>
+            <button type="button" className="text-xs text-brand-600" onClick={() => setEditing(true)}>
               Adını dəyiş
             </button>
-            <button type="button" className="text-xs text-red-600 hover:underline disabled:opacity-40" disabled={busy} onClick={remove}>
+            <button type="button" className="text-xs text-red-600 disabled:opacity-40" disabled={busy} onClick={remove}>
               Sil
             </button>
           </>

@@ -96,7 +96,7 @@ export default function PaymentResult() {
           <Link to={`/orders/${status.id}`} className={failed ? "btn-outline w-full" : "btn-primary w-full"}>
             Sifarişə bax
           </Link>
-          <Link to="/products" className="block text-sm text-brand-600 hover:underline">
+          <Link to="/products" className="block text-sm text-brand-600">
             Alış-verişə davam et
           </Link>
         </div>

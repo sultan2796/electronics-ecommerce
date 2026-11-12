@@ -4,6 +4,8 @@ import { buildProductOrderBy, buildProductWhere, getFacets, getFeaturedProducts,
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { notifyBackInStock } from "../services/stockAlert.service";
+import { withPricing } from "../services/campaign.service";
+import { audit } from "../services/audit.service";
 
 export const listProducts = asyncHandler(async (req, res) => {
   const query = req.query as unknown as ProductQuery;
@@ -20,7 +22,7 @@ export const listProducts = asyncHandler(async (req, res) => {
     prisma.product.count({ where }),
   ]);
 
-  res.json({ items, total, page: query.page, limit: query.limit, totalPages: Math.max(1, Math.ceil(total / query.limit)) });
+  res.json({ items: items.map(withPricing), total, page: query.page, limit: query.limit, totalPages: Math.max(1, Math.ceil(total / query.limit)) });
 });
 
 export const productFacets = asyncHandler(async (req, res) => {
@@ -35,7 +37,7 @@ export const getProduct = asyncHandler(async (req, res) => {
     include: productInclude,
   });
   if (!product) throw new AppError(404, "Məhsul tapılmadı");
-  res.json(product);
+  res.json(withPricing(product));
 });
 
 export const compareProducts = asyncHandler(async (req, res) => {
@@ -45,7 +47,7 @@ export const compareProducts = asyncHandler(async (req, res) => {
     include: productInclude,
   });
   const ordered = ids.map((id) => products.find((product) => product.id === id)).filter(Boolean);
-  res.json({ items: ordered });
+  res.json({ items: ordered.map((product) => withPricing(product!)) });
 });
 
 export const createProduct = asyncHandler(async (req, res) => {
@@ -55,6 +57,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     include: productInclude,
   });
   res.status(201).json(product);
+  audit(req, "product.create", "Product", req.params.id ?? null, req.body);
 });
 
 export const updateProduct = asyncHandler(async (req, res) => {
@@ -69,14 +72,42 @@ export const updateProduct = asyncHandler(async (req, res) => {
   });
   if (product.stock > 0) void notifyBackInStock(product.id);
   res.json(product);
+  audit(req, "product.update", "Product", req.params.id ?? null, req.body);
 });
 
 export const deleteProduct = asyncHandler(async (req, res) => {
   await prisma.product.update({ where: { id: req.params.id }, data: { isActive: false } });
   res.status(204).end();
+  audit(req, "product.deactivate", "Product", req.params.id ?? null, req.body);
 });
 
 export const featuredProducts = asyncHandler(async (req, res) => {
   const { limit } = req.query as unknown as { limit: number };
-  res.json(await getFeaturedProducts(limit));
+  res.json((await getFeaturedProducts(limit)).map(withPricing));
+});
+
+export const relatedProducts = asyncHandler(async (req, res) => {
+  const product = await prisma.product.findFirst({ where: { OR: [{ id: req.params.id }, { slug: req.params.id }] }, select: { id: true, categoryId: true } });
+  if (!product) throw new AppError(404, "Məhsul tapılmadı");
+  const coBought = await prisma.orderItem.groupBy({
+    by: ["productId"],
+    where: { productId: { not: product.id }, order: { status: { not: "CANCELLED" }, items: { some: { productId: product.id } } } },
+    _sum: { quantity: true },
+    orderBy: { _sum: { quantity: "desc" } },
+    take: 8,
+  });
+  const boughtIds = coBought.map((row) => row.productId);
+  const bought = boughtIds.length
+    ? await prisma.product.findMany({ where: { id: { in: boughtIds }, isActive: true }, include: productInclude })
+    : [];
+  const ordered = boughtIds.map((id) => bought.find((item) => item.id === id)).filter((item): item is (typeof bought)[number] => Boolean(item));
+  const fill = ordered.length < 8
+    ? await prisma.product.findMany({
+        where: { isActive: true, categoryId: product.categoryId, id: { notIn: [product.id, ...boughtIds] }, stock: { gt: 0 } },
+        include: productInclude,
+        orderBy: { createdAt: "desc" },
+        take: 8 - ordered.length,
+      })
+    : [];
+  res.json({ boughtTogether: ordered.length > 0, items: [...ordered, ...fill].map(withPricing) });
 });

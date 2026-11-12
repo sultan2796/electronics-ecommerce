@@ -30,6 +30,7 @@ export const addCartItem = asyncHandler(async (req, res) => {
     update: { quantity: nextQuantity },
     create: { cartId: cart.id, productId, quantity },
   });
+  await prisma.cart.update({ where: { id: cart.id }, data: { remindedAt: null } });
   res.status(201).json(formatCart(await getOrCreateCart(cart.userId)));
 });
 

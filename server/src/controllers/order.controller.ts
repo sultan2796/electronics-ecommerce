@@ -11,10 +11,13 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { getErrorText } from "../utils/errorText";
 import { currentUser } from "../utils/currentUser";
 import { redeemCoupon } from "../services/coupon.service";
+import { effectivePrice } from "../services/campaign.service";
+import { alertLowStock } from "../services/jobs.service";
+import { pointsToMoney, redeemablePoints } from "../services/loyalty.service";
 
 export const checkout = asyncHandler(async (req, res) => {
   const userId = currentUser(req).id;
-  const { shippingAddress, paymentMethod, couponCode, saveAddress } = req.body as CheckoutInput;
+  const { shippingAddress, paymentMethod, couponCode, saveAddress, usePoints } = req.body as CheckoutInput;
 
   if (paymentMethod === PaymentMethod.CARD && !activeProvider()) {
     throw new AppError(400, "Kartla ödəniş hazırda mümkün deyil. Qapıda ödəniş seçin.");
@@ -36,12 +39,18 @@ export const checkout = asyncHandler(async (req, res) => {
       if (reserved.count === 0) throw new AppError(409, `${item.product.name} üçün kifayət qədər stok yoxdur`);
     }
 
-    const subtotal = cart.items.reduce(
-      (sum, item) => sum.add(item.product.price.mul(item.quantity)),
-      new Prisma.Decimal(0),
-    );
+    const priced = cart.items.map((item) => ({ ...item, unitPrice: effectivePrice(item.product) }));
+    const subtotal = priced.reduce((sum, item) => sum.add(item.unitPrice.mul(item.quantity)), new Prisma.Decimal(0));
     const coupon = couponCode ? await redeemCoupon(tx, couponCode, subtotal) : null;
-    const discount = coupon?.discount ?? new Prisma.Decimal(0);
+    const couponDiscount = coupon?.discount ?? new Prisma.Decimal(0);
+    const afterCoupon = subtotal.sub(couponDiscount);
+    const buyer = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { points: true } });
+    const pointsUsed = usePoints ? redeemablePoints(buyer.points, afterCoupon) : 0;
+    if (pointsUsed > 0) {
+      const taken = await tx.user.updateMany({ where: { id: userId, points: { gte: pointsUsed } }, data: { points: { decrement: pointsUsed } } });
+      if (taken.count === 0) throw new AppError(409, "Bal balansı dəyişdi, yenidən cəhd edin");
+    }
+    const discount = couponDiscount.add(pointsToMoney(pointsUsed));
     const total = subtotal.sub(discount);
 
     if (saveAddress && (await tx.address.count({ where: { userId } })) < 10) {
@@ -56,13 +65,14 @@ export const checkout = asyncHandler(async (req, res) => {
         subtotal,
         discount,
         couponCode: coupon?.code ?? null,
+        pointsUsed,
         paymentMethod,
         shippingAddress: shippingAddress as Prisma.InputJsonObject,
         items: {
-          create: cart.items.map((item) => ({
+          create: priced.map((item) => ({
             productId: item.productId,
             productName: item.product.name,
-            unitPrice: item.product.price,
+            unitPrice: item.unitPrice,
             quantity: item.quantity,
           })),
         },
@@ -76,6 +86,7 @@ export const checkout = asyncHandler(async (req, res) => {
 
   const customer = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } });
   if (customer) queueEmail({ ...orderConfirmationEmail(customer, order), to: customer.email, userId });
+  void alertLowStock(order.items.map((item) => item.productId));
 
   if (paymentMethod !== PaymentMethod.CARD) {
     res.status(201).json({ order, payment: null });

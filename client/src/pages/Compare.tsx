@@ -108,7 +108,7 @@ export default function Compare() {
                   <Link to={`/products/${product.slug}`} className="font-semibold hover:text-brand-700">
                     {product.name}
                   </Link>
-                  <button className="mt-1 block text-xs text-red-600 hover:underline" onClick={() => remove(product.id)}>
+                  <button className="mt-1 block text-xs text-red-600" onClick={() => remove(product.id)}>
                     Siyahıdan çıxar
                   </button>
                 </th>

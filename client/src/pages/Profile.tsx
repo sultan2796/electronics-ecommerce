@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import { roleLabels, useAuth } from "../context/AuthContext";
@@ -6,7 +6,11 @@ import { getErrorMessage } from "../services/api";
 import AddressBook from "../components/account/AddressBook";
 
 export default function Profile() {
-  const { user, updateProfile, changePassword, isStaff, logout } = useAuth();
+  const { user, updateProfile, changePassword, isStaff, logout, reloadUser } = useAuth();
+
+  useEffect(() => {
+    void reloadUser();
+  }, [reloadUser]);
   const navigate = useNavigate();
   const [name, setName] = useState(user?.name ?? "");
   const [profileMessage, setProfileMessage] = useState<{ ok: boolean; text: string } | null>(null);
@@ -64,6 +68,16 @@ export default function Profile() {
           Çıxış
         </button>
         <span className="rounded-full bg-brand-50 dark:bg-brand-500/15 px-3 py-1 text-xs font-medium text-brand-700 dark:text-brand-500">{roleLabels[user.role]}</span>
+      </div>
+
+      <div className="card flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-amber-50 to-orange-50 p-6 dark:from-amber-500/10 dark:to-orange-500/10">
+        <div>
+          <p className="text-sm text-muted">Bonus balansınız</p>
+          <p className="text-3xl font-bold text-ink">
+            {user.points ?? 0} <span className="text-base font-medium text-muted">bal ≈ {((user.points ?? 0) * 0.01).toFixed(2)} ₼</span>
+          </p>
+        </div>
+        <p className="max-w-sm text-sm text-muted">Hər 1 ₼ alışa 1 bal qazanırsınız (sifariş çatdırılanda). Ödəniş zamanı ballarla sifarişin 50%-nə qədərini ödəyə bilərsiniz.</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">

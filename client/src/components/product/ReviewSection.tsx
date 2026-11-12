@@ -152,7 +152,7 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
           {!user && (
             <p className="text-xs text-muted">
               Rəy yazmaq üçün{" "}
-              <Link to="/login" state={{ from: `/products/${productSlug}` }} className="font-medium text-brand-600 hover:underline">
+              <Link to="/login" state={{ from: `/products/${productSlug}` }} className="font-medium text-brand-600">
                 daxil olun
               </Link>
               .
@@ -166,10 +166,10 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
               <p className="font-medium text-ink">Sizin rəyiniz</p>
               <StarRating value={mine.review.rating} size="sm" />
               <div className="mt-2 flex gap-3">
-                <button type="button" className="font-medium text-brand-600 hover:underline" onClick={() => setEditing(true)}>
+                <button type="button" className="font-medium text-brand-600" onClick={() => setEditing(true)}>
                   Redaktə et
                 </button>
-                <button type="button" className="font-medium text-red-600 hover:underline" onClick={() => remove(mine.review!.id)}>
+                <button type="button" className="font-medium text-red-600" onClick={() => remove(mine.review!.id)}>
                   Sil
                 </button>
               </div>
@@ -234,7 +234,7 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
                   {review.title && <p className="mt-3 text-sm font-semibold text-ink">{review.title}</p>}
                   <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-ink/80">{review.comment}</p>
                   {(review.userId === user?.id || can("reviews:moderate")) && (
-                    <button type="button" className="mt-2 text-xs font-medium text-red-600 hover:underline" onClick={() => remove(review.id)}>
+                    <button type="button" className="mt-2 text-xs font-medium text-red-600" onClick={() => remove(review.id)}>
                       Sil
                     </button>
                   )}

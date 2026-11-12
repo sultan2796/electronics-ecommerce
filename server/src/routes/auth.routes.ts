@@ -1,7 +1,9 @@
+import { z } from "zod";
 import { Router } from "express";
 import {
   changePassword,
   forgotPassword,
+  googleLogin,
   login,
   logout,
   me,
@@ -33,6 +35,7 @@ authRouter.post("/logout", logout);
 authRouter.get("/me", authenticate, me);
 authRouter.patch("/me", authenticate, validate({ body: updateProfileSchema }), updateProfile);
 authRouter.post("/change-password", authLimiter, authenticate, validate({ body: changePasswordSchema }), changePassword);
+authRouter.post("/google", authLimiter, validate({ body: z.object({ credential: z.string().min(20).max(5000) }) }), googleLogin);
 authRouter.post("/forgot-password", authLimiter, validate({ body: forgotPasswordSchema }), forgotPassword);
 authRouter.get("/reset-password/validate", authLimiter, validate({ query: resetTokenQuerySchema }), validateResetToken);
 authRouter.post("/reset-password", authLimiter, validate({ body: resetPasswordSchema }), resetPassword);

@@ -67,6 +67,9 @@ model User {
   stockAlerts   StockAlert[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  points        Int       @default(0)
+  googleId      String?   @unique
+  auditLogs     AuditLog[]
 }
 
 model RefreshToken {
@@ -90,6 +93,7 @@ model Category {
   children  Category[] @relation("CategoryTree")
   products  Product[]
   createdAt DateTime   @default(now())
+  campaigns Campaign[]
 }
 
 model Product {
@@ -153,6 +157,7 @@ model Cart {
   items     CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  remindedAt DateTime?
 }
 
 model CartItem {
@@ -198,6 +203,9 @@ model Order {
 
   @@index([userId])
   @@index([status])
+  pointsUsed      Int           @default(0)
+  pointsEarned    Int           @default(0)
+  pointsAwarded   Boolean       @default(false)
 }
 
 model OrderItem {
@@ -327,4 +335,32 @@ model Upload {
   data      Bytes
   size      Int
   createdAt DateTime @default(now())
+}
+
+model Campaign {
+  id              String    @id @default(cuid())
+  name            String
+  discountPercent Int
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  startsAt        DateTime
+  endsAt          DateTime
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+
+  @@index([startsAt, endsAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entity, entityId])
 }

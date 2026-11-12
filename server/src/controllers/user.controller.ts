@@ -5,6 +5,7 @@ import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { currentUser } from "../utils/currentUser";
 import { revokeAllSessions } from "./auth.controller";
+import { audit } from "../services/audit.service";
 
 const userSelect = {
   id: true,
@@ -67,4 +68,5 @@ export const updateUser = asyncHandler(async (req, res) => {
   if (isBlocked === true) await revokeAllSessions(targetId);
 
   res.json(updated);
+  audit(req, "user.update", "User", req.params.id ?? null, req.body);
 });

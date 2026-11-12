@@ -155,7 +155,7 @@ export default function AdminUsers() {
                           <button
                             type="button"
                             onClick={() => change(item, { isBlocked: !item.isBlocked })}
-                            className={`text-xs font-medium hover:underline ${item.isBlocked ? "text-emerald-600" : "text-red-600"}`}
+                            className={`text-xs font-medium ${item.isBlocked ? "text-emerald-600" : "text-red-600"}`}
                           >
                             {item.isBlocked ? "Bloku aç" : "Blokla"}
                           </button>

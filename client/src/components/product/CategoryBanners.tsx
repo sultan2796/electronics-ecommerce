@@ -27,7 +27,7 @@ export default function CategoryBanners({ banners = categoryBanners }: { banners
                 <img src={banner.image} alt={banner.label} className="absolute inset-0 h-full w-full object-contain" />
               </span>
               <span className="flex items-center justify-center overflow-clip px-1.5">
-                <span className="whitespace-nowrap text-center font-[Arial,sans-serif] text-[18px] leading-[22px] tracking-[0.72px] text-[#3936c3] underline decoration-from-font group-hover:text-brand-700">
+                <span className="whitespace-nowrap text-center font-[Arial,sans-serif] text-[18px] leading-[22px] tracking-[0.72px] text-[#3936c3] group-hover:text-brand-700">
                   {banner.label}
                 </span>
               </span>

@@ -29,6 +29,7 @@ export const toPublicUser = (user: User) => ({
   email: user.email,
   name: user.name,
   role: user.role,
+  points: user.points,
   permissions: permissionsFor(user.role),
 });
 
@@ -173,4 +174,37 @@ export const resetPassword = asyncHandler(async (req, res) => {
   queueEmail({ ...passwordChangedEmail(record.user), to: record.user.email, userId: record.userId });
 
   res.json({ message: "Şifrəniz yeniləndi. İndi yeni şifrə ilə daxil ola bilərsiniz." });
+});
+
+interface GoogleTokenInfo {
+  aud?: string;
+  sub?: string;
+  email?: string;
+  email_verified?: string | boolean;
+  name?: string;
+}
+
+export const googleLogin = asyncHandler(async (req, res) => {
+  if (!env.GOOGLE_CLIENT_ID) throw new AppError(503, "Google ilə giriş qurulmayıb");
+  const { credential } = req.body as { credential: string };
+  const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+  const info = (await response.json().catch(() => ({}))) as GoogleTokenInfo;
+  const verified = info.email_verified === true || info.email_verified === "true";
+  if (!response.ok || info.aud !== env.GOOGLE_CLIENT_ID || !info.sub || !info.email || !verified) {
+    throw new AppError(401, "Google girişi təsdiqlənmədi");
+  }
+  const email = info.email.toLowerCase();
+  let user = await prisma.user.findFirst({ where: { OR: [{ googleId: info.sub }, { email }] } });
+  if (user?.isBlocked) throw new AppError(403, BLOCKED_MESSAGE);
+  if (!user) {
+    user = await prisma.user.create({
+      data: { email, name: info.name?.trim() || email.split("@")[0], googleId: info.sub, passwordHash: await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 12) },
+    });
+    queueEmail({ ...welcomeEmail(user), to: user.email, userId: user.id });
+  } else if (!user.googleId) {
+    user = await prisma.user.update({ where: { id: user.id }, data: { googleId: info.sub } });
+  }
+  const updated = await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+  const accessToken = await issueTokens(res, updated);
+  res.json({ user: toPublicUser(updated), accessToken });
 });

@@ -8,6 +8,8 @@ const adminOrderInclude = { ...orderInclude, user: { select: { name: true, email
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { notifyBackInStock } from "../services/stockAlert.service";
+import { audit } from "../services/audit.service";
+import { awardPoints } from "../services/loyalty.service";
 
 const LOW_STOCK_THRESHOLD = 5;
 const revenueStatuses = [OrderStatus.PAID, OrderStatus.PROCESSING, OrderStatus.SHIPPED, OrderStatus.DELIVERED];
@@ -176,11 +178,13 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
           ...(marksPaid && existing.paymentStatus !== PaymentStatus.SUCCEEDED && { paymentStatus: PaymentStatus.SUCCEEDED, paidAt: new Date() }),
         },
       });
+      if (status === OrderStatus.DELIVERED) await awardPoints(tx, existing.id);
     }
     return tx.order.findUniqueOrThrow({ where: { id: existing.id }, include: adminOrderInclude });
   });
 
   void notifyOrderStatus(order.id, status);
+  audit(req, "order.status", "Order", order.id, { status });
   res.json(order);
 });
 
@@ -215,6 +219,7 @@ export const updateStock = asyncHandler(async (req, res) => {
   const { stock } = req.body as { stock: number };
   const product = await prisma.product.update({ where: { id: req.params.id }, data: { stock }, include: productInclude });
   if (stock > 0) void notifyBackInStock(product.id);
+  audit(req, "product.stock", "Product", product.id, { name: product.name, stock });
   res.json(product);
 });
 

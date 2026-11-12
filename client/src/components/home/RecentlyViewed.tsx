@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Product } from "../../types";
 import { clearRecentlyViewed, readRecentlyViewed } from "../../utils/recentlyViewed";
-import ProductCard from "../product/ProductCard";
+import ProductGrid from "./ProductGrid";
 
 export default function RecentlyViewed({ excludeId, title = "Son baxdıqlarınız" }: { excludeId?: string; title?: string }) {
   const [items, setItems] = useState<Product[]>(() => readRecentlyViewed().filter((item) => item.id !== excludeId));
@@ -9,9 +9,9 @@ export default function RecentlyViewed({ excludeId, title = "Son baxdıqlarını
   if (items.length === 0) return null;
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between px-[10px]">
-        <h2 className="text-base text-ink">{title}</h2>
+    <section>
+      <div className="mb-4 flex items-end justify-between">
+        <h2 className="text-xl font-bold tracking-tight text-ink sm:text-2xl">{title}</h2>
         <button
           type="button"
           className="text-xs text-muted hover:text-brand-600"
@@ -23,13 +23,7 @@ export default function RecentlyViewed({ excludeId, title = "Son baxdıqlarını
           Təmizlə
         </button>
       </div>
-      <div className="no-scrollbar -mx-5 flex snap-x gap-5 overflow-x-auto px-5 pb-3 pt-1 sm:mx-0 sm:px-0">
-        {items.map((product) => (
-          <div key={product.id} className="w-[158px] shrink-0 snap-start sm:w-[200px]">
-            <ProductCard product={product} />
-          </div>
-        ))}
-      </div>
+      <ProductGrid products={items} scroll />
     </section>
   );
 }

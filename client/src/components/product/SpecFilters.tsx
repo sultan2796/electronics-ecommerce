@@ -104,7 +104,7 @@ export default function SpecFilters({ facets, categories, filters, onChange }: S
         <h2 className="font-semibold">Filtrlər {activeCount > 0 && <span className="text-brand-600">({activeCount})</span>}</h2>
         {activeCount > 0 && (
           <button
-            className="text-sm text-brand-600 hover:underline"
+            className="text-sm text-brand-600"
             onClick={() => onChange({ ...emptyFilters, q: filters.q, category: filters.category, sort: filters.sort })}
           >
             Sıfırla

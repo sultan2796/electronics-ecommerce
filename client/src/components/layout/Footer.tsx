@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import { useI18n } from "../../context/I18nContext";
+import { TranslationKey } from "../../i18n/dictionary";
 
-const columns = [
+const columns: { title: TranslationKey; links: { to: string; label: string }[] }[] = [
   {
-    title: "Mağaza",
+    title: "footer.shop",
     links: [
       { to: "/products", label: "Bütün məhsullar" },
       { to: "/products?category=smartphones", label: "Smartfonlar" },
@@ -11,7 +13,7 @@ const columns = [
     ],
   },
   {
-    title: "Hesab",
+    title: "footer.account",
     links: [
       { to: "/profile", label: "Profilim" },
       { to: "/orders", label: "Sifarişlərim" },
@@ -19,26 +21,42 @@ const columns = [
       { to: "/forgot-password", label: "Şifrə bərpası" },
     ],
   },
+  {
+    title: "footer.help",
+    links: [
+      { to: "/products?inStock=true", label: "Çatdırılma və ödəniş" },
+      { to: "/orders", label: "Sifarişi izlə" },
+      { to: "/profile", label: "Bonus balları" },
+    ],
+  },
 ];
 
 export default function Footer() {
+  const { t } = useI18n();
   return (
-    <footer className="hidden border-t border-chip bg-navbar md:block">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.5fr_1fr_1fr]">
-        <div className="space-y-3">
-          <p className="flex items-center gap-2 text-base font-bold text-ink">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-brand-600 text-sm text-white">E</span>
-            ElectroShop
+    <footer className="hidden bg-[#0f172a] text-slate-300 md:block">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
+        <div className="space-y-4">
+          <p className="flex items-center gap-2 text-lg font-bold text-white">
+            <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white">E</span>
+            Electro<span className="-ml-2 text-brand-500">Shop</span>
           </p>
-          <p className="max-w-xs text-sm text-muted">Smartfon, noutbuk, planşet və aksesuarlar — rəsmi zəmanət və sürətli çatdırılma ilə.</p>
+          <p className="max-w-xs text-sm leading-relaxed text-slate-400">{t("footer.tagline")}</p>
+          <div className="flex gap-2 pt-1">
+            {["VISA", "MC", "COD"].map((label) => (
+              <span key={label} className="rounded-md border border-slate-700 px-2 py-1 text-[10px] font-bold tracking-wider text-slate-400">
+                {label}
+              </span>
+            ))}
+          </div>
         </div>
         {columns.map((column) => (
           <div key={column.title}>
-            <p className="text-sm font-semibold text-ink">{column.title}</p>
-            <ul className="mt-3 space-y-2">
+            <p className="text-sm font-semibold text-white">{t(column.title)}</p>
+            <ul className="mt-4 space-y-2.5">
               {column.links.map((link) => (
-                <li key={link.to}>
-                  <Link to={link.to} className="text-sm text-muted transition hover:text-brand-600">
+                <li key={link.label}>
+                  <Link to={link.to} className="text-sm text-slate-400 transition hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -47,7 +65,14 @@ export default function Footer() {
           </div>
         ))}
       </div>
-      <div className="border-t border-chip py-4 text-center text-xs text-muted">© {new Date().getFullYear()} ElectroShop. Bütün hüquqlar qorunur.</div>
+      <div className="border-t border-slate-800">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 text-xs text-slate-500">
+          <span>
+            © {new Date().getFullYear()} ElectroShop. {t("footer.rights")}
+          </span>
+          <span>Bakı, Azərbaycan</span>
+        </div>
+      </div>
     </footer>
   );
 }

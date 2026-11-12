@@ -25,6 +25,7 @@ export const checkoutSchema = z.object({
   paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.CASH_ON_DELIVERY),
   couponCode: z.string().trim().max(40).optional(),
   saveAddress: z.boolean().optional(),
+  usePoints: z.boolean().optional(),
 });
 
 export const orderStatusSchema = z.object({ status: z.nativeEnum(OrderStatus) });

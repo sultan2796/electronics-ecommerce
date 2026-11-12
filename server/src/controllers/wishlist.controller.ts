@@ -3,13 +3,16 @@ import { productInclude } from "../services/product.service";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { currentUser } from "../utils/currentUser";
+import { withPricing } from "../services/campaign.service";
 
-const listFor = (userId: string) =>
-  prisma.wishlistItem.findMany({
-    where: { userId, product: { isActive: true } },
-    include: { product: { include: productInclude } },
-    orderBy: { createdAt: "desc" },
-  });
+const listFor = async (userId: string) =>
+  (
+    await prisma.wishlistItem.findMany({
+      where: { userId, product: { isActive: true } },
+      include: { product: { include: productInclude } },
+      orderBy: { createdAt: "desc" },
+    })
+  ).map((item) => ({ ...item, product: withPricing(item.product) }));
 
 export const getWishlist = asyncHandler(async (req, res) => {
   res.json(await listFor(currentUser(req).id));

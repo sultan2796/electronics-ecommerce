@@ -66,7 +66,12 @@ export default function OrderDetail() {
           <h1 className="text-2xl font-bold">Sifariş #{order.id.slice(-8).toUpperCase()}</h1>
           <p className="text-sm text-muted">{formatDate(order.createdAt)}</p>
         </div>
-        <StatusBadge status={order.status} />
+        <div className="flex items-center gap-3">
+          <Link to={`/orders/${order.id}/invoice`} className="btn-outline px-4 py-2 text-sm">
+            Faktura (PDF)
+          </Link>
+          <StatusBadge status={order.status} />
+        </div>
       </div>
 
       {state?.placed && !state.paymentError && <Alert variant="success">Sifarişiniz qəbul edildi. Təşəkkür edirik!</Alert>}
@@ -113,7 +118,10 @@ export default function OrderDetail() {
           </ul>
           {Number(order.discount ?? 0) > 0 && (
             <div className="mt-4 flex justify-between border-t border-chip pt-4 text-sm text-emerald-600 dark:text-emerald-400">
-              <span>Endirim{order.couponCode ? ` (${order.couponCode})` : ""}</span>
+              <span>
+                Endirim{order.couponCode ? ` (${order.couponCode})` : ""}
+                {order.pointsUsed ? ` · ${order.pointsUsed} bal` : ""}
+              </span>
               <span>−{formatPrice(order.discount ?? 0)}</span>
             </div>
           )}

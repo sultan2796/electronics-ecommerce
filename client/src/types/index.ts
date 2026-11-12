@@ -22,6 +22,7 @@ export interface User {
   email: string;
   name: string;
   role: Role;
+  points?: number;
   permissions: Permission[];
 }
 
@@ -88,6 +89,8 @@ export interface Product {
   category?: Pick<Category, "id" | "name" | "slug">;
   specs: TechSpecification | null;
   ratingAverage?: number | null;
+  compareAtPrice?: string | null;
+  campaign?: { name: string; discountPercent: number; endsAt: string } | null;
   reviewCount?: number;
 }
 
@@ -195,6 +198,8 @@ export interface Order {
   subtotal?: string;
   discount?: string;
   couponCode?: string | null;
+  pointsUsed?: number;
+  pointsEarned?: number;
   shippingAddress: ShippingAddress;
   items: OrderItem[];
   createdAt: string;
@@ -341,4 +346,31 @@ export interface CouponCheck {
   discount: string;
   subtotal: string;
   total: string;
+}
+
+export interface Campaign {
+  id: string;
+  name: string;
+  discountPercent: number;
+  categoryId: string | null;
+  category?: { id: string; name: string; slug?: string } | null;
+  startsAt: string;
+  endsAt: string;
+  isActive: boolean;
+}
+
+export interface SalesReport {
+  totals: { revenue: number; orders: number; averageOrderValue: number };
+  monthly: { month: string; revenue: number; orders: number; discount: number }[];
+  topProducts: { name: string; quantity: number; revenue: number }[];
+}
+
+export interface AuditEntry {
+  id: string;
+  action: string;
+  entity: string;
+  entityId: string | null;
+  details: Record<string, unknown> | null;
+  createdAt: string;
+  user: { name: string; email: string; role: Role } | null;
 }

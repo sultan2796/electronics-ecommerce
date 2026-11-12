@@ -12,6 +12,24 @@ export const discountOf = (product: { specs: { extra?: { discountPercentage?: nu
 export const priceBeforeDiscount = (price: number | string, discount: number) =>
   discount > 0 ? Number(price) / (1 - discount / 100) : Number(price);
 
+export const INSTALLMENT_MONTHS = 12;
+
+export const pricing = (product: {
+  price: string | number;
+  compareAtPrice?: string | number | null;
+  specs: { extra?: { discountPercentage?: number | null } | null } | null;
+}) => {
+  const price = Number(product.price);
+  if (product.compareAtPrice && Number(product.compareAtPrice) > price) {
+    const was = Number(product.compareAtPrice);
+    return { price, was, percent: Math.round((1 - price / was) * 100), live: true };
+  }
+  const percent = discountOf(product);
+  return { price, was: percent > 0 ? priceBeforeDiscount(price, percent) : null, percent, live: false };
+};
+
+export const monthlyPayment = (price: number | string, months = INSTALLMENT_MONTHS) => Math.ceil((Number(price) / months) * 100) / 100;
+
 export const formatStorage = (gb: number) => (gb >= 1024 ? `${gb / 1024} TB` : `${gb} GB`);
 
 const months = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avqust", "sentyabr", "oktyabr", "noyabr", "dekabr"];

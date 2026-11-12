@@ -1,0 +1,34 @@
+import { Router } from "express";
+import {
+  activeCampaigns,
+  auditQuerySchema,
+  bulkProducts,
+  bulkSchema,
+  campaignSchema,
+  createCampaign,
+  deleteCampaign,
+  listAuditLogs,
+  listCampaigns,
+  reportQuerySchema,
+  salesCsv,
+  salesReport,
+  updateCampaign,
+} from "../controllers/growth.controller";
+import { relatedProducts } from "../controllers/product.controller";
+import { authenticate, requirePermission } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { idParamSchema } from "../models/common.model";
+
+export const growthRouter = Router();
+
+growthRouter.get("/campaigns/active", activeCampaigns);
+growthRouter.get("/products/:id/related", validate({ params: idParamSchema }), relatedProducts);
+
+growthRouter.get("/admin/campaigns", authenticate, requirePermission("products:write"), listCampaigns);
+growthRouter.post("/admin/campaigns", authenticate, requirePermission("products:write"), validate({ body: campaignSchema }), createCampaign);
+growthRouter.patch("/admin/campaigns/:id", authenticate, requirePermission("products:write"), validate({ params: idParamSchema, body: campaignSchema.innerType().partial() }), updateCampaign);
+growthRouter.delete("/admin/campaigns/:id", authenticate, requirePermission("products:write"), validate({ params: idParamSchema }), deleteCampaign);
+growthRouter.post("/admin/products/bulk", authenticate, requirePermission("products:write"), validate({ body: bulkSchema }), bulkProducts);
+growthRouter.get("/admin/reports/sales", authenticate, requirePermission("dashboard:read"), validate({ query: reportQuerySchema }), salesReport);
+growthRouter.get("/admin/reports/sales.csv", authenticate, requirePermission("orders:read"), validate({ query: reportQuerySchema }), salesCsv);
+growthRouter.get("/admin/audit", authenticate, requirePermission("users:read"), validate({ query: auditQuerySchema }), listAuditLogs);

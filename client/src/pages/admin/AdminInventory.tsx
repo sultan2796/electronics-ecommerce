@@ -1,3 +1,5 @@
+import BulkBar from "../../components/admin/BulkBar";
+import { productService } from "../../services/product.service";
 import { FormEvent, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Alert from "../../components/common/Alert";
@@ -42,6 +44,9 @@ export default function AdminInventory() {
   const page = Number(params.get("page")) || 1;
   const [search, setSearch] = useState(q);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [notice, setNotice] = useState<string | null>(null);
+  const categories = useAsync(() => productService.categories(), []);
 
   const inventory = useAsync(() => adminService.inventory({ q: q || undefined, lowStock, page }), [q, lowStock, page]);
 
@@ -97,6 +102,19 @@ export default function AdminInventory() {
         Yalnız az qalan stok (≤5)
       </label>
       {error && <Alert>{error}</Alert>}
+      {notice && <Alert variant="success">{notice}</Alert>}
+      {selected.length > 0 && (
+        <BulkBar
+          ids={selected}
+          categories={categories.data ?? []}
+          onClear={() => setSelected([])}
+          onDone={(message) => {
+            setNotice(message);
+            setSelected([]);
+            void inventory.reload();
+          }}
+        />
+      )}
 
       {inventory.loading ? (
         <Spinner />
@@ -108,6 +126,15 @@ export default function AdminInventory() {
             <table className="w-full min-w-[760px] text-sm">
               <thead className="bg-surface text-left text-muted">
                 <tr>
+                  <th className="w-10 px-4 py-3">
+                    <input
+                      type="checkbox"
+                      aria-label="Hamısını seç"
+                      className="accent-brand-600"
+                      checked={Boolean(inventory.data?.items.length) && inventory.data!.items.every((item) => selected.includes(item.id))}
+                      onChange={(e) => setSelected(e.target.checked ? inventory.data?.items.map((item) => item.id) ?? [] : [])}
+                    />
+                  </th>
                   <th className="px-4 py-3">Məhsul</th>
                   <th className="px-4 py-3">SKU</th>
                   <th className="px-4 py-3">Kateqoriya</th>
@@ -119,6 +146,15 @@ export default function AdminInventory() {
               <tbody>
                 {inventory.data?.items.map((product) => (
                   <tr key={product.id} className={`border-t border-line ${product.stock <= 5 ? "bg-amber-50/60 dark:bg-amber-500/10" : ""}`}>
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        aria-label={`${product.name} seç`}
+                        className="accent-brand-600"
+                        checked={selected.includes(product.id)}
+                        onChange={(e) => setSelected((current) => (e.target.checked ? [...current, product.id] : current.filter((id) => id !== product.id)))}
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <Link to={`/admin/products/${product.id}`} className="flex items-center gap-3 font-medium hover:text-brand-600">
                         <ProductImage src={product.images[0]} category={product.category?.slug} alt={product.name} className="size-10 shrink-0 rounded-lg bg-chip" />
@@ -133,11 +169,11 @@ export default function AdminInventory() {
                     </td>
                     <td className="px-4 py-3">
                       {product.isActive ? (
-                        <button className="text-xs text-red-600 hover:underline" onClick={() => deactivate(product)}>
+                        <button className="text-xs text-red-600" onClick={() => deactivate(product)}>
                           Satışdan çıxar
                         </button>
                       ) : (
-                        <button className="text-xs text-emerald-600 hover:underline" onClick={() => reactivate(product)}>
+                        <button className="text-xs text-emerald-600" onClick={() => reactivate(product)}>
                           Satışa qaytar
                         </button>
                       )}

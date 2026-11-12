@@ -3,6 +3,7 @@ import { env } from "../config/env";
 import { prisma } from "../config/prisma";
 import { queueEmail } from "./email";
 import { orderStatusEmail } from "./email/templates";
+import { refundPoints } from "./loyalty.service";
 
 export const orderInclude = {
   items: true,
@@ -15,6 +16,7 @@ export const restockAndCancel = async (tx: Prisma.TransactionClient, orderId: st
     await tx.product.update({ where: { id: item.productId }, data: { stock: { increment: item.quantity } } });
   }
   await tx.payment.updateMany({ where: { orderId, status: PaymentStatus.PENDING }, data: { status: PaymentStatus.FAILED } });
+  await refundPoints(tx, orderId);
   return tx.order.update({ where: { id: orderId }, data: { status: OrderStatus.CANCELLED }, include: orderInclude });
 };
 

@@ -110,17 +110,17 @@ export default function AddressBook() {
                 {address.line2 ? `, ${address.line2}` : ""}, {address.city}
               </p>
               <div className="mt-3 flex gap-3 text-xs font-medium">
-                <button type="button" className="text-brand-600 hover:underline" onClick={() => open(address)}>
+                <button type="button" className="text-brand-600" onClick={() => open(address)}>
                   Redaktə
                 </button>
                 {!address.isDefault && (
-                  <button type="button" className="text-ink/70 hover:underline" onClick={() => run(() => extraService.updateAddress(address.id, { isDefault: true }))}>
+                  <button type="button" className="text-ink/70" onClick={() => run(() => extraService.updateAddress(address.id, { isDefault: true }))}>
                     Əsas et
                   </button>
                 )}
                 <button
                   type="button"
-                  className="text-red-600 hover:underline"
+                  className="text-red-600"
                   onClick={() => window.confirm("Ünvan silinsin?") && run(() => extraService.deleteAddress(address.id))}
                 >
                   Sil

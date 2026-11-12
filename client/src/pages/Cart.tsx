@@ -63,7 +63,7 @@ export default function Cart() {
               </button>
             </div>
             <p className="w-28 text-right font-semibold">{formatPrice(Number(item.product.price) * item.quantity)}</p>
-            <button className="text-sm text-red-600 hover:underline" disabled={busy} onClick={() => safely(() => removeItem(item.productId))}>
+            <button className="text-sm text-red-600" disabled={busy} onClick={() => safely(() => removeItem(item.productId))}>
               Sil
             </button>
           </article>

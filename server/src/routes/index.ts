@@ -8,6 +8,7 @@ import { paymentRouter } from "./payment.routes";
 import { productRouter } from "./product.routes";
 import { reviewRouter } from "./review.routes";
 import { extraRouter } from "./extra.routes";
+import { growthRouter } from "./growth.routes";
 import { wishlistRouter } from "./wishlist.routes";
 
 export const apiRouter = Router();
@@ -16,6 +17,7 @@ apiRouter.get("/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 apiRouter.use(extraRouter);
+apiRouter.use(growthRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/products", productRouter);
 apiRouter.use("/reviews", reviewRouter);

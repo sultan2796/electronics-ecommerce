@@ -14,7 +14,9 @@ import { useAsync } from "../hooks/useAsync";
 import { getErrorMessage } from "../services/api";
 import { productService } from "../services/product.service";
 import { TechSpecification } from "../types";
-import { discountOf, formatPrice, formatStorage, priceBeforeDiscount } from "../utils/format";
+import { formatPrice, formatStorage, monthlyPayment, pricing } from "../utils/format";
+import RelatedProducts from "../components/product/RelatedProducts";
+import Countdown from "../components/home/Countdown";
 import { productRating, reviewCountLabel } from "../utils/rating";
 import { rememberProduct } from "../utils/recentlyViewed";
 import { extraService } from "../services/extra.service";
@@ -94,7 +96,7 @@ export default function ProductDetail() {
 
   const soldOut = product.stock === 0;
   const rating = productRating(product);
-  const discount = discountOf(product);
+  const price = pricing(product);
   const inWishlist = wishlist.has(product.id);
   const rows = product.specs ? specRows(product.specs).filter(([, value]) => value) : [];
 
@@ -171,22 +173,39 @@ export default function ProductDetail() {
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-base font-semibold text-ink lg:text-2xl">{product.name}</h1>
             <div className="-mt-1 shrink-0 text-right">
-              <p className="text-xl font-bold text-brand-500 lg:text-2xl">{formatPrice(product.price)}</p>
-              {discount > 0 && (
+              <p className={`text-xl font-bold lg:text-3xl ${price.percent > 0 ? "text-red-600" : "text-ink"}`}>{formatPrice(price.price)}</p>
+              {price.was && (
                 <p className="flex items-center justify-end gap-1.5 text-xs">
-                  <span className="text-muted line-through">{formatPrice(priceBeforeDiscount(product.price, discount).toFixed(2))}</span>
-                  <span className="rounded-full bg-brand-600 px-1.5 py-0.5 font-semibold text-white">-{discount}%</span>
+                  <span className="text-muted line-through">{formatPrice(price.was.toFixed(2))}</span>
+                  <span className="rounded-md bg-red-600 px-1.5 py-0.5 font-semibold text-white">−{price.percent}%</span>
                 </p>
               )}
             </div>
           </div>
+          {product.campaign && (
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-red-600 to-brand-600 px-4 py-3 text-white">
+              <span className="text-sm font-semibold">
+                {product.campaign.name} · −{product.campaign.discountPercent}%
+              </span>
+              <Countdown until={product.campaign.endsAt} />
+            </div>
+          )}
+          {price.price >= 100 && (
+            <div className="mt-3 flex items-center justify-between rounded-2xl border border-line px-4 py-3 text-sm">
+              <span className="text-muted">Hissə-hissə ödəniş</span>
+              <span>
+                <strong className="text-ink">{formatPrice(monthlyPayment(price.price))}</strong>
+                <span className="text-muted"> × 12 ay</span>
+              </span>
+            </div>
+          )}
           <p className={`mt-1 flex items-center gap-1.5 text-xs ${soldOut ? "text-red-600" : "text-rating"}`}>
             <FigmaIcon name="star" className="h-[11px] w-3" />
             {rating && (
               <span>
                 {rating.value.toFixed(1)}
                 {rating.fromReviews && (
-                  <a href="#reviews" className="ml-1 text-muted underline-offset-2 hover:underline">
+                  <a href="#reviews" className="ml-1 text-muted">
                     ({reviewCountLabel(rating.count)})
                   </a>
                 )}{" "}
@@ -255,6 +274,7 @@ export default function ProductDetail() {
         </div>
       </div>
       <ReviewSection productId={product.id} productSlug={product.slug} onSummaryChange={syncRating} />
+      <RelatedProducts productId={product.id} />
       <div className="mt-10">
         <RecentlyViewed key={product.id} excludeId={product.id} title="Bunlara da baxmısınız" />
       </div>

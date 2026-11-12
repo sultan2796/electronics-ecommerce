@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import EmptyState from "../components/common/EmptyState";
+import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useAsync } from "../hooks/useAsync";
 import { getErrorMessage } from "../services/api";
@@ -38,6 +39,8 @@ const methodInfo: Record<PaymentMethod, { title: string; description: string }> 
 
 export default function Checkout() {
   const { cart, refresh } = useCart();
+  const { user, reloadUser } = useAuth();
+  const [usePoints, setUsePoints] = useState(false);
   const navigate = useNavigate();
   const config = useAsync(() => paymentService.config(), []);
   const [address, setAddress] = useState<ShippingAddress>(initialAddress);
@@ -91,6 +94,13 @@ export default function Checkout() {
     }
   };
 
+  const baseTotal = Number(coupon ? coupon.total : cart?.subtotal ?? 0);
+  const availablePoints = user?.points ?? 0;
+  const maxPoints = Math.min(availablePoints, Math.floor((baseTotal * 0.5) / 0.01));
+  const pointsDiscount = usePoints ? maxPoints * 0.01 : 0;
+  const finalTotal = Math.max(0, Math.round((baseTotal - pointsDiscount) * 100) / 100);
+  const earnPoints = Math.floor(finalTotal);
+
   const methods = config.data?.methods ?? ["CASH_ON_DELIVERY"];
   const selected: PaymentMethod = method && methods.includes(method) ? method : methods[0];
 
@@ -115,9 +125,10 @@ export default function Checkout() {
       const { line2, ...rest } = address;
       const result = await orderService.checkout(line2?.trim() ? address : rest, selected, {
         couponCode: coupon?.code,
+        usePoints: usePoints || undefined,
         saveAddress: saveAddress || undefined,
       });
-      await refresh();
+      await Promise.all([refresh(), reloadUser()]);
       if (result.payment?.redirectUrl) {
         goToPayment(result.payment.redirectUrl, navigate);
         return;
@@ -241,7 +252,7 @@ export default function Checkout() {
             <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
               <span>
                 Endirim ({coupon.code}){" "}
-                <button type="button" className="text-xs text-muted underline" onClick={() => setCoupon(null)}>
+                <button type="button" className="text-xs text-muted hover:text-red-600" onClick={() => setCoupon(null)}>
                   sil
                 </button>
               </span>
@@ -249,17 +260,27 @@ export default function Checkout() {
             </div>
           )}
         </div>
+        {maxPoints > 0 && (
+          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl bg-amber-50 px-3 py-2.5 text-sm dark:bg-amber-500/10">
+            <span className="flex items-center gap-2">
+              <input type="checkbox" className="accent-brand-600" checked={usePoints} onChange={(e) => setUsePoints(e.target.checked)} />
+              {maxPoints} bonus bal istifadə et
+            </span>
+            <span className="font-medium text-amber-700 dark:text-amber-300">−{formatPrice(maxPoints * 0.01)}</span>
+          </label>
+        )}
         <div className="flex justify-between text-sm">
           <span className="text-muted">Çatdırılma</span>
           <span className="text-emerald-600 dark:text-emerald-400">Pulsuz</span>
         </div>
         <div className="flex justify-between text-lg font-bold">
           <span>Cəmi</span>
-          <span>{formatPrice(coupon ? coupon.total : cart?.subtotal ?? 0)}</span>
+          <span>{formatPrice(finalTotal)}</span>
         </div>
         <button type="submit" className="btn-primary w-full" disabled={submitting || !cart}>
           {submitting ? "Göndərilir..." : selected === "CARD" ? "Ödənişə keç" : "Sifarişi təsdiqlə"}
         </button>
+        {earnPoints > 0 && <p className="text-center text-xs text-emerald-600 dark:text-emerald-400">Bu sifarişdən {earnPoints} bonus bal qazanacaqsınız</p>}
         <p className="text-center text-[11px] text-muted">Sifarişi təsdiqləməklə satış şərtləri ilə razılaşırsınız.</p>
       </aside>
     </form>

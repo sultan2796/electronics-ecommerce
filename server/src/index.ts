@@ -2,6 +2,8 @@ import { createApp } from "./app";
 import { env } from "./config/env";
 import { prisma } from "./config/prisma";
 import { bootstrap } from "./services/bootstrap.service";
+import { startCampaignRefresher } from "./services/campaign.service";
+import { remindAbandonedCarts } from "./services/jobs.service";
 import { expireUnpaidOrders } from "./services/order.service";
 
 const app = createApp();
@@ -24,9 +26,20 @@ const runExpiry = () => {
 const expiryTimer = setInterval(runExpiry, EXPIRY_INTERVAL_MS);
 runExpiry();
 
+const campaignTimer = startCampaignRefresher();
+const cartTimer = setInterval(() => {
+  remindAbandonedCarts()
+    .then((count) => {
+      if (count > 0) console.log(`${count} tərk edilmiş səbət üçün xatırlatma göndərildi`);
+    })
+    .catch((error) => console.error("Səbət xatırlatması alınmadı", error));
+}, 60 * 60 * 1000);
+
 const shutdown = (signal: string) => {
   console.log(`${signal} received, shutting down`);
   clearInterval(expiryTimer);
+  clearInterval(campaignTimer);
+  clearInterval(cartTimer);
   server.close(async () => {
     await prisma.$disconnect();
     process.exit(0);

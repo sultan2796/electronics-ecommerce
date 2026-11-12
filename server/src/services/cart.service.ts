@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
 import { productInclude } from "./product.service";
+import { withPricing } from "./campaign.service";
 
 export const cartInclude = {
   items: { include: { product: { include: productInclude } }, orderBy: { createdAt: "asc" } },
@@ -8,12 +9,15 @@ export const cartInclude = {
 
 type CartWithItems = Prisma.CartGetPayload<{ include: typeof cartInclude }>;
 
-export const formatCart = (cart: CartWithItems) => ({
-  id: cart.id,
-  items: cart.items,
-  itemCount: cart.items.reduce((sum, item) => sum + item.quantity, 0),
-  subtotal: cart.items.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0),
-});
+export const formatCart = (cart: CartWithItems) => {
+  const items = cart.items.map((item) => ({ ...item, product: withPricing(item.product) }));
+  return {
+    id: cart.id,
+    items,
+    itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+    subtotal: Math.round(items.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0) * 100) / 100,
+  };
+};
 
 const sanitizeCart = async (cart: CartWithItems) => {
   const unavailable = cart.items.filter((item) => !item.product.isActive || item.product.stock === 0);

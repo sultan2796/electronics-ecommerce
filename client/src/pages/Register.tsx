@@ -1,3 +1,4 @@
+import GoogleButton from "../components/auth/GoogleButton";
 import { FormEvent, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
@@ -56,9 +57,10 @@ export default function Register() {
       <button className="btn-primary w-full" disabled={submitting}>
         {submitting ? "Yaradılır..." : "Hesab yarat"}
       </button>
+      <GoogleButton />
       <p className="text-center text-sm text-ink/70">
         Artıq hesabınız var?{" "}
-        <Link to="/login" className="text-brand-600 hover:underline">
+        <Link to="/login" className="text-brand-600">
           Daxil olun
         </Link>
       </p>

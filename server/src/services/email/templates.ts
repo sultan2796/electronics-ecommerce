@@ -157,3 +157,28 @@ export const backInStockEmail = (user: Recipient, productName: string, url: stri
   html: layout("Gözlədiyiniz məhsul stokdadır", paragraph(`Hörmətli ${escapeHtml(user.name)},`) + paragraph(`<strong>${escapeHtml(productName)}</strong> yenidən satışdadır. Tükənməmiş sifariş edin.`), { label: "Məhsula bax", url }),
   text: `${productName} yenidən stokdadır: ${url}`,
 });
+
+export const abandonedCartEmail = (user: Recipient, items: { name: string; quantity: number }[], url: string): EmailContent => ({
+  template: "abandoned-cart",
+  subject: "Səbətinizdə məhsullar sizi gözləyir",
+  html: layout(
+    "Səbətinizi unutmayın",
+    paragraph(`Hörmətli ${escapeHtml(user.name)},`) +
+      paragraph("Səbətinizdə qalan məhsullar hələ də stokdadır:") +
+      `<ul style="padding-left:18px;font-size:14px">${items.map((item) => `<li>${escapeHtml(item.name)} × ${item.quantity}</li>`).join("")}</ul>`,
+    { label: "Səbətə qayıt", url },
+  ),
+  text: `Səbətinizdə məhsullar qalıb:\n${items.map((item) => `- ${item.name} × ${item.quantity}`).join("\n")}\n${url}`,
+});
+
+export const lowStockEmail = (user: Recipient, products: { name: string; sku: string; stock: number }[], url: string): EmailContent => ({
+  template: "low-stock",
+  subject: `Anbar xəbərdarlığı: ${products.length} məhsul azalır`,
+  html: layout(
+    "Stok azalır",
+    paragraph(`Hörmətli ${escapeHtml(user.name)},`) +
+      `<ul style="padding-left:18px;font-size:14px">${products.map((p) => `<li>${escapeHtml(p.name)} (${escapeHtml(p.sku)}) — <strong>${p.stock}</strong> ədəd</li>`).join("")}</ul>`,
+    { label: "Anbara keç", url },
+  ),
+  text: products.map((p) => `${p.name} (${p.sku}): ${p.stock}`).join("\n") + `\n${url}`,
+});

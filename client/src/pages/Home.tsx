@@ -1,20 +1,23 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Alert from "../components/common/Alert";
-import FigmaIcon from "../components/common/FigmaIcon";
 import Spinner from "../components/common/Spinner";
 import Benefits from "../components/home/Benefits";
+import Countdown from "../components/home/Countdown";
 import HeroSlider from "../components/home/HeroSlider";
+import ProductGrid from "../components/home/ProductGrid";
 import RecentlyViewed from "../components/home/RecentlyViewed";
-import CategoryChips from "../components/product/CategoryChips";
-import ProductCard from "../components/product/ProductCard";
-import { useAuth } from "../context/AuthContext";
+import SectionHeader from "../components/home/SectionHeader";
+import { useI18n } from "../context/I18nContext";
 import { useAsync } from "../hooks/useAsync";
+import { useSeo } from "../hooks/useSeo";
+import { extraService } from "../services/extra.service";
 import { productService } from "../services/product.service";
 import { Category } from "../types";
 import { emptyFilters } from "../utils/filters";
+import { fallbackImage } from "../components/product/ProductImage";
 
-const categoryOrder = ["headsets", "smartphones", "laptops", "tablets", "mobile-accessories", "earphones", "cables"];
+const categoryOrder = ["smartphones", "laptops", "tablets", "mobile-accessories", "headsets", "earphones", "cables"];
 
 const sortCategories = (categories: Category[]) =>
   [...categories].sort((a, b) => {
@@ -23,26 +26,24 @@ const sortCategories = (categories: Category[]) =>
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi) || a.name.localeCompare(b.name);
   });
 
-const initials = (name: string) =>
-  name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
 export default function Home() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [search, setSearch] = useState("");
+  const { t } = useI18n();
   const [active, setActive] = useState("");
+  useSeo({ title: "Elektronika mağazası", description: t("hero.text") });
 
-  const featured = useAsync(() => productService.featured(3), []);
+  const featured = useAsync(() => productService.featured(4), []);
   const picks = useAsync(() => productService.featured(10), []);
+  const campaigns = useAsync(() => extraService.activeCampaigns().catch(() => []), []);
   const categoriesState = useAsync(() => productService.categories(), []);
   const categories = useMemo(
     () => sortCategories((categoriesState.data ?? []).filter((category) => (category._count?.products ?? 0) > 0)),
     [categoriesState.data],
+  );
+  const campaign = campaigns.data?.[0] ?? null;
+
+  const deals = useAsync(
+    () => productService.list({ ...emptyFilters, category: campaign?.category?.slug ?? "", inStock: true, sort: "price_desc" }, 10),
+    [campaign?.id],
   );
 
   useEffect(() => {
@@ -50,94 +51,108 @@ export default function Home() {
   }, [active, categories]);
 
   const products = useAsync(
-    () => (active ? productService.list({ ...emptyFilters, category: active }, 8) : Promise.resolve(null)),
+    () => (active ? productService.list({ ...emptyFilters, category: active }, 10) : Promise.resolve(null)),
     [active],
   );
 
-  const onSearch = (event: FormEvent) => {
-    event.preventDefault();
-    navigate(search.trim() ? `/products?q=${encodeURIComponent(search.trim())}` : "/products");
-  };
-
   return (
-    <div className="-mx-4 -mt-8 space-y-[30px] sm:mx-0 sm:mt-0">
-      <HeroSlider
-        products={featured.data ?? []}
-        overlay={
-          <>
-            <Link
-              to={user ? "/profile" : "/login"}
-              aria-label={user ? "Hesabım" : "Giriş"}
-              className="absolute left-[26px] top-[25px] z-10 flex size-[38px] items-center justify-center rounded-full border-2 border-white bg-brand-500 text-sm font-semibold text-white"
-            >
-              {user ? initials(user.name) : "?"}
-            </Link>
-            <Link to="/wishlist" aria-label="İstək siyahısı" className="absolute right-[20px] top-[25px] z-10">
-              <FigmaIcon name="heart" className="size-[22.5px]" />
-            </Link>
-          </>
-        }
-      />
+    <div className="-mx-4 -mt-8 space-y-12 sm:mx-0 sm:mt-0 sm:space-y-14">
+      <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+        <HeroSlider products={featured.data ?? []} />
+        <div className="hidden grid-rows-2 gap-4 lg:grid">
+          <Link to="/products?category=laptops" className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-slate-700 p-6 text-white">
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Noutbuklar</p>
+            <p className="mt-1 text-xl font-bold leading-tight">İş və oyun üçün güclü seçim</p>
+            <span className="mt-3 inline-block text-sm font-semibold text-brand-500">Bax →</span>
+            <img src={fallbackImage("laptops")} alt="" className="absolute -bottom-4 -right-6 w-40 opacity-90 transition duration-500 group-hover:scale-105" />
+          </Link>
+          <Link to="/products?category=mobile-accessories" className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 to-brand-700 p-6 text-white">
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/70">Aksesuarlar</p>
+            <p className="mt-1 text-xl font-bold leading-tight">Hər gün üçün vacib detallar</p>
+            <span className="mt-3 inline-block text-sm font-semibold">Bax →</span>
+            <img src={fallbackImage("earphones")} alt="" className="absolute -bottom-4 -right-4 w-36 opacity-90 transition duration-500 group-hover:scale-105" />
+          </Link>
+        </div>
+      </div>
 
-      <div className="space-y-[30px] px-5 sm:px-0">
-        <form onSubmit={onSearch} className="relative md:hidden">
-          <FigmaIcon name="search" className="pointer-events-none absolute left-[14px] top-1/2 size-4 -translate-y-1/2 dark:invert" />
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Qulaqlıq, noutbuk, smartfon axtar"
-            className="h-10 w-full rounded-full border border-ink/20 bg-surface pl-[45px] pr-4 text-base text-ink outline-none placeholder:text-muted focus:border-brand-500"
-          />
-        </form>
-
+      <div className="space-y-12 px-4 sm:space-y-14 sm:px-0">
         <Benefits />
 
-        {picks.data && picks.data.length > 0 && (
-          <section className="space-y-4">
-            <div className="flex items-center justify-between px-[10px]">
-              <h2 className="text-base text-ink">Sizin üçün seçdiklərimiz</h2>
-              <span className="text-xs text-muted">Ən yüksək reytinq</span>
-            </div>
-            <div className="no-scrollbar -mx-5 flex snap-x gap-5 overflow-x-auto px-5 pb-3 pt-1 sm:mx-0 sm:px-0">
-              {picks.data.map((product) => (
-                <div key={product.id} className="w-[158px] shrink-0 snap-start sm:w-[220px]">
-                  <ProductCard product={product} />
-                </div>
+        {categories.length > 0 && (
+          <section>
+            <SectionHeader title={t("home.categories")} />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  to={`/products?category=${category.slug}`}
+                  className="group flex flex-col items-center gap-3 rounded-2xl border border-line bg-surface p-4 text-center transition hover:-translate-y-0.5 hover:border-brand-500/40 hover:shadow-md"
+                >
+                  <span className="flex size-16 items-center justify-center rounded-2xl bg-chip transition group-hover:bg-brand-50 dark:group-hover:bg-brand-500/10">
+                    <img src={fallbackImage(category.slug)} alt="" className="size-11 object-contain" />
+                  </span>
+                  <span className="text-sm font-medium text-ink">{category.name}</span>
+                  <span className="-mt-2 text-xs text-muted">{category._count?.products ?? 0} məhsul</span>
+                </Link>
               ))}
             </div>
           </section>
         )}
 
-        <section className="space-y-4">
-          <div className="flex items-center justify-between px-[10px]">
-            <h2 className="text-base text-ink">Kateqoriyalar</h2>
-            <Link to={active ? `/products?category=${active}` : "/products"} className="text-xs text-brand-600 hover:underline">
-              Hamısına bax
-            </Link>
-          </div>
-          {categoriesState.error && <Alert>{categoriesState.error}</Alert>}
-          <CategoryChips categories={categories} active={active} onSelect={setActive} />
-        </section>
+        {campaign && deals.data && deals.data.items.length > 0 && (
+          <section className="overflow-hidden rounded-3xl bg-gradient-to-r from-red-600 to-brand-600 p-4 sm:p-6">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-white">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-white/75">{t("home.deals")}</p>
+                <h2 className="text-xl font-bold sm:text-2xl">
+                  {campaign.name} · −{campaign.discountPercent}%
+                </h2>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-white/80">{t("home.dealsEnds")}</span>
+                <Countdown until={campaign.endsAt} />
+              </div>
+            </div>
+            <ProductGrid products={deals.data.items} scroll />
+          </section>
+        )}
 
+        {picks.data && picks.data.length > 0 && (
+          <section>
+            <SectionHeader title={t("home.picks")} hint={t("home.picksHint")} to="/products" linkLabel={t("home.seeAll")} />
+            <ProductGrid products={picks.data} scroll />
+          </section>
+        )}
 
         <section>
+          <SectionHeader title={t("nav.products")} to={active ? `/products?category=${active}` : "/products"} linkLabel={t("home.seeAll")} />
+          {categoriesState.error && <Alert>{categoriesState.error}</Alert>}
+          <div className="no-scrollbar -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => setActive(category.slug)}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
+                  active === category.slug ? "bg-ink text-surface" : "bg-surface text-ink/70 ring-1 ring-line hover:text-ink"
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
           {categoriesState.loading || products.loading ? (
             <Spinner />
           ) : products.error ? (
             <Alert>{products.error}</Alert>
           ) : !active ? null : !products.data?.items.length ? (
-            <p className="py-10 text-center text-sm text-muted">Bu kateqoriyada hələ məhsul yoxdur.</p>
+            <p className="py-10 text-center text-sm text-muted">{t("home.empty")}</p>
           ) : (
-            <div className="grid grid-cols-2 gap-x-[28px] gap-y-[42px] sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:grid-cols-5">
-              {products.data.items.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <ProductGrid products={products.data.items} />
           )}
         </section>
 
-        <RecentlyViewed />
+        <RecentlyViewed title={t("home.recent")} />
       </div>
     </div>
   );

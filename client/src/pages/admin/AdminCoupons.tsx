@@ -160,10 +160,10 @@ export default function AdminCoupons() {
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${status.style}`}>{status.label}</span>
                     </td>
                     <td className="space-x-3 whitespace-nowrap px-4 py-3 text-right text-xs font-medium">
-                      <button type="button" className="text-brand-600 hover:underline" onClick={() => toggle(coupon)}>
+                      <button type="button" className="text-brand-600" onClick={() => toggle(coupon)}>
                         {coupon.isActive ? "Dayandır" : "Aktivləşdir"}
                       </button>
-                      <button type="button" className="text-red-600 hover:underline" onClick={() => remove(coupon)}>
+                      <button type="button" className="text-red-600" onClick={() => remove(coupon)}>
                         Sil
                       </button>
                     </td>

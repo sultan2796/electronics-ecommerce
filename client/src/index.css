@@ -4,33 +4,36 @@
 
 @layer base {
   :root {
-    --canvas: 255 255 255;
+    --canvas: 246 247 249;
     --surface: 255 255 255;
-    --chip: 244 244 244;
-    --tile: 241 241 242;
-    --ink: 10 9 11;
-    --muted: 118 117 121;
-    --line: 231 231 234;
-    --navbar: 249 249 249;
-    --rating: 43 39 39;
+    --chip: 241 243 246;
+    --tile: 246 247 249;
+    --ink: 15 23 42;
+    --muted: 100 116 139;
+    --line: 228 231 236;
+    --navbar: 255 255 255;
+    --rating: 245 158 11;
     color-scheme: light;
   }
 
   .dark {
-    --canvas: 13 13 16;
-    --surface: 23 23 27;
-    --chip: 35 35 41;
-    --tile: 30 30 35;
-    --ink: 240 240 242;
-    --muted: 156 155 162;
-    --line: 46 46 54;
-    --navbar: 19 19 23;
-    --rating: 222 220 225;
+    --canvas: 11 15 25;
+    --surface: 19 24 36;
+    --chip: 30 37 52;
+    --tile: 24 30 44;
+    --ink: 241 245 249;
+    --muted: 148 163 184;
+    --line: 39 47 63;
+    --navbar: 15 20 31;
+    --rating: 251 191 36;
     color-scheme: dark;
   }
 
   body {
     @apply bg-canvas text-ink transition-colors duration-200;
+  }
+  a {
+    text-decoration: none;
   }
 }
 
@@ -83,6 +86,14 @@
   .animate-page {
     animation: page-in 0.35s ease-out both;
   }
+  @keyframes slide-progress {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
   @keyframes page-in {
     from {
       opacity: 0;
@@ -97,5 +108,21 @@
     .animate-page {
       animation: none;
     }
+  }
+}
+
+@media print {
+  header,
+  footer,
+  nav,
+  [role="alert"],
+  a[aria-label="WhatsApp ilə yazın"] {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  main {
+    padding: 0 !important;
   }
 }

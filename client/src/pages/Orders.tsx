@@ -70,7 +70,7 @@ export default function Orders() {
             <div className="flex items-center justify-between border-t border-line pt-3">
               <span className="font-bold">{formatPrice(order.total)}</span>
               {order.status === "PENDING" && (
-                <button className="text-sm text-red-600 hover:underline" onClick={() => cancel(order.id)}>
+                <button className="text-sm text-red-600" onClick={() => cancel(order.id)}>
                   Sifarişi ləğv et
                 </button>
               )}

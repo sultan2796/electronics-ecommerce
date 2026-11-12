@@ -1,3 +1,4 @@
+import GoogleButton from "../components/auth/GoogleButton";
 import { FormEvent, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
@@ -41,7 +42,7 @@ export default function Login() {
       <label className="block space-y-1">
         <span className="flex items-center justify-between text-sm font-medium">
           Şifrə
-          <Link to="/forgot-password" className="text-xs font-normal text-brand-600 hover:underline">
+          <Link to="/forgot-password" className="text-xs font-normal text-brand-600">
             Şifrəni unutmusunuz?
           </Link>
         </span>
@@ -50,9 +51,10 @@ export default function Login() {
       <button className="btn-primary w-full" disabled={submitting}>
         {submitting ? "Yoxlanılır..." : "Daxil ol"}
       </button>
+      <GoogleButton />
       <p className="text-center text-sm text-ink/70">
         Hesabınız yoxdur?{" "}
-        <Link to="/register" className="text-brand-600 hover:underline">
+        <Link to="/register" className="text-brand-600">
           Qeydiyyatdan keçin
         </Link>
       </p>

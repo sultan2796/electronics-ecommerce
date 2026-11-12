@@ -21,6 +21,7 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("ElectroShop <onboarding@resend.dev>"),
   PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().positive().default(30),
+  GOOGLE_CLIENT_ID: z.string().optional(),
   ADMIN_EMAIL: z.string().email().optional(),
   ADMIN_PASSWORD: z.string().min(8).optional(),
   AUTO_IMPORT_CATALOG: z

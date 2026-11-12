@@ -4,6 +4,7 @@ import CompareBar from "../product/CompareBar";
 import BottomNav from "./BottomNav";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
+import WhatsAppButton from "./WhatsAppButton";
 
 export default function Layout() {
   const { pathname } = useLocation();
@@ -17,6 +18,7 @@ export default function Layout() {
         </div>
       </main>
       <Footer />
+      <WhatsAppButton />
       <CompareBar />
       <BottomNav />
     </div>

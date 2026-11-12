@@ -14,6 +14,7 @@ import OrderDetail from "./pages/OrderDetail";
 import PaymentMock from "./pages/PaymentMock";
 import PaymentResult from "./pages/PaymentResult";
 import Orders from "./pages/Orders";
+import Invoice from "./pages/Invoice";
 import ProductDetail from "./pages/ProductDetail";
 import Products from "./pages/Products";
 import Profile from "./pages/Profile";
@@ -26,6 +27,9 @@ const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminEmails = lazy(() => import("./pages/admin/AdminEmails"));
 const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
+const AdminAudit = lazy(() => import("./pages/admin/AdminAudit"));
+const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
+const AdminCampaigns = lazy(() => import("./pages/admin/AdminCampaigns"));
 const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -60,6 +64,15 @@ export default function App() {
             <Route element={<ProtectedRoute permission="products:write" />}>
               <Route path="coupons" element={<AdminCoupons />} />
             </Route>
+            <Route element={<ProtectedRoute permission="products:write" />}>
+              <Route path="campaigns" element={<AdminCampaigns />} />
+            </Route>
+            <Route element={<ProtectedRoute permission="dashboard:read" />}>
+              <Route path="reports" element={<AdminReports />} />
+            </Route>
+            <Route element={<ProtectedRoute permission="users:read" />}>
+              <Route path="audit" element={<AdminAudit />} />
+            </Route>
             <Route element={<ProtectedRoute permission="emails:read" />}>
               <Route path="emails" element={<AdminEmails />} />
             </Route>
@@ -84,6 +97,7 @@ export default function App() {
             <Route path="checkout" element={<Checkout />} />
             <Route path="orders" element={<Orders />} />
             <Route path="orders/:id" element={<OrderDetail />} />
+            <Route path="orders/:id/invoice" element={<Invoice />} />
             <Route path="profile" element={<Profile />} />
             <Route path="payment/mock" element={<PaymentMock />} />
             <Route path="payment/result" element={<PaymentResult />} />
