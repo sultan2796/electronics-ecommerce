@@ -16,6 +16,7 @@ COPY package*.json ./
 COPY prisma ./prisma
 RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi && npx prisma generate
 COPY --from=build /app/dist ./dist
+COPY --chmod=755 docker-entrypoint.sh ./docker-entrypoint.sh
 USER node
 EXPOSE 4000
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "./docker-entrypoint.sh"]
