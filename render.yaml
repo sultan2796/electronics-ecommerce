@@ -13,8 +13,6 @@ services:
         value: production
       - key: DATABASE_URL
         sync: false
-      - key: DIRECT_URL
-        sync: false
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: ACCESS_TOKEN_TTL_SECONDS
@@ -24,7 +22,7 @@ services:
       - key: CLIENT_URL
         sync: false
       - key: API_PUBLIC_URL
-        sync: false
+        value: https://electronics-api-a55b.onrender.com
       - key: PAYMENT_PROVIDER
         value: mock
       - key: EMAIL_PROVIDER
