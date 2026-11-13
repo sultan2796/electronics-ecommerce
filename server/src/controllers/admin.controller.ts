@@ -144,7 +144,7 @@ export const listOrders = asyncHandler(async (req, res) => {
     ...(q && {
       OR: [
         { orderNumber: { contains: q, mode: "insensitive" } },
-        { id: { endsWith: q.toLowerCase() } },
+        { id: { endsWith: q.replace(/^#/, ""), mode: "insensitive" } },
         { user: { email: { contains: q, mode: "insensitive" } } },
         { user: { name: { contains: q, mode: "insensitive" } } },
       ],

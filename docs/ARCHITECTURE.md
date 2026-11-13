@@ -31,7 +31,8 @@ Prinsiplər:
 | TechSpecification | Texniki göstəricilər (1:1) | cpu, gpu, ramGb, storageGb, storageType, screenSizeInch, resolution, refreshRateHz, batteryMah, os, weightGrams, connectivity[], extra (JSON) |
 | Cart / CartItem | Səbət | (cartId, productId) unikal |
 | WishlistItem | İstək siyahısı | (userId, productId) unikal |
-| Order / OrderItem | Sifariş | status, paymentStatus, total, shippingAddress (JSON); productName və unitPrice sifariş anında saxlanılır |
+| Order / OrderItem | Sifariş | orderNumber (unikal, ES-YYMMDD-XXXXXX), status, paymentStatus, total, shippingAddress (JSON); productName və unitPrice sifariş anında saxlanılır |
+| OrderStatusHistory | Status tarixçəsi | hər status dəyişikliyi (yaradılma, ödəniş, admin dəyişikliyi, ləğv) tarixi ilə yazılır |
 
 Dizayn qərarları:
 
@@ -143,3 +144,9 @@ Xəta formatı: `{ "message": "...", "details": ... }`.
 - Vitest + Supertest testləri, Playwright E2E
 - Redis keşi (facets), tam mətn axtarışı (PostgreSQL `tsvector`)
 - E-poçt bildirişləri (sifariş təsdiqi)
+
+## Sifariş izləmə və endirimlər
+
+- `GET /api/admin/orders?q=&userId=&status=` — sifariş nömrəsi, müştəri adı və ya e-poçtu ilə axtarış.
+- `GET /api/admin/users/:id` — müştəri detalları: ünvanlar, son sifarişlər, ödənilmiş sifarişlərin cəmi.
+- `Product.salePrice` — məhsulun endirimli qiyməti; kampaniya ilə müqayisədə ən aşağı qiymət səbətdə və sifarişdə tətbiq olunur.

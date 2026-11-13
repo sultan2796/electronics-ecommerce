@@ -32,6 +32,7 @@ interface FormState {
   brand: string;
   description: string;
   price: string;
+  salePrice: string;
   stock: string;
   images: string;
   categoryId: string;
@@ -57,6 +58,7 @@ const emptyForm: FormState = {
   brand: "",
   description: "",
   price: "",
+  salePrice: "",
   stock: "0",
   images: "",
   categoryId: "",
@@ -84,6 +86,7 @@ const fromProduct = (product: Product): FormState => ({
   brand: product.brand,
   description: product.description,
   price: String(Number(product.price)),
+  salePrice: product.salePrice ? String(Number(product.salePrice)) : "",
   stock: String(product.stock),
   images: product.images.join("\n"),
   categoryId: product.categoryId,
@@ -113,6 +116,7 @@ const toPayload = (form: FormState): ProductPayload => ({
   brand: form.brand.trim(),
   description: form.description.trim(),
   price: Number(form.price),
+  salePrice: form.salePrice.trim() ? Number(form.salePrice) : null,
   stock: Math.round(Number(form.stock)),
   images: form.images.split("\n").map((line) => line.trim()).filter(Boolean),
   categoryId: form.categoryId,
@@ -290,6 +294,7 @@ export default function ProductForm() {
               />
             </Field>
             <Field label="Qiymət (AZN) *">{input("price", { type: "number", step: "0.01", required: true })}</Field>
+            <Field label="Endirimli qiymət (AZN)">{input("salePrice", { type: "number", step: "0.01" })}</Field>
             <Field label="Stok *">{input("stock", { type: "number", step: "1", required: true })}</Field>
             <Field label="Təsvir" wide>
               <textarea

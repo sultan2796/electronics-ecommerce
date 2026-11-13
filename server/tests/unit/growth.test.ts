@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { describe, expect, it } from "vitest";
-import { campaignFor, discounted, setActiveCampaigns, withPricing } from "../../src/services/campaign.service";
+import { campaignFor, discounted, effectivePrice, setActiveCampaigns, withPricing } from "../../src/services/campaign.service";
 import { pointsEarnedFor, pointsToMoney, redeemablePoints } from "../../src/services/loyalty.service";
 
 const now = Date.now();
@@ -31,4 +31,26 @@ describe("bonus balları", () => {
   it("ballar sifarişin yarısından çox ödəyə bilməz", () => expect(redeemablePoints(100000, 100)).toBe(5000));
   it("mövcud baldan çox xərclənmir", () => expect(redeemablePoints(300, 100)).toBe(300));
   it("bal pula çevrilir", () => expect(pointsToMoney(250).toNumber()).toBe(2.5));
+});
+
+describe("məhsul endirimi", () => {
+  it("endirimli qiymət səbət və sifarişdə istifadə olunur", () => {
+    setActiveCampaigns([]);
+    const product = { price: new Prisma.Decimal(100), salePrice: new Prisma.Decimal(85), categoryId: "c1" };
+    expect(effectivePrice(product).toNumber()).toBe(85);
+    const priced = withPricing(product);
+    expect(priced.price.toNumber()).toBe(85);
+    expect(priced.compareAtPrice?.toNumber()).toBe(100);
+    expect(priced.campaign).toBeNull();
+  });
+  it("kampaniya daha ucuzdursa kampaniya qiyməti seçilir", () => {
+    setActiveCampaigns([campaign()]);
+    const priced = withPricing({ price: new Prisma.Decimal(100), salePrice: new Prisma.Decimal(90), categoryId: "c1" });
+    expect(priced.price.toNumber()).toBe(80);
+    expect(priced.campaign?.discountPercent).toBe(20);
+  });
+  it("əsas qiymətdən yüksək endirim qiyməti nəzərə alınmır", () => {
+    setActiveCampaigns([]);
+    expect(withPricing({ price: new Prisma.Decimal(100), salePrice: new Prisma.Decimal(120), categoryId: "c1" }).compareAtPrice).toBeNull();
+  });
 });

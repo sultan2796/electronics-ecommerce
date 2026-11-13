@@ -73,6 +73,7 @@ export const productCreateSchema = z.object({
   brand: z.string().trim().min(1).max(60),
   description: z.string().max(5000).default(""),
   price: z.number().positive(),
+  salePrice: z.number().positive().nullable().optional(),
   stock: z.number().int().min(0),
   images: z.array(z.string().trim().min(1)).default([]),
   categoryId: z.string().min(1),
@@ -81,6 +82,9 @@ export const productCreateSchema = z.object({
 });
 
 export const productUpdateSchema = productCreateSchema.partial();
+
+export const salePriceIsValid = (price: number, salePrice: number | null | undefined) =>
+  salePrice === null || salePrice === undefined || salePrice < price;
 
 export const stockUpdateSchema = z.object({ stock: z.number().int().min(0) });
 

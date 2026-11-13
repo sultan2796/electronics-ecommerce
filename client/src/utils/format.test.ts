@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { discountOf, formatDate, formatPrice, formatStorage, priceBeforeDiscount } from "./format";
+import { discountOf, orderCode, formatDate, formatPrice, formatStorage, priceBeforeDiscount } from "./format";
 
 describe("formatlama", () => {
   it("qiyməti Azərbaycan formatında yazır", () => {
@@ -31,8 +31,7 @@ describe("formatlama", () => {
 });
 
 describe("sifariş kodu", () => {
-  it("sifariş nömrəsi varsa onu göstərir", async () => {
-    const { orderCode } = await import("./format");
+  it("sifariş nömrəsi varsa onu göstərir", () => {
     expect(orderCode({ id: "ckabc123xyz", orderNumber: "ES-261113-AB2CD" })).toBe("ES-261113-AB2CD");
     expect(orderCode({ id: "ckabc123xyz9", orderNumber: null })).toBe("#C123XYZ9");
   });

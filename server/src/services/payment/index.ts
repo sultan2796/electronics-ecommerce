@@ -1,3 +1,4 @@
+import { recordOrderStatus } from "../order.service";
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 import crypto from "crypto";
 import { env, isProduction } from "../../config/env";
@@ -92,7 +93,7 @@ export const finalizePayment = async (reference: string, outcome: PaymentOutcome
         },
       });
       if (payment.order.status === OrderStatus.PENDING) {
-        await tx.orderStatusHistory.create({ data: { orderId: payment.orderId, status: OrderStatus.PAID, note: "Onlayn ödəniş təsdiqləndi" } });
+        await recordOrderStatus(tx, payment.orderId, OrderStatus.PAID, "Onlayn ödəniş təsdiqləndi");
       }
     } else if (payment.order.paymentStatus !== PaymentStatus.SUCCEEDED) {
       await tx.order.update({ where: { id: payment.orderId }, data: { paymentStatus: PaymentStatus.FAILED } });

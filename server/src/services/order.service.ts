@@ -16,8 +16,16 @@ const ORDER_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 export const generateOrderNumber = (date = new Date()) => {
   const stamp = `${String(date.getFullYear()).slice(2)}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
   let code = "";
-  for (let index = 0; index < 5; index += 1) code += ORDER_CODE_ALPHABET[Math.floor(Math.random() * ORDER_CODE_ALPHABET.length)];
+  for (let index = 0; index < 6; index += 1) code += ORDER_CODE_ALPHABET[Math.floor(Math.random() * ORDER_CODE_ALPHABET.length)];
   return `ES-${stamp}-${code}`;
+};
+
+export const uniqueOrderNumber = async (tx: Prisma.TransactionClient) => {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const candidate = generateOrderNumber();
+    if (!(await tx.order.findUnique({ where: { orderNumber: candidate }, select: { id: true } }))) return candidate;
+  }
+  throw new Error("Unikal sifariş nömrəsi yaradıla bilmədi");
 };
 
 export const recordOrderStatus = (tx: Prisma.TransactionClient, orderId: string, status: OrderStatus, note?: string) =>

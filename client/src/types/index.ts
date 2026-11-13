@@ -104,6 +104,7 @@ export interface Product {
   brand: string;
   description: string;
   price: string;
+  salePrice?: string | null;
   stock: number;
   images: string[];
   isActive: boolean;
@@ -278,6 +279,7 @@ export interface ProductPayload {
   brand: string;
   description: string;
   price: number;
+  salePrice?: number | null;
   stock: number;
   images: string[];
   categoryId: string;

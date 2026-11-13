@@ -104,6 +104,7 @@ model Product {
   brand        String
   description  String
   price        Decimal            @db.Decimal(10, 2)
+  salePrice    Decimal?           @db.Decimal(10, 2)
   stock        Int                @default(0)
   images       String[]
   isActive     Boolean            @default(true)

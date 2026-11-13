@@ -22,20 +22,28 @@ export const campaignFor = (categoryId: string, now = new Date()) =>
 
 export const discounted = (price: Prisma.Decimal, percent: number) => price.mul(100 - percent).div(100).toDecimalPlaces(2);
 
-export const effectivePrice = (product: { price: Prisma.Decimal; categoryId: string }) => {
+type PricedProduct = { price: Prisma.Decimal; salePrice?: Prisma.Decimal | null; categoryId: string };
+
+const resolvePrice = (product: PricedProduct) => {
+  const sale = product.salePrice && product.salePrice.lt(product.price) ? product.salePrice : null;
   const campaign = campaignFor(product.categoryId);
-  return campaign ? discounted(product.price, campaign.discountPercent) : product.price;
+  const campaignPrice = campaign ? discounted(product.price, campaign.discountPercent) : null;
+  if (campaign && campaignPrice && (!sale || campaignPrice.lte(sale))) return { price: campaignPrice, campaign };
+  if (sale) return { price: sale, campaign: null };
+  return { price: product.price, campaign: null };
 };
 
-export const withPricing = <T extends { price: Prisma.Decimal; categoryId: string }>(input: T) => {
+export const effectivePrice = (product: PricedProduct) => resolvePrice(product).price;
+
+export const withPricing = <T extends PricedProduct>(input: T) => {
   const product = localizeProduct(input as T & { sku?: string });
-  const campaign = campaignFor(product.categoryId);
-  if (!campaign) return { ...product, compareAtPrice: null, campaign: null };
+  const { price, campaign } = resolvePrice(product);
+  if (price.eq(product.price)) return { ...product, compareAtPrice: null, campaign: null };
   return {
     ...product,
-    price: discounted(product.price, campaign.discountPercent),
+    price,
     compareAtPrice: product.price,
-    campaign: { name: campaign.name, discountPercent: campaign.discountPercent, endsAt: campaign.endsAt },
+    campaign: campaign ? { name: campaign.name, discountPercent: campaign.discountPercent, endsAt: campaign.endsAt } : null,
   };
 };
 

@@ -19,7 +19,7 @@ const bearer = (role: "ADMIN" | "CUSTOMER", sub = "user-1") => `Bearer ${signAcc
 
 describe("sifariş nömrəsi", () => {
   it("ES-YYMMDD-XXXXX formatında yaranır", () => {
-    expect(generateOrderNumber(new Date(2026, 10, 13))).toMatch(/^ES-261113-[A-HJ-NP-Z2-9]{5}$/);
+    expect(generateOrderNumber(new Date(2026, 10, 13))).toMatch(/^ES-261113-[A-HJ-NP-Z2-9]{6}$/);
   });
 
   it("təkrarlanma ehtimalı aşağıdır", () => {

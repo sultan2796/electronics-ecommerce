@@ -647,7 +647,9 @@ Bonus xal|Бонусные баллы|Bonus points
 Ünvanlar|Адреса|Addresses
 Yadda saxlanmış ünvan yoxdur.|Нет сохранённых адресов.|No saved addresses.
 Hamısı →|Все →|All →
-Son giriş: {}|Последний вход: {}|Last login: {}
+Son giriş:|Последний вход:|Last login:
+Endirimli qiymət (AZN)|Цена со скидкой (AZN)|Sale price (AZN)
+Endirimli qiymət əsas qiymətdən aşağı olmalıdır|Цена со скидкой должна быть ниже основной цены|Sale price must be lower than the regular price
 `;
 
 const months = [

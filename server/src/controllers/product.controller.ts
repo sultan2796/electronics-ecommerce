@@ -1,5 +1,5 @@
 import { prisma } from "../config/prisma";
-import { ProductCreateInput, ProductQuery, ProductUpdateInput } from "../models/product.model";
+import { ProductCreateInput, ProductQuery, ProductUpdateInput, salePriceIsValid } from "../models/product.model";
 import { buildProductOrderBy, buildProductWhere, getFacets, getFeaturedProducts, productInclude, toSpecData } from "../services/product.service";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -52,6 +52,7 @@ export const compareProducts = asyncHandler(async (req, res) => {
 
 export const createProduct = asyncHandler(async (req, res) => {
   const { specs, ...data } = req.body as ProductCreateInput;
+  if (!salePriceIsValid(data.price, data.salePrice)) throw new AppError(400, "Endirimli qiymət əsas qiymətdən aşağı olmalıdır");
   const product = await prisma.product.create({
     data: { ...data, specs: specs ? { create: toSpecData(specs) } : undefined },
     include: productInclude,
@@ -62,6 +63,13 @@ export const createProduct = asyncHandler(async (req, res) => {
 
 export const updateProduct = asyncHandler(async (req, res) => {
   const { specs, ...data } = req.body as ProductUpdateInput;
+  if (data.salePrice !== undefined || data.price !== undefined) {
+    const current = await prisma.product.findUnique({ where: { id: req.params.id }, select: { price: true, salePrice: true } });
+    if (!current) throw new AppError(404, "Məhsul tapılmadı");
+    const price = data.price ?? Number(current.price);
+    const salePrice = data.salePrice === undefined ? (current.salePrice === null ? null : Number(current.salePrice)) : data.salePrice;
+    if (!salePriceIsValid(price, salePrice)) throw new AppError(400, "Endirimli qiymət əsas qiymətdən aşağı olmalıdır");
+  }
   const product = await prisma.product.update({
     where: { id: req.params.id },
     data: {

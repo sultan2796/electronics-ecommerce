@@ -89,7 +89,7 @@ export const getUserDetail = asyncHandler(async (req, res) => {
   });
   if (!user) throw new AppError(404, "İstifadəçi tapılmadı");
   const [spent, lastOrders] = await Promise.all([
-    prisma.order.aggregate({ where: { userId: user.id, status: { not: "CANCELLED" } }, _sum: { total: true } }),
+    prisma.order.aggregate({ where: { userId: user.id, paymentStatus: "SUCCEEDED", status: { not: "CANCELLED" } }, _sum: { total: true } }),
     prisma.order.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },

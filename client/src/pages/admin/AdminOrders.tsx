@@ -95,7 +95,12 @@ export default function AdminOrders() {
       {userId && (
         <Alert variant="info">
           Yalnız seçilmiş müştərinin sifarişləri göstərilir.{" "}
-          <button className="font-medium text-brand-600" onClick={() => setParams({})}>
+          <button className="font-medium text-brand-600" onClick={() => {
+              const next = new URLSearchParams(params);
+              next.delete("userId");
+              next.delete("page");
+              setParams(next);
+            }}>
             Hamısını göstər
           </button>
         </Alert>
