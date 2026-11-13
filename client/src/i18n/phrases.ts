@@ -864,6 +864,7 @@ Kiçilt|Уменьшить|Zoom out
 Böyüt|Увеличить|Zoom in
 Sürüşdürərək dəyişin · iki dəfə toxunaraq böyüdün|Листайте для смены · двойное касание для увеличения|Swipe to browse · double-tap to zoom
 İki dəfə toxunaraq böyüdün|Двойное касание для увеличения|Double-tap to zoom
+{} şəklini böyüt|Увеличить фото: {}|Enlarge photo of {}
 `;
 
 const months = [

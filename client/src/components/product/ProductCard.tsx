@@ -11,7 +11,7 @@ import { getErrorMessage } from "../../services/api";
 import { Product } from "../../types";
 import { formatPrice, monthlyPayment, pricing } from "../../utils/format";
 import { productRating } from "../../utils/rating";
-import ProductImage from "./ProductImage";
+import CardGallery from "./CardGallery";
 import { openQuickView } from "./QuickView";
 
 
@@ -25,7 +25,6 @@ export default function ProductCard({ product }: { product: Product }) {
   const [message, setMessage] = useState<string | null>(null);
   const [heartPulse, setHeartPulse] = useState(0);
   const [cartPulse, setCartPulse] = useState(0);
-  const secondImage = product.images.find((image, position) => position > 0 && image && image !== product.images[0]);
   const inCompare = compare.has(product.id);
   const liked = wishlist.has(product.id);
   const soldOut = product.stock === 0;
@@ -79,32 +78,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <article className="product-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface">
       <div className="relative">
-        <Link
-          to={`/products/${product.slug}`}
-          className="product-card-media relative isolate flex aspect-square items-center justify-center overflow-hidden bg-[#f4f4f6] p-[10%] dark:bg-[#ececee]"
-          aria-label={product.name}
-        >
-          <ProductImage
-            src={product.images[0]}
-            category={product.category?.slug}
-            alt={product.name}
-            blend
-            className={`product-card-img size-full object-contain ${secondImage ? "group-hover:opacity-0" : ""} ${soldOut ? "opacity-50 grayscale" : ""}`}
-          />
-          {secondImage && (
-            <img
-              src={secondImage}
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              decoding="async"
-              className={`product-card-alt absolute inset-0 m-auto size-full object-contain p-[10%] mix-blend-multiply opacity-0 group-hover:opacity-100 ${soldOut ? "grayscale" : ""}`}
-            />
-          )}
-          {soldOut && (
-            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink/80 px-3 py-1 text-[11px] font-medium text-surface">{t("card.soldOut")}</span>
-          )}
-        </Link>
+        <CardGallery images={product.images} alt={product.name} category={product.category?.slug} soldOut={soldOut} soldOutLabel={t("card.soldOut")} />
         <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col items-start gap-1">
           {price.percent > 0 && (
             <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold text-white ${price.live ? "bg-red-600" : "bg-brand-600"}`}>−{price.percent}%</span>
