@@ -97,6 +97,15 @@ export interface Category {
   _count?: { products: number };
 }
 
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+  isActive: boolean;
+  _count?: { products: number };
+}
+
 export interface Product {
   id: string;
   name: string;

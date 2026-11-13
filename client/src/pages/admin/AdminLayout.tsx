@@ -5,6 +5,7 @@ import {
   GalleryHorizontal,
   LayoutDashboard,
   LayoutGrid,
+  Tags,
   LogOut,
   LucideIcon,
   Mail,
@@ -33,6 +34,7 @@ type IconName =
   | "orders"
   | "inventory"
   | "categories"
+  | "brands"
   | "users"
   | "plus"
   | "reviews"
@@ -53,6 +55,7 @@ const icons: Record<IconName, LucideIcon> = {
   orders: ShoppingBag,
   inventory: Package,
   categories: LayoutGrid,
+  brands: Tags,
   users: Users,
   plus: Plus,
   reviews: Star,
@@ -103,6 +106,7 @@ const groups: { title: string; items: NavItem[] }[] = [
     items: [
       { to: "/admin/inventory", label: "Məhsullar", permission: "inventory:write", icon: "inventory" },
       { to: "/admin/categories", label: "Kateqoriyalar", permission: "categories:write", icon: "categories" },
+      { to: "/admin/brands", label: "Brendlər", permission: "categories:write", icon: "brands" },
       { to: "/admin/models", label: "3D modellər", permission: "products:write", icon: "cube" },
       { to: "/admin/products/new", label: "Yeni məhsul", end: true, permission: "products:write", icon: "plus" },
     ],
@@ -129,6 +133,7 @@ const titles: [string, string][] = [
   ["/admin/orders", "Sifarişlər"],
   ["/admin/inventory", "Məhsullar"],
   ["/admin/categories", "Kateqoriyalar"],
+  ["/admin/brands", "Brendlər"],
   ["/admin/users", "Müştərilər"],
   ["/admin/reviews", "Rəylər"],
   ["/admin/emails", "E-poçtlar"],

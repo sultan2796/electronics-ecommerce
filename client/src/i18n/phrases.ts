@@ -798,6 +798,14 @@ Səbətdə ən çox 30 fərqli məhsul ola bilər|В корзине может �
 Promo kod və bonus ballar hesaba daxil olduqda tətbiq olunur. Əlavə gizli ödəniş yoxdur.|Промокоды и бонусные баллы доступны после входа в аккаунт. Скрытых платежей нет.|Promo codes and bonus points apply once you sign in. No hidden fees.
 Qonaq səbətində ən çox 10 fərqli məhsul ola bilər. Daha çox üçün hesaba daxil olun.|В гостевой корзине может быть не более 10 разных товаров. Войдите, чтобы добавить больше.|A guest cart can hold at most 10 different products. Sign in to add more.
 Bu e-poçt üçün çoxlu açıq sifariş var. Hesab yaradın və ya bizimlə əlaqə saxlayın.|Для этого e-mail слишком много открытых заказов. Создайте аккаунт или свяжитесь с нами.|There are too many open orders for this email. Create an account or contact us.
+Brendlər|Бренды|Brands
+Yeni brend yaradılacaq|Будет создан новый бренд|A new brand will be created
+Siyahıdan seçin və ya yeni ad yazın|Выберите из списка или введите новое имя|Pick from the list or type a new name
++ Brend yarat|+ Создать бренд|+ Create brand
+Loqo URL (istəyə bağlı)|URL логотипа (необязательно)|Logo URL (optional)
+Hələ brend yoxdur.|Брендов пока нет.|No brands yet.
+{} aktiv məhsul|{} активных товаров|{} active products
+Brendin adını dəyişəndə ona bağlı bütün məhsullarda ad yenilənir. Məhsulu olan brend silinə bilməz, onu deaktiv edə bilərsiniz.|При переименовании бренда имя обновляется во всех его товарах. Бренд с товарами нельзя удалить, но можно деактивировать.|Renaming a brand updates the name on all its products. A brand with products can't be deleted, but you can deactivate it.
 `;
 
 const months = [

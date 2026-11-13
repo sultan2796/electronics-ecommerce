@@ -102,6 +102,8 @@ model Product {
   slug         String             @unique
   sku          String             @unique
   brand        String
+  brandId      String?
+  brandRef     Brand?             @relation(fields: [brandId], references: [id], onDelete: SetNull)
   description  String
   price        Decimal            @db.Decimal(10, 2)
   salePrice    Decimal?           @db.Decimal(10, 2)
@@ -129,6 +131,7 @@ model Product {
 
   @@index([categoryId])
   @@index([brand])
+  @@index([brandId])
   @@index([price])
   @@index([isActive, createdAt])
   stockAlerts   StockAlert[]
@@ -411,4 +414,15 @@ model Slide {
   updatedAt  DateTime @updatedAt
 
   @@index([isActive, sortOrder])
+}
+
+model Brand {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  logoUrl   String?
+  isActive  Boolean   @default(true)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }

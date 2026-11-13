@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma";
+import { resolveBrand } from "../services/brand.service";
 import { ProductCreateInput, ProductQuery, ProductUpdateInput, salePriceIsValid } from "../models/product.model";
 import { buildProductOrderBy, buildProductWhere, getFacets, getFeaturedProducts, productInclude, toSpecData } from "../services/product.service";
 import { AppError } from "../utils/AppError";
@@ -59,8 +60,9 @@ export const lookupProducts = asyncHandler(async (req, res) => {
 export const createProduct = asyncHandler(async (req, res) => {
   const { specs, ...data } = req.body as ProductCreateInput;
   if (!salePriceIsValid(data.price, data.salePrice)) throw new AppError(400, "Endirimli qiymət əsas qiymətdən aşağı olmalıdır");
+  const brandLink = await resolveBrand(data.brand);
   const product = await prisma.product.create({
-    data: { ...data, specs: specs ? { create: toSpecData(specs) } : undefined },
+    data: { ...data, ...brandLink, specs: specs ? { create: toSpecData(specs) } : undefined },
     include: productInclude,
   });
   res.status(201).json(product);
@@ -76,10 +78,12 @@ export const updateProduct = asyncHandler(async (req, res) => {
     const salePrice = data.salePrice === undefined ? (current.salePrice === null ? null : Number(current.salePrice)) : data.salePrice;
     if (!salePriceIsValid(price, salePrice)) throw new AppError(400, "Endirimli qiymət əsas qiymətdən aşağı olmalıdır");
   }
+  const brandLink = data.brand ? await resolveBrand(data.brand) : {};
   const product = await prisma.product.update({
     where: { id: req.params.id },
     data: {
       ...data,
+      ...brandLink,
       specs: specs ? { upsert: { create: toSpecData(specs), update: toSpecData(specs) } } : undefined,
     },
     include: productInclude,

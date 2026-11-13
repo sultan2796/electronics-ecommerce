@@ -1,4 +1,4 @@
-import { AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role, AdminUserDetail } from "../types";
+import { Brand, AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role, AdminUserDetail } from "../types";
 import { api } from "./api";
 
 export const adminService = {
@@ -20,6 +20,11 @@ export const adminService = {
   createCategory: (body: { name: string; slug: string }) => api.post<Category>("/categories", body).then((r) => r.data),
   updateCategory: (id: string, body: { name?: string; slug?: string }) => api.patch<Category>(`/categories/${id}`, body).then((r) => r.data),
   deleteCategory: (id: string) => api.delete(`/categories/${id}`),
+  brands: (all = false) => api.get<Brand[]>("/brands", { params: all ? { all: "1" } : {} }).then((r) => r.data),
+  createBrand: (body: { name: string; slug?: string; logoUrl?: string | null; isActive?: boolean }) => api.post<Brand>("/brands", body).then((r) => r.data),
+  updateBrand: (id: string, body: { name?: string; slug?: string; logoUrl?: string | null; isActive?: boolean }) =>
+    api.patch<Brand>(`/brands/${id}`, body).then((r) => r.data),
+  deleteBrand: (id: string) => api.delete(`/brands/${id}`),
   getProduct: (id: string) => api.get<Product>(`/admin/products/${id}`).then((r) => r.data),
   createProduct: (payload: ProductPayload) => api.post<Product>("/products", payload).then((r) => r.data),
   updateProduct: (id: string, payload: Partial<ProductPayload>) => api.patch<Product>(`/products/${id}`, payload).then((r) => r.data),

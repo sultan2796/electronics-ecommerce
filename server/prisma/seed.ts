@@ -1,4 +1,5 @@
 import { PrismaClient, Role, StorageType } from "@prisma/client";
+import { resolveBrand } from "../src/services/brand.service";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -273,10 +274,11 @@ async function main() {
     const categoryId = categoryIds.get(category);
     if (!categoryId) continue;
     const images: string[] = "images" in entry && entry.images ? entry.images : [];
+    const brandLink = await resolveBrand(product.brand, prisma);
     await prisma.product.upsert({
       where: { slug: product.slug },
-      update: { ...product, images, isActive: true, categoryId, specs: { upsert: { create: specs, update: specs } } },
-      create: { ...product, images, categoryId, specs: { create: specs } },
+      update: { ...product, ...brandLink, images, isActive: true, categoryId, specs: { upsert: { create: specs, update: specs } } },
+      create: { ...product, ...brandLink, images, categoryId, specs: { create: specs } },
     });
   }
 }

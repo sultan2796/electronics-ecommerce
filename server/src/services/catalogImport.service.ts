@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { resolveBrand } from "./brand.service";
 import { prisma } from "../config/prisma";
 
 const SOURCE_URL = process.env.CATALOG_SOURCE_URL ?? "https://dummyjson.com";
@@ -118,7 +119,8 @@ export const importCatalog = async ({ replaceDemo = true }: { replaceDemo?: bool
 
     for (const product of products) {
       const sku = `${IMPORT_SKU_PREFIX}${product.id}`;
-      const data = toProductData(product, category.id);
+      const base = toProductData(product, category.id);
+      const data = { ...base, ...(await resolveBrand(base.brand)) };
       const specs = toSpecData(product);
       const existing = await prisma.product.findUnique({ where: { sku }, select: { id: true } });
 

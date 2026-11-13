@@ -180,6 +180,7 @@ export default function ProductForm() {
   const isEdit = Boolean(id);
   const navigate = useNavigate();
   const categories = useAsync(() => productService.categories(), []);
+  const brands = useAsync(() => adminService.brands(true), []);
   const existing = useAsync(() => (id ? adminService.getProduct(id) : Promise.resolve(null)), [id]);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [slugTouched, setSlugTouched] = useState(false);
@@ -312,7 +313,24 @@ export default function ProductForm() {
               />
             </Field>
             <Field label="SKU *">{input("sku", { required: true })}</Field>
-            <Field label="Brend *">{input("brand", { required: true })}</Field>
+            <Field label="Brend *">
+              <input
+                className="input rounded-xl"
+                list="brand-options"
+                required
+                autoComplete="off"
+                value={form.brand}
+                onChange={(event) => update("brand", event.target.value)}
+              />
+              <datalist id="brand-options">
+                {brands.data?.map((brand) => <option key={brand.id} value={brand.name} />)}
+              </datalist>
+              <span className="mt-1 block text-xs text-muted">
+                {form.brand.trim() && !brands.data?.some((brand) => brand.name.toLowerCase() === form.brand.trim().toLowerCase())
+                  ? "Yeni brend yaradılacaq"
+                  : "Siyahıdan seçin və ya yeni ad yazın"}
+              </span>
+            </Field>
             <Field label="Kateqoriya *">
               <Select
                 ariaLabel="Kateqoriya"
