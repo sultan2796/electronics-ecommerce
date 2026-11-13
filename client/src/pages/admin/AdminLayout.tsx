@@ -1,3 +1,5 @@
+import AdminLanguage from "../../components/admin/AdminLanguage";
+import AdminNotifications from "../../components/admin/AdminNotifications";
 import AdminSearch from "../../components/admin/AdminSearch";
 import Avatar from "../../components/user/Avatar";
 import {
@@ -305,6 +307,8 @@ export default function AdminLayout() {
             <p className="truncate text-base font-semibold leading-tight">{title}</p>
           </div>
           <AdminSearch />
+          <AdminLanguage />
+          <AdminNotifications />
           <ThemeToggle />
           {user && (
             <div ref={menuRef} className="relative">

@@ -1,4 +1,4 @@
-import { OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
+import { EmailStatus, OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
 import { audit } from "../services/audit.service";
 import { AppError } from "../utils/AppError";
 import { z } from "zod";
@@ -128,4 +128,88 @@ export const adminSearch = asyncHandler(async (req, res) => {
       : [],
   ]);
   res.json({ orders, products, users });
+});
+
+type Notice = { id: string; kind: "order" | "stock" | "review" | "refund" | "email"; title: string; detail: string; to: string; createdAt: Date };
+
+export const adminNotifications = asyncHandler(async (req, res) => {
+  const role = currentUser(req).role;
+  const week = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const notices: Notice[] = [];
+
+  if (hasPermission(role, "orders:read")) {
+    const pending = await prisma.order.findMany({
+      where: { status: OrderStatus.PENDING },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: { id: true, orderNumber: true, total: true, createdAt: true, guestName: true, user: { select: { name: true } } },
+    });
+    for (const order of pending) {
+      notices.push({
+        id: `order-${order.id}`,
+        kind: "order",
+        title: `Yeni sifariş ${order.orderNumber ?? order.id.slice(-8)}`,
+        detail: `${order.user?.name ?? order.guestName ?? "Qonaq"} · ${order.total.toFixed(2)} ₼`,
+        to: `/admin/orders?q=${encodeURIComponent(order.orderNumber ?? order.id)}`,
+        createdAt: order.createdAt,
+      });
+    }
+  }
+
+  if (hasPermission(role, "orders:write")) {
+    const refunds = await prisma.payment.findMany({
+      where: { status: PaymentStatus.SUCCEEDED, raw: { path: ["refundRequired"], equals: true } },
+      orderBy: { updatedAt: "desc" },
+      take: 5,
+      select: { id: true, amount: true, updatedAt: true, order: { select: { orderNumber: true } } },
+    });
+    for (const payment of refunds) {
+      notices.push({
+        id: `refund-${payment.id}`,
+        kind: "refund",
+        title: "Geri qaytarılmalı ödəniş",
+        detail: `${payment.order.orderNumber ?? ""} · ${payment.amount.toFixed(2)} ₼`,
+        to: "/admin/payments",
+        createdAt: payment.updatedAt,
+      });
+    }
+  }
+
+  if (hasPermission(role, "inventory:write")) {
+    const empty = await prisma.product.findMany({
+      where: { isActive: true, stock: { lte: 0 } },
+      orderBy: { updatedAt: "desc" },
+      take: 5,
+      select: { id: true, name: true, updatedAt: true },
+    });
+    for (const product of empty) {
+      notices.push({ id: `stock-${product.id}-${product.updatedAt.getTime()}`, kind: "stock", title: "Stok bitdi", detail: product.name, to: `/admin/products/${product.id}`, createdAt: product.updatedAt });
+    }
+  }
+
+  if (hasPermission(role, "reviews:moderate")) {
+    const reviews = await prisma.review.findMany({
+      where: { createdAt: { gte: week } },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, rating: true, createdAt: true, product: { select: { name: true } } },
+    });
+    for (const review of reviews) {
+      notices.push({ id: `review-${review.id}`, kind: "review", title: `Yeni rəy · ${review.rating}★`, detail: review.product.name, to: "/admin/reviews", createdAt: review.createdAt });
+    }
+  }
+
+  if (hasPermission(role, "emails:read")) {
+    const where = { status: EmailStatus.FAILED, createdAt: { gte: week } };
+    const [failed, latest] = await Promise.all([
+      prisma.emailLog.count({ where }),
+      prisma.emailLog.findFirst({ where, orderBy: { createdAt: "desc" }, select: { createdAt: true } }),
+    ]);
+    if (failed > 0 && latest) {
+      notices.push({ id: `email-failed-${failed}`, kind: "email", title: "Göndərilməyən e-poçtlar", detail: `Son 7 gündə ${failed} e-poçt göndərilmədi`, to: "/admin/emails?status=FAILED", createdAt: latest.createdAt });
+    }
+  }
+
+  notices.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  res.json({ items: notices.slice(0, 20) });
 });

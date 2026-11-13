@@ -847,6 +847,17 @@ Qaytarıldı kimi qeyd et|Отметить как возвращённый|Mark 
 Google ilə giriş|Вход через Google|Sign in with Google
 Google hesabınızı bağlasanız, növbəti dəfə şifrəsiz daxil ola bilərsiniz.|Привяжите Google, чтобы входить без пароля.|Link your Google account to sign in without a password next time.
 Google hesabı bağlandı|Google аккаунт привязан|Google account linked
+Bildirişlər|Уведомления|Notifications
+Hamısını oxunmuş et|Отметить все прочитанными|Mark all as read
+Yeni bildiriş yoxdur|Новых уведомлений нет|No new notifications
+Stok bitdi|Нет в наличии|Out of stock
+Geri qaytarılmalı ödəniş|Платёж к возврату|Payment to refund
+Göndərilməyən e-poçtlar|Неотправленные письма|Failed emails
+Yeni sifariş {}|Новый заказ {}|New order {}
+indicə|только что|just now
+{} dəq əvvəl|{} мин назад|{} min ago
+{} saat əvvəl|{} ч назад|{} h ago
+{} gün əvvəl|{} дн назад|{} d ago
 `;
 
 const months = [
