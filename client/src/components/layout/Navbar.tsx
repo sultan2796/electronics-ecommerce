@@ -1,4 +1,5 @@
 import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../../config/contact";
+import { useDeliveryText } from "../common/DeliveryNote";
 import { ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -67,6 +68,7 @@ export default function Navbar() {
   const { items: wishlist } = useWishlist();
   const { items: compare } = useCompare();
   const { t, locale, setLocale } = useI18n();
+  const deliveryText = useDeliveryText();
   const navigate = useNavigate();
 
   return (
@@ -75,7 +77,7 @@ export default function Navbar() {
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-xs">
           <span className="flex items-center gap-2 text-surface/80">
             <Icon name="truck" className="size-4" />
-            {t("benefit.delivery")} · {t("benefit.deliveryText")}
+            {deliveryText ? `${t("benefit.delivery")} · ${deliveryText}` : t("benefit.delivery")}
           </span>
           <div className="flex items-center gap-5">
             <a href={`tel:${CONTACT_PHONE_TEL}`} className="flex items-center gap-1.5 text-surface/80 transition hover:text-surface">

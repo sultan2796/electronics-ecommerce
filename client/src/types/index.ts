@@ -106,6 +106,10 @@ export interface Product {
   price: string;
   salePrice?: string | null;
   model3dUrl?: string | null;
+  model3dActive?: boolean;
+  model3dSize?: number | null;
+  model3dLicense?: string | null;
+  model3dSource?: string | null;
   stock: number;
   images: string[];
   isActive: boolean;
@@ -230,6 +234,7 @@ export interface Order {
   total: string;
   subtotal?: string;
   discount?: string;
+  shippingFee?: string;
   couponCode?: string | null;
   pointsUsed?: number;
   pointsEarned?: number;
@@ -282,6 +287,10 @@ export interface ProductPayload {
   price: number;
   salePrice?: number | null;
   model3dUrl?: string | null;
+  model3dActive?: boolean;
+  model3dSize?: number | null;
+  model3dLicense?: string | null;
+  model3dSource?: string | null;
   stock: number;
   images: string[];
   categoryId: string;

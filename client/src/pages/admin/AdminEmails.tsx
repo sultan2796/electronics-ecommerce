@@ -101,15 +101,21 @@ export default function AdminEmails() {
       ) : emails.error ? (
         <Alert>{emails.error}</Alert>
       ) : (
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
           <div className="card overflow-x-auto">
-            <table className="w-full min-w-[560px] text-sm">
+            <table className="w-full min-w-[640px] table-fixed text-sm">
+              <colgroup>
+                <col />
+                <col className="w-36" />
+                <col className="w-40" />
+                <col className="w-44" />
+              </colgroup>
               <thead className="bg-surface text-left text-muted">
                 <tr className="border-b border-chip">
-                  <th className="px-4 py-3">Alıcı / mövzu</th>
-                  <th className="px-4 py-3">Növ</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Tarix</th>
+                  <th className="whitespace-nowrap px-4 py-3">Alıcı / mövzu</th>
+                  <th className="whitespace-nowrap px-4 py-3">Növ</th>
+                  <th className="whitespace-nowrap px-4 py-3">Status</th>
+                  <th className="whitespace-nowrap px-4 py-3">Tarix</th>
                 </tr>
               </thead>
               <tbody>
@@ -126,13 +132,13 @@ export default function AdminEmails() {
                     onClick={() => setSelected(email)}
                     className={`cursor-pointer border-b border-chip last:border-0 transition hover:bg-chip/60 ${selected?.id === email.id ? "bg-chip" : ""}`}
                   >
-                    <td className="max-w-[260px] px-4 py-3">
+                    <td className="px-4 py-3">
                       <p className="truncate font-medium">{email.to}</p>
                       <p className="truncate text-xs text-muted">{email.subject}</p>
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted">{templateLabels[email.template] ?? email.template}</td>
+                    <td className="truncate whitespace-nowrap px-4 py-3 text-xs text-muted">{templateLabels[email.template] ?? email.template}</td>
                     <td className="px-4 py-3">
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyles[email.status]}`}>{statusLabels[email.status]}</span>
+                      <span className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyles[email.status]}`}>{statusLabels[email.status]}</span>
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-muted">{formatDate(email.createdAt)}</td>
                   </tr>

@@ -7,9 +7,11 @@ import ProductImage from "../components/product/ProductImage";
 import { useCart } from "../context/CartContext";
 import { getErrorMessage } from "../services/api";
 import { formatPrice } from "../utils/format";
+import { shippingCost, useStoreConfig } from "../hooks/useStoreConfig";
 
 export default function Cart() {
   const { cart, busy, updateItem, removeItem } = useCart();
+  const storeConfig = useStoreConfig();
   const [error, setError] = useState<string | null>(null);
 
   const safely = async (action: () => Promise<void>) => {
@@ -75,10 +77,30 @@ export default function Cart() {
           <span>Məhsul sayı</span>
           <span>{cart.itemCount}</span>
         </div>
-        <div className="flex justify-between text-lg font-bold">
-          <span>Cəmi</span>
+        <div className="flex justify-between text-sm">
+          <span className="text-muted">Məhsulların dəyəri</span>
           <span>{formatPrice(cart.subtotal)}</span>
         </div>
+        {storeConfig && (
+          <div className="flex justify-between text-sm">
+            <span className="text-muted">Çatdırılma</span>
+            {shippingCost(storeConfig, Number(cart.subtotal)) > 0 ? (
+              <span>{formatPrice(shippingCost(storeConfig, Number(cart.subtotal)))}</span>
+            ) : (
+              <span className="text-emerald-600 dark:text-emerald-400">Pulsuz</span>
+            )}
+          </div>
+        )}
+        {storeConfig && shippingCost(storeConfig, Number(cart.subtotal)) > 0 && (
+          <p className="rounded-xl bg-brand-50 px-3 py-2 text-xs text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
+            {`Pulsuz çatdırılma üçün daha ${formatPrice(storeConfig.freeShippingMin - Number(cart.subtotal))} dəyərində məhsul əlavə edin`}
+          </p>
+        )}
+        <div className="flex justify-between border-t border-line pt-3 text-lg font-bold">
+          <span>Cəmi</span>
+          <span>{formatPrice(Number(cart.subtotal) + shippingCost(storeConfig, Number(cart.subtotal)))}</span>
+        </div>
+        <p className="text-[11px] text-muted">Endirim kodu və bonus ballar növbəti addımda tətbiq olunur. Əlavə gizli ödəniş yoxdur.</p>
         <Link to="/checkout" className="btn-primary w-full">
           Sifarişi rəsmiləşdir
         </Link>

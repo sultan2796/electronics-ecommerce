@@ -14,7 +14,7 @@ export const pointsToMoney = (points: number) => new Prisma.Decimal(points).mul(
 export const awardPoints = async (tx: Prisma.TransactionClient, orderId: string) => {
   const order = await tx.order.findUnique({ where: { id: orderId } });
   if (!order || order.pointsAwarded) return;
-  const earned = pointsEarnedFor(order.total);
+  const earned = pointsEarnedFor(order.total.sub(order.shippingFee));
   await tx.order.update({ where: { id: orderId }, data: { pointsAwarded: true, pointsEarned: earned } });
   if (earned > 0) await tx.user.update({ where: { id: order.userId }, data: { points: { increment: earned } } });
 };

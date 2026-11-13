@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import rateLimit from "express-rate-limit";
 import {
   checkCoupon,
@@ -15,6 +15,8 @@ import {
   updateAddress,
   updateCoupon,
   uploadImage,
+  uploadModel,
+  storeConfig,
 } from "../controllers/extra.controller";
 import { authenticate, requirePermission } from "../middleware/auth";
 import { validate } from "../middleware/validate";
@@ -27,7 +29,16 @@ const errorLimiter = rateLimit({ windowMs: 60_000, limit: 20, standardHeaders: t
 
 extraRouter.get("/sitemap.xml", sitemap);
 extraRouter.post("/client-errors", errorLimiter, validate({ body: clientErrorSchema }), reportClientError);
+extraRouter.get("/store/config", storeConfig);
+extraRouter.get("/uploads/:id.glb", validate({ params: idParamSchema }), serveUpload);
 extraRouter.get("/uploads/:id", validate({ params: idParamSchema }), serveUpload);
+extraRouter.post(
+  "/uploads/model",
+  authenticate,
+  requirePermission("products:write"),
+  express.raw({ type: ["model/gltf-binary", "application/octet-stream"], limit: "11mb" }),
+  uploadModel,
+);
 extraRouter.post("/uploads", authenticate, requirePermission("products:write"), validate({ body: uploadSchema }), uploadImage);
 
 extraRouter.post("/coupons/check", authenticate, validate({ body: couponCheckSchema }), checkCoupon);

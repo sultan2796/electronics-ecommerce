@@ -8,6 +8,7 @@ export const reviewBodySchema = z.object({
 
 export const reviewListQuerySchema = z.object({
   sort: z.enum(["newest", "highest", "lowest"]).default("newest"),
+  rating: z.coerce.number().int().min(1).max(5).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(10),
 });

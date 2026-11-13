@@ -127,7 +127,8 @@ export default function QuickView() {
 
         <div className="grid flex-1 overflow-y-auto lg:grid-cols-[1.05fr_1fr]">
           <div className="border-b border-line p-5 lg:border-b-0 lg:border-r lg:p-7">
-            <ProductViewer images={product.images} alt={product.name} category={product.category?.slug} model3d={product.model3dUrl ?? product.specs?.extra?.model3d} />
+            <ProductViewer images={product.images} alt={product.name} category={product.category?.slug} model3d={product.model3dActive === false ? null : (product.model3dUrl ?? product.specs?.extra?.model3d)}
+            modelCredit={[product.model3dSource, product.model3dLicense].filter(Boolean).join(" · ") || null} />
           </div>
 
           <div className="space-y-6 p-5 lg:p-7">

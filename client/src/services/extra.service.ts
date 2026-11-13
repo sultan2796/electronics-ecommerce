@@ -36,6 +36,10 @@ export const extraService = {
     api.get<Blob>("/admin/reports/sales.csv", { params, responseType: "blob" }).then((r) => r.data),
   audit: (params: { entity?: string; page?: number }) => api.get<Paginated<AuditEntry>>("/admin/audit", { params }).then((r) => r.data),
   googleLogin: (credential: string) => api.post("/auth/google", { credential }).then((r) => r.data),
+  uploadModel: (file: File) =>
+    api
+      .post<{ id: string; url: string; size: number }>("/uploads/model", file, { headers: { "Content-Type": "model/gltf-binary" }, timeout: 120000 })
+      .then((r) => r.data),
   upload: (dataUrl: string) => api.post<{ id: string; url: string }>("/uploads", { dataUrl }).then((r) => r.data),
 };
 

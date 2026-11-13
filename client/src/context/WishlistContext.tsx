@@ -13,7 +13,8 @@ const WishlistContext = createContext<WishlistContextValue | null>(null);
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [items, setItems] = useState<WishlistItem[]>([]);
+  const [items, setRawItems] = useState<WishlistItem[]>([]);
+  const setItems = useCallback((next: unknown) => setRawItems(Array.isArray(next) ? (next as WishlistItem[]) : []), []);
 
   useEffect(() => {
     if (user) {

@@ -26,16 +26,17 @@ const publicReview = (review: { id: string; rating: number; title: string | null
 
 export const listReviews = asyncHandler(async (req, res) => {
   const product = await resolveProduct(req.params.id);
-  const { sort, page, limit } = req.query as unknown as { sort: string; page: number; limit: number };
+  const { sort, page, limit, rating } = req.query as unknown as { sort: string; page: number; limit: number; rating?: number };
+  const where = { productId: product.id, ...(rating && { rating }) };
   const [items, total, summary] = await Promise.all([
     prisma.review.findMany({
-      where: { productId: product.id },
+      where,
       include: { user: { select: { name: true } } },
       orderBy: orderByFor(sort),
       skip: (page - 1) * limit,
       take: limit,
     }),
-    prisma.review.count({ where: { productId: product.id } }),
+    prisma.review.count({ where }),
     reviewSummary(product.id),
   ]);
   res.json({ items: items.map(publicReview), total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)), summary });

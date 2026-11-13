@@ -24,6 +24,8 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   ADMIN_EMAIL: z.string().trim().min(1).optional(),
   ADMIN_PASSWORD: z.string().min(1).optional(),
+  SHIPPING_FEE: z.coerce.number().min(0).max(1000).default(0),
+  FREE_SHIPPING_MIN: z.coerce.number().min(0).max(100000).default(100),
   AUTO_IMPORT_CATALOG: z
     .enum(["true", "false"])
     .default("false")

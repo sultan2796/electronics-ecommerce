@@ -1,5 +1,6 @@
 import { useI18n } from "../../context/I18nContext";
 import { TranslationKey } from "../../i18n/dictionary";
+import { useDeliveryText } from "../common/DeliveryNote";
 
 const items: { title: TranslationKey; text: TranslationKey; icon: string }[] = [
   { title: "benefit.delivery", text: "benefit.deliveryText", icon: "M3 7h11v9H3zM14 10h4l3 3v3h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4" },
@@ -10,6 +11,7 @@ const items: { title: TranslationKey; text: TranslationKey; icon: string }[] = [
 
 export default function Benefits() {
   const { t } = useI18n();
+  const deliveryText = useDeliveryText();
   return (
     <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {items.map((item) => (
@@ -21,7 +23,7 @@ export default function Benefits() {
           </span>
           <span className="min-w-0">
             <span className="block text-xs font-semibold leading-tight text-ink sm:text-sm">{t(item.title)}</span>
-            <span className="block text-[11px] leading-tight text-muted sm:text-xs">{t(item.text)}</span>
+            <span className="block text-[11px] leading-tight text-muted sm:text-xs">{item.text === "benefit.deliveryText" ? (deliveryText ?? "") : t(item.text)}</span>
           </span>
         </div>
       ))}

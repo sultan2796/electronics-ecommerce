@@ -30,6 +30,7 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
   const { user, can } = useAuth();
   const [sort, setSort] = useState<ReviewSort>("newest");
   const [page, setPage] = useState(1);
+  const [starFilter, setStarFilter] = useState<number | null>(null);
   const [version, setVersion] = useState(0);
   const [mine, setMine] = useState<MyReviewStatus | null>(null);
   const [rating, setRating] = useState(0);
@@ -40,7 +41,10 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const reviews = useAsync(() => reviewService.list(productId, { sort, page }), [productId, sort, page, version]);
+  const reviews = useAsync(
+    () => reviewService.list(productId, { sort, page, rating: starFilter ?? undefined }),
+    [productId, sort, page, version, starFilter],
+  );
 
   useEffect(() => {
     if (!user) {
@@ -136,16 +140,35 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
               const count = summary?.distribution[star] ?? 0;
               const percent = ratingPercent(count, summary?.count ?? 0);
               return (
-                <li key={star} className="flex items-center gap-2 text-xs text-muted">
-                  <span className="w-3 text-right">{star}</span>
-                  <span className="h-2 flex-1 overflow-hidden rounded-full bg-chip">
-                    <span className="block h-full rounded-full bg-amber-400" style={{ width: `${percent}%` }} />
-                  </span>
-                  <span className="w-8 text-right">{percent}%</span>
+                <li key={star}>
+                  <button
+                    type="button"
+                    disabled={count === 0}
+                    aria-pressed={starFilter === star}
+                    aria-label={`${star} ulduzlu rəyləri göstər (${count})`}
+                    onClick={() => {
+                      setStarFilter((current) => (current === star ? null : star));
+                      setPage(1);
+                    }}
+                    className={`flex w-full items-center gap-2 rounded-lg px-1.5 py-0.5 text-xs transition enabled:hover:bg-chip disabled:cursor-default disabled:opacity-50 ${
+                      starFilter === star ? "bg-amber-50 font-semibold text-ink ring-1 ring-amber-300 dark:bg-amber-500/10" : "text-muted"
+                    }`}
+                  >
+                    <span className="w-3 text-right">{star}</span>
+                    <span className="h-2 flex-1 overflow-hidden rounded-full bg-chip">
+                      <span className="block h-full rounded-full bg-amber-400" style={{ width: `${percent}%` }} />
+                    </span>
+                    <span className="w-8 text-right">{percent}%</span>
+                  </button>
                 </li>
               );
             })}
           </ul>
+          {starFilter && (
+            <button type="button" className="text-xs font-medium text-brand-600" onClick={() => setStarFilter(null)}>
+              {`Yalnız ${starFilter} ulduzlu rəylər · filtri sıfırla`}
+            </button>
+          )}
 
           {!user && (
             <p className="text-xs text-muted">
@@ -218,7 +241,7 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
                       <span className="flex size-9 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700 dark:bg-brand-500/20 dark:text-brand-500">
-                        {review.author.charAt(0).toUpperCase()}
+                        {(review.author || "?").charAt(0).toUpperCase()}
                       </span>
                       <div>
                         <p className="text-sm font-medium text-ink">

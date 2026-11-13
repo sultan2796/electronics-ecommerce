@@ -694,6 +694,40 @@ Kamera bucağı|Ракурс камеры|Camera angle
 3D model linki (GLB / GLTF)|Ссылка на 3D-модель (GLB / GLTF)|3D model link (GLB / GLTF)
 Real 3D model varsa, linkini yazın. Model məhsul səhifəsində Three.js ilə fırladıla bilən 3D baxış kimi göstəriləcək. Link yoxdursa, yalnız şəkillər göstərilir.|Если есть настоящая 3D-модель, укажите ссылку. Она будет показана на странице товара как вращаемый 3D-просмотр (Three.js). Без ссылки показываются только фото.|If a real 3D model exists, enter its link. It will be shown on the product page as a rotatable 3D view (Three.js). Without a link only photos are shown.
 3D model linki https:// ilə başlamalı və .glb və ya .gltf faylı olmalıdır|Ссылка на 3D-модель должна начинаться с https:// и вести к файлу .glb или .gltf|The 3D model link must start with https:// and point to a .glb or .gltf file
+Önizləməni aç|Открыть предпросмотр|Open preview
+Bu məhsulun 3D modeli yoxdur. Məhsul səhifəsində şəkillər göstərilir.|У этого товара нет 3D-модели. На странице товара показываются фото.|This product has no 3D model. Photos are shown on the product page.
+Fayl ölçüsü|Размер файла|File size
+Yüklənmə vəziyyəti|Статус загрузки|Load status
+Uğurlu|Успешно|OK
+Yoxlanılmayıb|Не проверено|Not checked
+Modeli dəyiş (.glb, maks. 10 MB)|Заменить модель (.glb, макс. 10 МБ)|Replace model (.glb, max 10 MB)
+GLB modeli yüklə (maks. 10 MB)|Загрузить GLB-модель (макс. 10 МБ)|Upload GLB model (max 10 MB)
+və ya model linki (GLB / GLTF)|или ссылка на модель (GLB / GLTF)|or model link (GLB / GLTF)
+Lisenziya|Лицензия|License
+Müəllif və mənbə|Автор и источник|Author and source
+Məhsul səhifəsində göstər|Показывать на странице товара|Show on product page
+Yüklənməni yoxla|Проверить загрузку|Check loading
+Modeli sil|Удалить модель|Remove model
+Yalnız məhsulun özünə aid real 3D model əlavə edin. Başqa obyektin modeli bu məhsul kimi göstərilməməlidir.|Добавляйте только настоящую 3D-модель этого товара. Модель другого объекта не должна выдаваться за этот товар.|Only add a real 3D model of this product. A model of another object must not be presented as this product.
+Model açılmadı. Linki və ya faylı yoxlayın.|Модель не открылась. Проверьте ссылку или файл.|The model did not open. Check the link or file.
+3D model məhsuldan silinsin?|Удалить 3D-модель у товара?|Remove the 3D model from this product?
+Məhsul səhifəsində yalnız şəkillər göstəriləcək.|На странице товара будут показаны только фото.|Only photos will be shown on the product page.
+Yalnız .glb faylı yükləmək olar. GLTF faylları üçün link sahəsindən istifadə edin.|Можно загрузить только файл .glb. Для GLTF используйте поле ссылки.|Only .glb files can be uploaded. Use the link field for GLTF files.
+3D model 10 MB-dan böyük olmamalıdır|3D-модель не должна превышать 10 МБ|The 3D model must not exceed 10 MB
+3D model: {}|3D-модель: {}|3D model: {}
+Son axtarışlar|Недавние запросы|Recent searches
+Məhsulların dəyəri|Стоимость товаров|Items total
+Pulsuz çatdırılma üçün daha {} dəyərində məhsul əlavə edin|Добавьте товаров ещё на {} для бесплатной доставки|Add {} more for free delivery
+Endirim kodu və bonus ballar növbəti addımda tətbiq olunur. Əlavə gizli ödəniş yoxdur.|Промокод и бонусные баллы применяются на следующем шаге. Скрытых платежей нет.|Promo codes and bonus points are applied in the next step. No hidden fees.
+Yalnız {} ulduzlu rəylər · filtri sıfırla|Только отзывы на {} звезды · сбросить фильтр|Only {}-star reviews · reset filter
+{} ulduzlu rəyləri göstər ({})|Показать отзывы на {} звезды ({})|Show {}-star reviews ({})
+Bütün sifarişlərə pulsuz çatdırılma|Бесплатная доставка всех заказов|Free delivery on all orders
+{}-dan yuxarı pulsuz, aşağı sifarişlərə {}|Бесплатно от {}, для заказов меньше — {}|Free over {}, otherwise {}
+Çatdırılma, qaytarma və zəmanət|Доставка, возврат и гарантия|Delivery, returns and warranty
+Onlayn kartla və ya qapıda ödəniş. Kart məlumatları mağazada saxlanılmır.|Онлайн картой или при получении. Данные карты не хранятся в магазине.|Pay online by card or on delivery. Card details are not stored by the shop.
+Qapıda ödəniş (nağd və ya kartla kuryerə).|Оплата при получении (наличными или картой курьеру).|Pay on delivery (cash or card to the courier).
+Sualınız var?|Есть вопрос?|Have a question?
+Bizimlə əlaqə saxlayın|Свяжитесь с нами|Contact us
 `;
 
 const months = [

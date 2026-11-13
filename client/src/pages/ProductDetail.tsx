@@ -7,6 +7,7 @@ import Alert from "../components/common/Alert";
 import FigmaIcon from "../components/common/FigmaIcon";
 import Spinner from "../components/common/Spinner";
 import ReviewSection from "../components/product/ReviewSection";
+import PurchaseInfo from "../components/product/PurchaseInfo";
 import RecentlyViewed from "../components/home/RecentlyViewed";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -124,7 +125,8 @@ export default function ProductDetail() {
     <div className="-mx-4 -mt-8 sm:mx-0 sm:mt-0">
       <div className="grid overflow-hidden bg-surface sm:rounded-phone sm:shadow-tile lg:grid-cols-2">
         <div className="relative p-5 pt-[34px] lg:p-8">
-          <ProductViewer images={product.images} alt={product.name} category={product.category?.slug} model3d={product.model3dUrl ?? product.specs?.extra?.model3d} />
+          <ProductViewer images={product.images} alt={product.name} category={product.category?.slug} model3d={product.model3dActive === false ? null : (product.model3dUrl ?? product.specs?.extra?.model3d)}
+            modelCredit={[product.model3dSource, product.model3dLicense].filter(Boolean).join(" · ") || null} />
           <button
             type="button"
             onClick={toggleWishlist}
@@ -252,6 +254,7 @@ export default function ProductDetail() {
               </button>
             </div>
           </div>
+          <PurchaseInfo product={product} />
         </div>
       </div>
       <ReviewSection productId={product.id} productSlug={product.slug} onSummaryChange={syncRating} />

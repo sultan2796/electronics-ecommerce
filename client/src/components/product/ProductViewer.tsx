@@ -27,9 +27,10 @@ interface ProductViewerProps {
   alt: string;
   category?: string;
   model3d?: string | null;
+  modelCredit?: string | null;
 }
 
-export default function ProductViewer({ images, alt, category, model3d }: ProductViewerProps) {
+export default function ProductViewer({ images, alt, category, model3d, modelCredit }: ProductViewerProps) {
   const frames = images.length ? images : [""];
   const canSpin = frames.length > 1;
   const [mode, setMode] = useState<"photo" | "spin" | "model">(model3d ? "model" : "photo");
@@ -172,11 +173,7 @@ export default function ProductViewer({ images, alt, category, model3d }: Produc
         )}
         {mode !== "model" && (
           <div className="ml-auto flex items-center gap-1">
-            {modelError && (
-        <p className="text-[11px] leading-snug text-amber-700 dark:text-amber-400">3D model yüklənmədi, məhsulun şəkilləri göstərilir.</p>
-      )}
-
-      {mode === "spin" && (
+            {mode === "spin" && (
               <button
                 type="button"
                 onClick={() => setAutoSpin((value) => !value)}
@@ -273,6 +270,12 @@ export default function ProductViewer({ images, alt, category, model3d }: Produc
           </span>
         )}
       </div>
+
+      {mode === "model" && modelReady && modelCredit && <p className="text-[11px] leading-snug text-muted">{`3D model: ${modelCredit}`}</p>}
+
+      {modelError && (
+        <p className="text-[11px] leading-snug text-amber-700 dark:text-amber-400">3D model yüklənmədi, məhsulun şəkilləri göstərilir.</p>
+      )}
 
       {mode === "spin" && (
         <p className="text-[11px] leading-snug text-muted">Məhsulun real 3D modeli yoxdur. Bu baxış təchizatçının müxtəlif bucaqlardan çəkdiyi şəkillərdən interaktiv şəkildə qurulub.</p>

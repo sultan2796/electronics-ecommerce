@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { clearSearchHistory, readSearchHistory, rememberSearch } from "../../utils/searchHistory";
 import { useNavigate } from "react-router-dom";
 import { useDebounce } from "../../hooks/useDebounce";
 import { productService } from "../../services/product.service";
@@ -14,6 +15,7 @@ export default function SearchBox({ className = "" }: { className?: string }) {
   const [results, setResults] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
+  const [history, setHistory] = useState<string[]>(readSearchHistory);
   const debounced = useDebounce(query.trim(), 250);
   const boxRef = useRef<HTMLFormElement>(null);
 
@@ -49,10 +51,12 @@ export default function SearchBox({ className = "" }: { className?: string }) {
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (active >= 0 && results[active]) return go(`/products/${results[active].slug}`);
+    if (query.trim()) setHistory(rememberSearch(query));
     go(query.trim() ? `/products?q=${encodeURIComponent(query.trim())}` : "/products");
   };
 
   const showPanel = open && debounced.length >= 2;
+  const showHistory = open && query.trim().length === 0 && history.length > 0;
 
   return (
     <form ref={boxRef} onSubmit={submit} role="search" className={`relative ${className}`}>
@@ -62,7 +66,7 @@ export default function SearchBox({ className = "" }: { className?: string }) {
         type="search"
         placeholder="Məhsul, brend və ya model axtar"
         aria-autocomplete="list"
-        aria-expanded={showPanel}
+        aria-expanded={showPanel || showHistory}
         value={query}
         onFocus={() => setOpen(true)}
         onChange={(event) => {
@@ -76,6 +80,40 @@ export default function SearchBox({ className = "" }: { className?: string }) {
           if (event.key === "Escape") setOpen(false);
         }}
       />
+      {showHistory && (
+        <div className="absolute inset-x-0 top-12 z-40 overflow-hidden rounded-2xl border border-line bg-surface py-2 shadow-xl">
+          <div className="flex items-center justify-between px-4 pb-1 pt-1">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted">Son axtarışlar</span>
+            <button
+              type="button"
+              className="text-xs text-muted hover:text-red-600"
+              onClick={() => {
+                clearSearchHistory();
+                setHistory([]);
+              }}
+            >
+              Təmizlə
+            </button>
+          </div>
+          {history.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => {
+                setQuery(item);
+                setHistory(rememberSearch(item));
+                go(`/products?q=${encodeURIComponent(item)}`);
+              }}
+              className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-ink transition hover:bg-chip"
+            >
+              <svg viewBox="0 0 24 24" className="size-4 text-muted" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                <path d="M12 7v5l3 2M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4" />
+              </svg>
+              <span className="truncate">{item}</span>
+            </button>
+          ))}
+        </div>
+      )}
       {showPanel && (
         <div className="absolute inset-x-0 top-12 z-40 overflow-hidden rounded-2xl border border-line bg-surface shadow-xl" role="listbox">
           {results.length === 0 ? (

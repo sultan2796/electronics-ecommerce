@@ -1,0 +1,4 @@
+ALTER TABLE "Product" ADD COLUMN "model3dActive" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "Product" ADD COLUMN "model3dSize" INTEGER;
+ALTER TABLE "Product" ADD COLUMN "model3dLicense" TEXT;
+ALTER TABLE "Product" ADD COLUMN "model3dSource" TEXT;

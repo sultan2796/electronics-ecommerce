@@ -12,6 +12,7 @@ import { getErrorText } from "../utils/errorText";
 import { currentUser } from "../utils/currentUser";
 import { redeemCoupon } from "../services/coupon.service";
 import { effectivePrice } from "../services/campaign.service";
+import { shippingFor } from "../services/shipping.service";
 import { alertLowStock } from "../services/jobs.service";
 import { pointsToMoney, redeemablePoints } from "../services/loyalty.service";
 
@@ -51,7 +52,8 @@ export const checkout = asyncHandler(async (req, res) => {
       if (taken.count === 0) throw new AppError(409, "Bal balansı dəyişdi, yenidən cəhd edin");
     }
     const discount = couponDiscount.add(pointsToMoney(pointsUsed));
-    const total = subtotal.sub(discount);
+    const shippingFee = shippingFor(afterCoupon);
+    const total = subtotal.sub(discount).add(shippingFee);
 
     if (saveAddress && (await tx.address.count({ where: { userId } })) < 10) {
       const isDefault = (await tx.address.count({ where: { userId } })) === 0;
@@ -66,6 +68,7 @@ export const checkout = asyncHandler(async (req, res) => {
         total,
         subtotal,
         discount,
+        shippingFee,
         couponCode: coupon?.code ?? null,
         pointsUsed,
         paymentMethod,

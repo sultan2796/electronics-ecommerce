@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { shippingConfig } from "../services/shipping.service";
 import { apiPublicUrl, clientUrl } from "../config/env";
 import { prisma } from "../config/prisma";
 import { assertCouponUsable, calculateDiscount, normalizeCode } from "../services/coupon.service";
@@ -91,6 +92,25 @@ export const uploadImage = asyncHandler(async (req, res) => {
   if (data.length > MAX_UPLOAD_BYTES) throw new AppError(413, "Şəkil 2 MB-dan böyük olmamalıdır");
   const upload = await prisma.upload.create({ data: { mimeType, data, size: data.length } });
   res.status(201).json({ id: upload.id, url: `${apiPublicUrl}/api/uploads/${upload.id}` });
+});
+
+const MAX_MODEL_BYTES = 10 * 1024 * 1024;
+
+export const storeConfig = asyncHandler(async (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.json(shippingConfig());
+});
+
+export const uploadModel = asyncHandler(async (req, res) => {
+  const data = req.body;
+  if (!Buffer.isBuffer(data) || data.length < 20) throw new AppError(400, "GLB faylı göndərilməyib");
+  if (data.length > MAX_MODEL_BYTES) throw new AppError(413, "3D model 10 MB-dan böyük olmamalıdır");
+  if (data.toString("ascii", 0, 4) !== "glTF" || data.readUInt32LE(4) !== 2) {
+    throw new AppError(400, "Fayl düzgün GLB (glTF 2.0) formatında deyil");
+  }
+  if (data.readUInt32LE(8) !== data.length) throw new AppError(400, "GLB faylı zədələnib");
+  const upload = await prisma.upload.create({ data: { mimeType: "model/gltf-binary", data, size: data.length } });
+  res.status(201).json({ id: upload.id, url: `${apiPublicUrl}/api/uploads/${upload.id}.glb`, size: data.length });
 });
 
 export const serveUpload = asyncHandler(async (req, res) => {

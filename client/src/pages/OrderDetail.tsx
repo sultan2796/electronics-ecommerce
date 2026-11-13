@@ -159,6 +159,10 @@ export default function OrderDetail() {
               <span>−{formatPrice(order.discount ?? 0)}</span>
             </div>
           )}
+          <div className="mt-4 flex justify-between border-t border-chip pt-4 text-sm">
+            <span className="text-muted">Çatdırılma</span>
+            {Number(order.shippingFee ?? 0) > 0 ? <span>{formatPrice(order.shippingFee ?? 0)}</span> : <span className="text-emerald-600 dark:text-emerald-400">Pulsuz</span>}
+          </div>
           <div className="mt-4 flex justify-between border-t border-chip pt-4 text-lg font-bold">
             <span>Cəmi</span>
             <span className="text-brand-600">{formatPrice(order.total)}</span>

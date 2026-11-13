@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { shippingCost, useStoreConfig } from "../hooks/useStoreConfig";
 import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import EmptyState from "../components/common/EmptyState";
@@ -39,6 +40,7 @@ const methodInfo: Record<PaymentMethod, { title: string; description: string }> 
 
 export default function Checkout() {
   const { cart, refresh } = useCart();
+  const storeConfig = useStoreConfig();
   const { user, reloadUser } = useAuth();
   const [usePoints, setUsePoints] = useState(false);
   const navigate = useNavigate();
@@ -98,8 +100,9 @@ export default function Checkout() {
   const availablePoints = user?.points ?? 0;
   const maxPoints = Math.min(availablePoints, Math.floor((baseTotal * 0.5) / 0.01));
   const pointsDiscount = usePoints ? maxPoints * 0.01 : 0;
-  const finalTotal = Math.max(0, Math.round((baseTotal - pointsDiscount) * 100) / 100);
-  const earnPoints = Math.floor(finalTotal);
+  const shipping = shippingCost(storeConfig, baseTotal);
+  const finalTotal = Math.max(0, Math.round((baseTotal - pointsDiscount + shipping) * 100) / 100);
+  const earnPoints = Math.floor(finalTotal - shipping);
 
   const methods = config.data?.methods ?? ["CASH_ON_DELIVERY"];
   const selected: PaymentMethod = method && methods.includes(method) ? method : methods[0];
@@ -271,7 +274,7 @@ export default function Checkout() {
         )}
         <div className="flex justify-between text-sm">
           <span className="text-muted">Çatdırılma</span>
-          <span className="text-emerald-600 dark:text-emerald-400">Pulsuz</span>
+          {shipping > 0 ? <span>{formatPrice(shipping)}</span> : <span className="text-emerald-600 dark:text-emerald-400">Pulsuz</span>}
         </div>
         <div className="flex justify-between text-lg font-bold">
           <span>Cəmi</span>
