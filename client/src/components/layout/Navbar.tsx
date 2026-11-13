@@ -1,4 +1,5 @@
 import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../../config/contact";
+import { Heart, LucideIcon, Phone, Scale, ShoppingCart, Truck, UserRound } from "lucide-react";
 import Logo from "../brand/Logo";
 import { useDeliveryText } from "../common/DeliveryNote";
 import { ReactNode } from "react";
@@ -12,21 +13,11 @@ import { locales } from "../../i18n/dictionary";
 import ThemeToggle from "../common/ThemeToggle";
 import SearchBox from "./SearchBox";
 
-const icons = {
-  heart: "M12 20s-7-4.4-9.2-8.6C1.1 8.1 3 4.5 6.6 4.5c2 0 3.3 1.1 4.1 2.3h.6c.8-1.2 2.1-2.3 4.1-2.3 3.6 0 5.5 3.6 3.8 6.9C19 15.6 12 20 12 20z",
-  cart: "M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6M10 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM17 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2z",
-  user: "M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z",
-  scale: "M12 3v18M5 7h14M5 7l-3 7a4 4 0 0 0 6 0zm14 0-3 7a4 4 0 0 0 6 0z",
-  truck: "M3 6h11v9H3zM14 9h4l3 3v3h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",
-  phone: "M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2",
-};
+const icons = { heart: Heart, cart: ShoppingCart, user: UserRound, scale: Scale, truck: Truck, phone: Phone } satisfies Record<string, LucideIcon>;
 
 function Icon({ name, className = "size-[22px]" }: { name: keyof typeof icons; className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d={icons[name]} />
-    </svg>
-  );
+  const Glyph = icons[name];
+  return <Glyph className={className} strokeWidth={1.7} aria-hidden="true" />;
 }
 
 function Action({ to, icon, label, count }: { to: string; icon: keyof typeof icons; label: string; count?: number }) {
@@ -74,28 +65,28 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 bg-surface/95 shadow-[0_1px_0_rgb(var(--line))] backdrop-blur supports-[backdrop-filter]:bg-surface/85">
-      <div className="hidden bg-ink text-surface md:block">
+      <div className="hidden bg-[#0f172a] text-white dark:border-b dark:border-line dark:bg-[#0b0c0e] md:block">
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-xs">
-          <span className="flex items-center gap-2 text-surface/80">
+          <span className="flex items-center gap-2 text-white/75">
             <Icon name="truck" className="size-4" />
             {deliveryText ? `${t("benefit.delivery")} · ${deliveryText}` : t("benefit.delivery")}
           </span>
           <div className="flex items-center gap-5">
-            <a href={`tel:${CONTACT_PHONE_TEL}`} className="flex items-center gap-1.5 text-surface/80 transition hover:text-surface">
+            <a href={`tel:${CONTACT_PHONE_TEL}`} className="flex items-center gap-1.5 text-white/75 transition hover:text-white">
               <Icon name="phone" className="size-3.5" />
               {CONTACT_PHONE_DISPLAY}
             </a>
-            <Link to="/contact" className="text-surface/80 transition hover:text-surface">
+            <Link to="/contact" className="text-white/75 transition hover:text-white">
               Əlaqə
             </Link>
-            <div className="flex overflow-hidden rounded-md ring-1 ring-surface/20" role="group" aria-label="Dil">
+            <div className="flex overflow-hidden rounded-md ring-1 ring-white/20" role="group" aria-label="Dil">
               {locales.map((item) => (
                 <button
                   key={item.code}
                   type="button"
                   onClick={() => setLocale(item.code)}
                   aria-pressed={locale === item.code}
-                  className={`px-2 py-0.5 text-[11px] font-semibold transition ${locale === item.code ? "bg-surface text-ink" : "text-surface/70 hover:text-surface"}`}
+                  className={`px-2 py-0.5 text-[11px] font-semibold transition ${locale === item.code ? "bg-white text-[#0f172a]" : "text-white/70 hover:text-white"}`}
                 >
                   {item.label}
                 </button>

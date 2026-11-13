@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <meta name="theme-color" content="#c8430e" />
+    <meta name="theme-color" content="#0e0f12" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ElectroShop" />
     <meta property="og:locale" content="az_AZ" />
@@ -22,9 +22,11 @@
       (function () {
         try {
           var stored = localStorage.getItem("theme");
-          var dark = stored === "dark" || ((!stored || stored === "system") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          var dark = !stored || stored === "dark" || (stored === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
           if (dark) document.documentElement.classList.add("dark");
-        } catch (error) {}
+        } catch (error) {
+          document.documentElement.classList.add("dark");
+        }
       })();
     </script>
   </head>

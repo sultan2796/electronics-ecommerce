@@ -132,9 +132,9 @@ export default function ProductDetail() {
             onClick={toggleWishlist}
             aria-pressed={inWishlist}
             aria-label="İstək siyahısı"
-            className={`absolute right-[34px] top-[40px] z-10 rounded-full lg:right-10 lg:top-10 transition ${inWishlist ? "" : "opacity-60 grayscale hover:opacity-100 hover:grayscale-0"}`}
+            className={`absolute right-[34px] top-[40px] z-10 rounded-full transition lg:right-10 lg:top-10 ${inWishlist ? "text-red-500" : "text-ink/50 hover:text-red-500"}`}
           >
-            <FigmaIcon name="heart-detail" className="size-[22.5px]" />
+            <FigmaIcon name="heart-detail" className={`size-[22.5px] ${inWishlist ? "fill-current" : ""}`} />
           </button>
         </div>
 

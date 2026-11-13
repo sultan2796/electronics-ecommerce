@@ -15,9 +15,9 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 const readPreference = (): ThemePreference => {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored === "light" || stored === "dark" ? stored : "system";
+    return stored === "light" || stored === "dark" || stored === "system" ? stored : "dark";
   } catch {
-    return "system";
+    return "dark";
   }
 };
 

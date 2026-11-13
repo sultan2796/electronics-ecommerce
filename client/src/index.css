@@ -29,35 +29,43 @@
     --danger-soft: 254 226 226;
     --info-soft: 224 242 254;
     --ring: 200 67 14;
+    --on-brand: 255 255 255;
+    --cta: 200 67 14;
+    --cta-hover: 164 52 10;
+    --glass: 15 23 42;
     color-scheme: light;
   }
 
   .dark {
-    --canvas: 11 15 25;
-    --surface: 19 24 36;
-    --chip: 30 37 52;
-    --tile: 24 30 44;
-    --ink: 241 245 249;
-    --muted: 148 163 184;
-    --line: 39 47 63;
-    --navbar: 15 20 31;
-    --rating: 251 191 36;
-    --brand-50: 52 26 16;
-    --brand-100: 74 34 18;
-    --brand-500: 255 122 69;
-    --brand-600: 200 67 14;
-    --brand-700: 230 88 32;
-    --secondary: 241 245 249;
-    --accent: 251 191 36;
+    --canvas: 14 15 18;
+    --surface: 22 23 27;
+    --chip: 37 39 45;
+    --tile: 28 30 35;
+    --ink: 242 239 233;
+    --muted: 168 163 154;
+    --line: 46 48 55;
+    --navbar: 18 19 23;
+    --rating: 227 199 155;
+    --brand-50: 40 33 23;
+    --brand-100: 56 45 30;
+    --brand-500: 227 199 155;
+    --brand-600: 184 147 92;
+    --brand-700: 217 185 138;
+    --on-brand: 22 23 27;
+    --cta: 200 67 14;
+    --cta-hover: 222 84 28;
+    --secondary: 242 239 233;
+    --accent: 217 185 138;
     --success: 74 222 128;
     --warning: 251 191 36;
     --danger: 248 113 113;
     --info: 56 189 248;
-    --success-soft: 20 52 33;
-    --warning-soft: 58 42 12;
-    --danger-soft: 66 24 24;
-    --info-soft: 12 42 62;
-    --ring: 255 122 69;
+    --success-soft: 20 46 31;
+    --warning-soft: 52 40 14;
+    --danger-soft: 60 24 24;
+    --info-soft: 12 38 56;
+    --ring: 217 185 138;
+    --glass: 255 255 255;
     color-scheme: dark;
   }
 
@@ -149,22 +157,29 @@
     @apply min-h-12 rounded-xl px-6 py-3 text-base;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white shadow-[0_1px_2px_rgba(16,24,40,0.12),0_6px_16px_-6px_rgb(var(--brand-600)/0.55)] hover:bg-brand-700 hover:shadow-[0_2px_4px_rgba(16,24,40,0.12),0_10px_22px_-8px_rgb(var(--brand-600)/0.6)];
+    @apply btn bg-cta text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.16),0_1px_2px_rgb(0_0_0/0.18)] hover:bg-cta-hover;
   }
   .btn-secondary {
     @apply btn bg-secondary text-surface hover:bg-secondary/85;
   }
   .btn-outline {
-    @apply btn border border-line bg-surface text-ink hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700 dark:hover:text-brand-500;
+    @apply btn border border-line bg-surface text-ink hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-[inset_0_1px_0_rgb(255_255_255/0.06)] dark:backdrop-blur-md dark:hover:border-brand-500/50 dark:hover:bg-white/[0.07] dark:hover:text-brand-500;
   }
   .btn-ghost {
-    @apply btn bg-transparent text-ink hover:bg-chip;
+    @apply btn bg-transparent text-ink hover:bg-chip dark:hover:bg-white/[0.06];
   }
   .btn-danger {
     @apply btn bg-danger text-white hover:bg-danger/90 dark:text-canvas;
   }
   .btn-icon {
     @apply btn size-10 min-h-0 rounded-full p-0;
+  }
+  .dark .bg-brand-600.text-white,
+  .dark .bg-brand-600 .text-white {
+    color: rgb(var(--on-brand));
+  }
+  .glass {
+    @apply border border-white/10 bg-white/[0.05] shadow-[inset_0_1px_0_rgb(255_255_255/0.08)] backdrop-blur-md;
   }
   .btn-spinner {
     @apply size-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent;
@@ -173,7 +188,7 @@
     @apply min-h-10 w-full rounded-xl border border-line bg-surface px-4 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted hover:border-ink/30 focus:border-brand-500 focus:ring-4 focus:ring-[rgb(var(--ring)/0.15)] disabled:cursor-not-allowed disabled:bg-chip disabled:opacity-70 aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger/15;
   }
   .card {
-    @apply rounded-[20px] bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_4px_16px_-4px_rgba(16,24,40,0.08)] ring-1 ring-line/70 dark:shadow-none dark:ring-line;
+    @apply rounded-[20px] bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-line/70 dark:shadow-none dark:ring-line;
   }
   .link {
     @apply text-sm font-medium text-brand-600 underline-offset-4 hover:text-brand-700 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--ring)/0.4)] dark:text-brand-500;

@@ -1,6 +1,6 @@
 import { toast } from "../common/Overlays";
+import { Eye, Heart, Scale } from "lucide-react";
 import { MouseEvent, useState } from "react";
-import { useTilt } from "../../hooks/useMotion";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -14,14 +14,6 @@ import { productRating } from "../../utils/rating";
 import ProductImage from "./ProductImage";
 import { openQuickView } from "./QuickView";
 
-const Icon = ({ d, className = "size-4" }: { d: string; className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d={d} />
-  </svg>
-);
-
-const HEART = "M12 20s-7-4.4-9.2-8.6C1.1 8.1 3 4.5 6.6 4.5c2 0 3.3 1.1 4.1 2.3h.6c.8-1.2 2.1-2.3 4.1-2.3 3.6 0 5.5 3.6 3.8 6.9C19 15.6 12 20 12 20z";
-const SCALE = "M12 3v18M5 7h14M5 7l-3 7a4 4 0 0 0 6 0zm14 0-3 7a4 4 0 0 0 6 0z";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { user } = useAuth();
@@ -33,7 +25,6 @@ export default function ProductCard({ product }: { product: Product }) {
   const [message, setMessage] = useState<string | null>(null);
   const [heartPulse, setHeartPulse] = useState(0);
   const [cartPulse, setCartPulse] = useState(0);
-  const tilt = useTilt<HTMLElement>(5);
   const secondImage = product.images.find((image, position) => position > 0 && image && image !== product.images[0]);
   const inCompare = compare.has(product.id);
   const liked = wishlist.has(product.id);
@@ -81,13 +72,7 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <article
-      ref={tilt.ref}
-      onPointerMove={tilt.onPointerMove}
-      onPointerLeave={tilt.onPointerLeave}
-      className="tilt group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface hover:border-transparent hover:shadow-[0_22px_48px_-20px_rgba(15,23,42,0.35)]"
-    >
-      <span className="tilt-glare" aria-hidden="true" />
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface transition duration-300 ease-out hover:-translate-y-0.5 hover:border-brand-500/40 hover:shadow-[0_8px_24px_-16px_rgb(0_0_0/0.35)] motion-reduce:hover:translate-y-0">
       <div className="absolute left-3 top-3 z-10 flex flex-col items-start gap-1">
         {price.percent > 0 && (
           <span className={`rounded-md px-2 py-0.5 text-[11px] font-semibold text-white ${price.live ? "bg-red-600" : "bg-brand-600"}`}>−{price.percent}%</span>
@@ -103,7 +88,7 @@ export default function ProductCard({ product }: { product: Product }) {
           className={`flex size-8 items-center justify-center rounded-full bg-surface shadow-sm ring-1 ring-line transition hover:text-red-500 ${liked ? "text-red-500 sm:opacity-100" : "text-muted"}`}
         >
           <span key={heartPulse} className={heartPulse ? "heart-pop" : ""}>
-            <Icon d={HEART} className={`size-4 ${liked ? "fill-current" : ""}`} />
+            <Heart className={`size-4 ${liked ? "fill-current" : ""}`} strokeWidth={1.8} aria-hidden="true" />
           </span>
         </button>
         <button
@@ -113,14 +98,14 @@ export default function ProductCard({ product }: { product: Product }) {
           aria-label={t("card.compare")}
           className={`flex size-8 items-center justify-center rounded-full bg-surface shadow-sm ring-1 ring-line transition hover:text-brand-600 ${inCompare ? "text-brand-600" : "text-muted"}`}
         >
-          <Icon d={SCALE} />
+          <Scale className="size-4" strokeWidth={1.8} aria-hidden="true" />
         </button>
       </div>
 
       <Link
         to={`/products/${product.slug}`}
         onClick={openPreview}
-        className="relative flex aspect-square items-center justify-center overflow-hidden bg-[#f6f7f9] p-6 dark:bg-white"
+        className="relative flex aspect-square items-center justify-center overflow-hidden bg-[#f6f7f9] p-6 dark:bg-[#ecebe7]"
       >
         <ProductImage
           src={product.images[0]}
@@ -142,7 +127,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <span className="absolute bottom-3 rounded-full bg-ink/80 px-3 py-1 text-[11px] font-medium text-surface">{t("card.soldOut")}</span>
         ) : (
           <span className="absolute bottom-3 left-1/2 hidden -translate-x-1/2 translate-y-2 items-center gap-1.5 whitespace-nowrap rounded-full bg-ink/85 px-3.5 py-1.5 text-[11px] font-semibold text-surface opacity-0 shadow-lg backdrop-blur transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:flex">
-            <Icon d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" className="size-3.5" />
+            <Eye className="size-3.5" strokeWidth={1.8} aria-hidden="true" />
             {t("card.quickView")}
           </span>
         )}
@@ -188,8 +173,8 @@ export default function ProductCard({ product }: { product: Product }) {
           type="button"
           onClick={addToCart}
           disabled={busy || soldOut}
-          className={`mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition hover:bg-brand-600 hover:text-white active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-chip disabled:text-muted ${
-            cartPulse && message ? "cart-bump bg-emerald-600 text-white" : "bg-ink text-surface"
+          className={`mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition hover:bg-cta-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-chip disabled:text-muted ${
+            cartPulse && message ? "cart-bump bg-success text-white dark:text-canvas" : "bg-cta text-white"
           }`}
         >
           {message ?? (soldOut ? t("card.soldOut") : t("card.addToCart"))}

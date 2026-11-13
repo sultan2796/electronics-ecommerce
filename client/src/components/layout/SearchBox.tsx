@@ -60,7 +60,7 @@ export default function SearchBox({ className = "" }: { className?: string }) {
 
   return (
     <form ref={boxRef} onSubmit={submit} role="search" className={`relative ${className}`}>
-      <FigmaIcon name="search" className="pointer-events-none absolute left-[14px] top-1/2 size-4 -translate-y-1/2 dark:invert" />
+      <FigmaIcon name="search" className="pointer-events-none absolute left-[14px] top-1/2 size-4 -translate-y-1/2 text-muted" />
       <input
         className="h-10 w-full rounded-full border border-line bg-canvas pl-[45px] pr-4 text-sm outline-none transition placeholder:text-muted focus:border-brand-500 focus:bg-surface focus:ring-4 focus:ring-brand-500/10"
         type="search"

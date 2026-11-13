@@ -15,6 +15,7 @@ export default {
           700: token("brand-700"),
         },
         secondary: token("secondary"),
+        cta: { DEFAULT: token("cta"), hover: token("cta-hover") },
         accent: token("accent"),
         success: { DEFAULT: token("success"), soft: token("success-soft") },
         warning: { DEFAULT: token("warning"), soft: token("warning-soft") },

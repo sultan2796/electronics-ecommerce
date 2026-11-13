@@ -1,4 +1,26 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
+import {
+  Box,
+  ChartColumn,
+  ClipboardList,
+  GalleryHorizontal,
+  LayoutDashboard,
+  LayoutGrid,
+  LogOut,
+  LucideIcon,
+  Mail,
+  Menu,
+  Package,
+  PanelLeftClose,
+  Plus,
+  Settings,
+  ShoppingBag,
+  Star,
+  Store,
+  TicketPercent,
+  Users,
+  Zap,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import BrandMark from "../../components/brand/BrandMark";
 import Logo from "../../components/brand/Logo";
@@ -26,35 +48,30 @@ type IconName =
   | "store"
   | "logout";
 
-const iconPaths: Record<IconName, ReactNode> = {
-  dashboard: <path d="M4 13h6V4H4zm10 7h6V11h-6zM4 20h6v-4H4zm10-11h6V4h-6z" />,
-  orders: <path d="M6 3h12l1 5H5zM5 8h14v12H5zM9 12h6" />,
-  inventory: <path d="M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10" />,
-  categories: <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" />,
-  users: <path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-1a4 4 0 0 0-3-3.9M16 4.1a3.5 3.5 0 0 1 0 6.8" />,
-  plus: <path d="M12 5v14M5 12h14" />,
-  reviews: <path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z" />,
-  emails: <path d="M3 6h18v12H3zM3 7l9 6 9-6" />,
-  campaigns: <path d="M13 2 4 14h7l-1 8 9-12h-7z" />,
-  slides: <path d="M3 5h18v14H3zM3 15l5-5 4 4 3-3 6 6M8.5 9.5h.01" />,
-  reports: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
-  audit: <path d="M9 3h6l1 2h3v16H5V5h3zM9 12h6M9 16h4" />,
-  coupons: <path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4zM9 9l6 6M9.5 14.5h.01M14.5 9.5h.01" />,
-  cube: <path d="M12 2l9 5v10l-9 5-9-5V7zM3 7l9 5 9-5M12 12v10" />,
-  settings: (
-    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
-  ),
-  collapse: <path d="M15 6l-6 6 6 6M20 4v16" />,
-  store: <path d="M3 9l1.5-5h15L21 9M3 9v11h18V9M3 9h18M9 20v-6h6v6" />,
-  logout: <path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10" />,
+const icons: Record<IconName, LucideIcon> = {
+  dashboard: LayoutDashboard,
+  orders: ShoppingBag,
+  inventory: Package,
+  categories: LayoutGrid,
+  users: Users,
+  plus: Plus,
+  reviews: Star,
+  emails: Mail,
+  campaigns: Zap,
+  slides: GalleryHorizontal,
+  reports: ChartColumn,
+  audit: ClipboardList,
+  coupons: TicketPercent,
+  cube: Box,
+  settings: Settings,
+  collapse: PanelLeftClose,
+  store: Store,
+  logout: LogOut,
 };
 
 function Icon({ name, className = "size-[18px]" }: { name: IconName; className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={`${className} shrink-0`} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {iconPaths[name]}
-    </svg>
-  );
+  const Glyph = icons[name];
+  return <Glyph className={`${className} shrink-0`} strokeWidth={1.8} aria-hidden="true" />;
 }
 
 interface NavItem {
@@ -260,9 +277,7 @@ export default function AdminLayout() {
       <div className="flex min-w-0 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line bg-surface/90 px-4 backdrop-blur lg:px-8">
           <button type="button" className="btn-ghost btn-icon size-9 lg:hidden" aria-label="Menyunu aç" onClick={() => setOpen(true)}>
-            <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-              <path d="M4 7h16M4 12h16M4 17h16" />
-            </svg>
+            <Menu className="size-5" strokeWidth={2} aria-hidden="true" />
           </button>
           <button
             type="button"

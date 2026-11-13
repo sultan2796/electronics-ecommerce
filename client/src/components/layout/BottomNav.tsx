@@ -18,19 +18,10 @@ export default function BottomNav() {
         <NavLink key={item.to} to={item.to} end={item.end} aria-label={item.label} className="relative flex h-full w-16 items-center justify-center">
           {({ isActive }) => (
             <>
-              {item.icon === "nav-home" ? (
-                <span className={`relative block ${item.size} overflow-visible`}>
-                  <FigmaIcon
-                    name="nav-home"
-                    className={`absolute left-[-18px] top-[-18px] h-[66.09px] w-16 max-w-none ${isActive ? "" : "opacity-40 grayscale"}`}
-                  />
-                </span>
-              ) : (
-                <FigmaIcon
-                  name={item.icon}
-                  className={`${item.size} ${isActive ? "opacity-100 dark:invert-0 [filter:brightness(0)_saturate(100%)_invert(48%)_sepia(84%)_saturate(2817%)_hue-rotate(352deg)_brightness(101%)_contrast(99%)]" : "dark:invert"}`}
-                />
-              )}
+              <span className={`flex flex-col items-center gap-1 transition ${isActive ? "text-brand-600 dark:text-brand-500" : "text-muted"}`}>
+                <FigmaIcon name={item.icon} className="size-[22px]" />
+                <span className={`h-1 w-1 rounded-full transition ${isActive ? "bg-current" : "bg-transparent"}`} />
+              </span>
               {item.to === "/cart" && itemCount > 0 && (
                 <span className="absolute right-2 top-3 min-w-[18px] rounded-full bg-brand-600 px-1 text-center text-[10px] font-semibold leading-[18px] text-white">
                   {itemCount}

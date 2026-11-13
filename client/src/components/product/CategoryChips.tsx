@@ -31,7 +31,7 @@ export default function CategoryChips({ categories, active, onSelect }: Category
           >
             {icon && (
               <span className="flex size-10 items-center justify-center">
-                <FigmaIcon name={icon} className={`h-[17px] w-auto ${isActive ? "brightness-0 invert" : ""}`} />
+                <FigmaIcon name={icon} className="size-[17px]" />
               </span>
             )}
             <span className="whitespace-nowrap">{category.name}</span>
