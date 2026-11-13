@@ -35,14 +35,29 @@ const resolvePrice = (product: PricedProduct) => {
 
 export const effectivePrice = (product: PricedProduct) => resolvePrice(product).price;
 
+type PricedVariant = { price: Prisma.Decimal | null; salePrice: Prisma.Decimal | null };
+
+export const variantPrice = (product: PricedProduct, variant: PricedVariant) => {
+  const source = variant.price !== null ? { ...product, price: variant.price, salePrice: variant.salePrice } : product;
+  const price = resolvePrice(source).price;
+  return { price, compareAtPrice: price.eq(source.price) ? null : source.price };
+};
+
+const priceVariants = (product: PricedProduct, variants: unknown) => {
+  if (!Array.isArray(variants)) return undefined;
+  return (variants as PricedVariant[]).map((variant) => ({ ...variant, basePrice: variant.price, ...variantPrice(product, variant) }));
+};
+
 export const withPricing = <T extends PricedProduct>(input: T) => {
-  const product = localizeProduct(input as T & { sku?: string });
-  const { price, campaign } = resolvePrice(product);
-  if (price.eq(product.price)) return { ...product, compareAtPrice: null, campaign: null };
+  const localized = localizeProduct(input as T & { sku?: string });
+  const variants = priceVariants(input, (input as { variants?: unknown }).variants);
+  const product = variants ? { ...localized, variants } : localized;
+  const { price, campaign } = resolvePrice(input);
+  if (price.eq(input.price)) return { ...product, compareAtPrice: null, campaign: null };
   return {
     ...product,
     price,
-    compareAtPrice: product.price,
+    compareAtPrice: input.price,
     campaign: campaign ? { name: campaign.name, discountPercent: campaign.discountPercent, endsAt: campaign.endsAt } : null,
   };
 };

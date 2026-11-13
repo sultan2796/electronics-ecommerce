@@ -2,7 +2,7 @@ import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/clien
 import { prisma } from "../config/prisma";
 import { importCatalog } from "../services/catalogImport.service";
 import { notifyOrderStatus, orderInclude, recordOrderStatus, restockAndCancel } from "../services/order.service";
-import { productInclude } from "../services/product.service";
+import { adminProductInclude, productInclude } from "../services/product.service";
 
 const adminOrderInclude = { ...orderInclude, user: { select: { name: true, email: true } } } satisfies Prisma.OrderInclude;
 import { AppError } from "../utils/AppError";
@@ -125,7 +125,7 @@ export const getStats = asyncHandler(async (_req, res) => {
 });
 
 export const getAdminProduct = asyncHandler(async (req, res) => {
-  const product = await prisma.product.findUnique({ where: { id: req.params.id }, include: productInclude });
+  const product = await prisma.product.findUnique({ where: { id: req.params.id }, include: adminProductInclude });
   if (!product) throw new AppError(404, "Məhsul tapılmadı");
   res.json(product);
 });
@@ -244,6 +244,9 @@ export const listInventory = asyncHandler(async (req, res) => {
 
 export const updateStock = asyncHandler(async (req, res) => {
   const { stock } = req.body as { stock: number };
+  if (await prisma.productVariant.count({ where: { productId: req.params.id, isActive: true } })) {
+    throw new AppError(409, "Bu məhsulun variantları var. Stoku variantlar üzrə dəyişin.");
+  }
   const product = await prisma.product.update({ where: { id: req.params.id }, data: { stock }, include: productInclude });
   if (stock > 0) void notifyBackInStock(product.id);
   audit(req, "product.stock", "Product", product.id, { name: product.name, stock });

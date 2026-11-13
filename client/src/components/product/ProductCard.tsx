@@ -44,6 +44,10 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   const addToCart = async () => {
+    if (product.variants?.length) {
+      navigate(`/products/${product.slug}`);
+      return;
+    }
     try {
       await addItem(product.id);
       setCartPulse((value) => value + 1);

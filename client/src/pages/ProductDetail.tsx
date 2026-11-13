@@ -5,7 +5,8 @@ import Breadcrumbs from "../components/common/Breadcrumbs";
 import { productSpecGroups } from "../utils/productSpecs";
 import { useI18n } from "../context/I18nContext";
 import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import VariantPicker from "../components/product/VariantPicker";
 import Alert from "../components/common/Alert";
 import FigmaIcon from "../components/common/FigmaIcon";
 import Spinner from "../components/common/Spinner";
@@ -38,6 +39,8 @@ export default function ProductDetail() {
   const compare = useCompare();
   const navigate = useNavigate();
   const [message, setMessage] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedVariant = searchParams.get("variant");
   const [ctaEl, setCtaEl] = useState<HTMLButtonElement | null>(null);
   const [ctaVisible, setCtaVisible] = useState(true);
 
@@ -106,9 +109,33 @@ export default function ProductDetail() {
   if (loading) return <Spinner />;
   if (error || !product) return <Alert>{error ?? "Məhsul tapılmadı"}</Alert>;
 
-  const soldOut = product.stock === 0;
+  const variants = product.variants ?? [];
+  const selected =
+    variants.find((variant) => variant.id === requestedVariant) ?? variants.find((variant) => variant.stock > 0) ?? variants[0] ?? null;
+  const view = selected
+    ? {
+        ...product,
+        price: selected.price ?? product.price,
+        compareAtPrice: selected.compareAtPrice ?? null,
+        stock: selected.stock,
+        sku: selected.sku,
+        images: selected.images.length ? selected.images : product.images,
+      }
+    : product;
+  const selectVariant = (id: string) => {
+    setMessage(null);
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.set("variant", id);
+        return next;
+      },
+      { replace: true },
+    );
+  };
+  const soldOut = view.stock <= 0;
   const rating = productRating(product);
-  const price = pricing(product);
+  const price = pricing(view);
   const inWishlist = wishlist.has(product.id);
   const rows = productSpecGroups(product, locale).flatMap((group) => group.rows);
 
@@ -119,7 +146,7 @@ export default function ProductDetail() {
 
   const buyNow = async () => {
     try {
-      await addItem(product.id);
+      await addItem(product.id, 1, selected?.id);
       navigate("/checkout");
     } catch (err) {
       setMessage(getErrorMessage(err));
@@ -128,7 +155,7 @@ export default function ProductDetail() {
 
   const addToCart = async () => {
     try {
-      await addItem(product.id);
+      await addItem(product.id, 1, selected?.id);
       setMessage("Səbətə əlavə edildi");
     } catch (err) {
       setMessage(getErrorMessage(err));
@@ -148,7 +175,7 @@ export default function ProductDetail() {
     <div className="-mx-4 -mt-8 pb-20 sm:mx-0 sm:mt-0 md:pb-0">
       <div className="grid overflow-hidden bg-surface sm:rounded-phone sm:shadow-tile lg:grid-cols-2">
         <div className="relative p-5 pt-[34px] lg:p-8">
-          <ProductViewer images={product.images} alt={product.name} category={product.category?.slug} model3d={product.model3dActive === false ? null : (product.model3dUrl ?? product.specs?.extra?.model3d)}
+          <ProductViewer key={selected?.id ?? "base"} images={view.images} alt={product.name} category={product.category?.slug} model3d={product.model3dActive === false ? null : (product.model3dUrl ?? product.specs?.extra?.model3d)}
             modelCredit={[product.model3dSource, product.model3dLicense].filter(Boolean).join(" · ") || null} />
           <button
             type="button"
@@ -214,11 +241,12 @@ export default function ProductDetail() {
                 ·
               </span>
             )}
-            {soldOut ? "Stokda yoxdur" : `Stokda ${product.stock} ədəd var`}
+            {soldOut ? "Stokda yoxdur" : `Stokda ${view.stock} ədəd var`}
           </p>
           <p className="mt-1 text-xs text-muted">
-            {product.brand} · SKU: {product.sku}
+            {`${product.brand} · SKU: ${view.sku}`}
           </p>
+          {variants.length > 0 && <VariantPicker variants={variants} selectedId={selected?.id ?? null} onSelect={selectVariant} />}
 
           <h2 className="mt-[18px] text-base font-bold text-ink">Məhsul haqqında</h2>
           <p translate="no" className="mt-4 text-sm leading-relaxed text-ink/80">{product.description}</p>

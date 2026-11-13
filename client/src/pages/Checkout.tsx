@@ -130,7 +130,7 @@ export default function Checkout() {
     try {
       const { line2, ...rest } = address;
       if (isGuest) {
-        const items = (cart?.items ?? []).map((item) => ({ productId: item.productId, quantity: item.quantity }));
+        const items = (cart?.items ?? []).map((item) => ({ productId: item.productId, ...(item.variantId ? { variantId: item.variantId } : {}), quantity: item.quantity }));
         const placed = await orderService.guestCheckout({ email: guestEmail.trim(), shippingAddress: line2?.trim() ? address : rest, items });
         rememberGuestOrder(placed.orderNumber, placed.trackingToken);
         clearGuest();
@@ -266,7 +266,7 @@ export default function Checkout() {
         {cart?.items.map((item) => (
           <div key={item.id} className="flex justify-between gap-4 text-sm">
             <span className="text-ink/80">
-              {item.product.name} × {item.quantity}
+              {item.variant ? `${item.product.name} (${item.variant.name}) × ${item.quantity}` : `${item.product.name} × ${item.quantity}`}
             </span>
             <span className="shrink-0">{formatPrice(Number(item.product.price) * item.quantity)}</span>
           </div>

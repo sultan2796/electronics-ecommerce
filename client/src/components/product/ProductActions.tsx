@@ -21,6 +21,10 @@ export default function ProductActions({ product, compact = false }: { product: 
   };
 
   const onAdd = async () => {
+    if (product.variants?.length) {
+      navigate(`/products/${product.slug}`);
+      return;
+    }
     try {
       await addItem(product.id);
       setMessage("Səbətə əlavə edildi");

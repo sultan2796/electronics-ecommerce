@@ -49,23 +49,29 @@ export default function Cart() {
               <Link to={`/products/${item.product.slug}`} className="font-semibold hover:text-brand-700">
                 {item.product.name}
               </Link>
+              {item.variant && (
+                <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted">
+                  {item.variant.colorHex && <span className="h-3 w-3 rounded-full border border-line" style={{ backgroundColor: item.variant.colorHex }} aria-hidden="true" />}
+                  {item.variant.name}
+                </p>
+              )}
               <p className="text-sm text-muted">{formatPrice(item.product.price)}</p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-outline px-3" disabled={busy} onClick={() => safely(() => updateItem(item.productId, item.quantity - 1))}>
+              <button className="btn-outline px-3" disabled={busy} onClick={() => safely(() => updateItem(item.id, item.quantity - 1))}>
                 −
               </button>
               <span className="w-8 text-center">{item.quantity}</span>
               <button
                 className="btn-outline px-3"
                 disabled={busy || item.quantity >= item.product.stock}
-                onClick={() => safely(() => updateItem(item.productId, item.quantity + 1))}
+                onClick={() => safely(() => updateItem(item.id, item.quantity + 1))}
               >
                 +
               </button>
             </div>
             <p className="w-28 text-right font-semibold">{formatPrice(Number(item.product.price) * item.quantity)}</p>
-            <button className="text-sm text-red-600" disabled={busy} onClick={() => safely(() => removeItem(item.productId))}>
+            <button className="text-sm text-red-600" disabled={busy} onClick={() => safely(() => removeItem(item.id))}>
               Sil
             </button>
           </article>

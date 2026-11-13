@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const tx = vi.hoisted(() => ({
   product: { findMany: vi.fn(), updateMany: vi.fn() },
+  productVariant: { count: vi.fn().mockResolvedValue(0), findFirst: vi.fn(), updateMany: vi.fn() },
   order: { create: vi.fn(), findUnique: vi.fn().mockResolvedValue(null) },
 }));
 const db = vi.hoisted(() => ({

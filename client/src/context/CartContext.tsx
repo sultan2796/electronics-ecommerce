@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { cartService } from "../services/cart.service";
-import { buildGuestCart, clearGuestLines, readGuestLines, upsertGuestLine, writeGuestLines } from "../services/guestCart";
+import { buildGuestCart, clearGuestLines, parseGuestItemId, readGuestLines, upsertGuestLine, writeGuestLines } from "../services/guestCart";
 import { Cart } from "../types";
 import { useAuth } from "./AuthContext";
 
@@ -9,9 +9,9 @@ interface CartContextValue {
   itemCount: number;
   busy: boolean;
   isGuest: boolean;
-  addItem: (productId: string, quantity?: number) => Promise<void>;
-  updateItem: (productId: string, quantity: number) => Promise<void>;
-  removeItem: (productId: string) => Promise<void>;
+  addItem: (productId: string, quantity?: number, variantId?: string | null) => Promise<void>;
+  updateItem: (itemId: string, quantity: number) => Promise<void>;
+  removeItem: (itemId: string) => Promise<void>;
   refresh: () => Promise<void>;
   clearGuest: () => void;
 }
@@ -59,7 +59,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const failed: typeof pending = [];
       for (const line of pending) {
         try {
-          await cartService.add(line.productId, line.quantity);
+          await cartService.add(line.productId, line.quantity, line.variantId);
         } catch {
           failed.push(line);
         }
@@ -74,9 +74,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [user, loading, refresh, run]);
 
   const guestMutate = useCallback(
-    (productId: string, quantity: number, mode: "add" | "set") =>
+    (productId: string, quantity: number, mode: "add" | "set", variantId?: string | null) =>
       run(async () => {
-        writeGuestLines(upsertGuestLine(readGuestLines(), productId, quantity, mode));
+        writeGuestLines(upsertGuestLine(readGuestLines(), productId, quantity, mode, variantId));
         return loadGuest();
       }),
     [run, loadGuest],
@@ -88,9 +88,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
       itemCount: cart?.itemCount ?? 0,
       busy,
       isGuest,
-      addItem: (productId, quantity = 1) => (user ? run(() => cartService.add(productId, quantity)) : guestMutate(productId, quantity, "add")),
-      updateItem: (productId, quantity) => (user ? run(() => cartService.update(productId, quantity)) : guestMutate(productId, quantity, "set")),
-      removeItem: (productId) => (user ? run(() => cartService.remove(productId)) : guestMutate(productId, 0, "set")),
+      addItem: (productId, quantity = 1, variantId) =>
+        user ? run(() => cartService.add(productId, quantity, variantId)) : guestMutate(productId, quantity, "add", variantId),
+      updateItem: (itemId, quantity) => {
+        if (user) return run(() => cartService.update(itemId, quantity));
+        const line = parseGuestItemId(itemId);
+        return line ? guestMutate(line.productId, quantity, "set", line.variantId) : Promise.resolve();
+      },
+      removeItem: (itemId) => {
+        if (user) return run(() => cartService.remove(itemId));
+        const line = parseGuestItemId(itemId);
+        return line ? guestMutate(line.productId, 0, "set", line.variantId) : Promise.resolve();
+      },
       refresh,
       clearGuest: () => {
         clearGuestLines();

@@ -2,9 +2,31 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
 import { ProductQuery, ProductSort, SpecInput } from "../models/product.model";
 
+export const variantSelect = {
+  id: true,
+  productId: true,
+  name: true,
+  color: true,
+  colorHex: true,
+  size: true,
+  sku: true,
+  price: true,
+  salePrice: true,
+  stock: true,
+  images: true,
+  isActive: true,
+  sortOrder: true,
+} satisfies Prisma.ProductVariantSelect;
+
 export const productInclude = {
   specs: true,
   category: { select: { id: true, name: true, slug: true } },
+  variants: { where: { isActive: true }, select: variantSelect, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] },
+} satisfies Prisma.ProductInclude;
+
+export const adminProductInclude = {
+  ...productInclude,
+  variants: { select: variantSelect, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] },
 } satisfies Prisma.ProductInclude;
 
 const range = (min?: number, max?: number) => {

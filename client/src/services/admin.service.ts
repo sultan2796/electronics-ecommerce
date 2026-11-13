@@ -1,6 +1,20 @@
 import { Brand, AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role, AdminUserDetail } from "../types";
 import { api } from "./api";
 
+export interface VariantInput {
+  id?: string;
+  name: string;
+  color: string | null;
+  colorHex: string | null;
+  size: string | null;
+  sku: string;
+  price: number | null;
+  salePrice: number | null;
+  stock: number;
+  images: string[];
+  isActive: boolean;
+}
+
 export const adminService = {
   stats: () => api.get<AdminStats>("/admin/stats").then((r) => r.data),
   orders: (params: { status?: OrderStatus; page?: number; q?: string; userId?: string }) =>
@@ -27,6 +41,7 @@ export const adminService = {
   deleteBrand: (id: string) => api.delete(`/brands/${id}`),
   getProduct: (id: string) => api.get<Product>(`/admin/products/${id}`).then((r) => r.data),
   createProduct: (payload: ProductPayload) => api.post<Product>("/products", payload).then((r) => r.data),
+  saveVariants: (id: string, variants: VariantInput[]) => api.put<Product>(`/products/${id}/variants`, { variants }).then((r) => r.data),
   updateProduct: (id: string, payload: Partial<ProductPayload>) => api.patch<Product>(`/products/${id}`, payload).then((r) => r.data),
   reviews: (params: { q?: string; rating?: number; page?: number }) =>
     api.get<Paginated<AdminReview>>("/admin/reviews", { params }).then((r) => r.data),

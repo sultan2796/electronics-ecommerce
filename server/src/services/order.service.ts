@@ -1,4 +1,5 @@
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
+import { releaseStock } from "./variant.service";
 import { orderRecipient } from "./orderRecipient";
 import { env } from "../config/env";
 import { prisma } from "../config/prisma";
@@ -35,7 +36,7 @@ export const recordOrderStatus = (tx: Prisma.TransactionClient, orderId: string,
 export const restockAndCancel = async (tx: Prisma.TransactionClient, orderId: string) => {
   const items = await tx.orderItem.findMany({ where: { orderId } });
   for (const item of items) {
-    await tx.product.update({ where: { id: item.productId }, data: { stock: { increment: item.quantity } } });
+    await releaseStock(tx, item.productId, item.variantId, item.quantity);
   }
   await tx.payment.updateMany({ where: { orderId, status: PaymentStatus.PENDING }, data: { status: PaymentStatus.FAILED } });
   await refundPoints(tx, orderId);

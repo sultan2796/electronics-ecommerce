@@ -84,6 +84,11 @@ export default function QuickView() {
   };
 
   const addToCart = async () => {
+    if (product.variants?.length) {
+      setProduct(null);
+      navigate(`/products/${product.slug}`);
+      return;
+    }
     try {
       await addItem(product.id, quantity);
       toast(`${product.name} səbətə əlavə edildi`);

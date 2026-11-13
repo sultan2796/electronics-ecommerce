@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma";
 import { resolveBrand } from "../services/brand.service";
+import { syncProductStock } from "../services/variant.service";
 import { ProductCreateInput, ProductQuery, ProductUpdateInput, salePriceIsValid } from "../models/product.model";
 import { buildProductOrderBy, buildProductWhere, getFacets, getFeaturedProducts, productInclude, toSpecData } from "../services/product.service";
 import { AppError } from "../utils/AppError";
@@ -88,6 +89,10 @@ export const updateProduct = asyncHandler(async (req, res) => {
     },
     include: productInclude,
   });
+  if (data.stock !== undefined && product.variants.length) {
+    await prisma.$transaction((tx) => syncProductStock(tx, product.id));
+    product.stock = product.variants.reduce((sum, variant) => sum + variant.stock, 0);
+  }
   if (product.stock > 0) void notifyBackInStock(product.id);
   res.json(product);
   audit(req, "product.update", "Product", req.params.id ?? null, req.body);

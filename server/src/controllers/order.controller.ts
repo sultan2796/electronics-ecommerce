@@ -12,6 +12,7 @@ import { getErrorText } from "../utils/errorText";
 import { currentUser } from "../utils/currentUser";
 import { redeemCoupon } from "../services/coupon.service";
 import { effectivePrice } from "../services/campaign.service";
+import { lineName, pricedSource, reserveStock, resolveVariant } from "../services/variant.service";
 import { shippingFor } from "../services/shipping.service";
 import { alertLowStock } from "../services/jobs.service";
 import { pointsToMoney, redeemablePoints } from "../services/loyalty.service";
@@ -27,20 +28,17 @@ export const checkout = asyncHandler(async (req, res) => {
   const order = await prisma.$transaction(async (tx) => {
     const cart = await tx.cart.findUnique({
       where: { userId },
-      include: { items: { include: { product: true } } },
+      include: { items: { include: { product: true, variant: true } } },
     });
     if (!cart || cart.items.length === 0) throw new AppError(400, "Səbət boşdur");
 
     for (const item of cart.items) {
       if (!item.product.isActive) throw new AppError(409, `${item.product.name} artıq satışda deyil`);
-      const reserved = await tx.product.updateMany({
-        where: { id: item.productId, stock: { gte: item.quantity } },
-        data: { stock: { decrement: item.quantity } },
-      });
-      if (reserved.count === 0) throw new AppError(409, `${item.product.name} üçün kifayət qədər stok yoxdur`);
+      const variant = await resolveVariant(tx, item.product, item.variantId);
+      await reserveStock(tx, item.product, variant, item.quantity);
     }
 
-    const priced = cart.items.map((item) => ({ ...item, unitPrice: effectivePrice(item.product) }));
+    const priced = cart.items.map((item) => ({ ...item, unitPrice: effectivePrice(pricedSource(item.product, item.variant)) }));
     const subtotal = priced.reduce((sum, item) => sum.add(item.unitPrice.mul(item.quantity)), new Prisma.Decimal(0));
     const coupon = couponCode ? await redeemCoupon(tx, couponCode, subtotal) : null;
     const couponDiscount = coupon?.discount ?? new Prisma.Decimal(0);
@@ -76,7 +74,9 @@ export const checkout = asyncHandler(async (req, res) => {
         items: {
           create: priced.map((item) => ({
             productId: item.productId,
-            productName: item.product.name,
+            productName: lineName(item.product, item.variant),
+            variantId: item.variantId,
+            variantName: item.variant?.name ?? null,
             unitPrice: item.unitPrice,
             quantity: item.quantity,
           })),

@@ -1,4 +1,5 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { lineName, pricedSource, reserveStock, resolveVariant } from "../services/variant.service";
 import { OrderStatus, PaymentMethod, Prisma } from "@prisma/client";
 import { z } from "zod";
 import { clientUrl } from "../config/env";
@@ -21,7 +22,7 @@ export const guestCheckoutSchema = z.object({
   email: z.string().trim().toLowerCase().email("E-poçt düzgün deyil").max(120),
   shippingAddress: shippingAddressSchema,
   items: z
-    .array(z.object({ productId: z.string().trim().min(1).max(64), quantity: z.number().int().min(1).max(GUEST_MAX_QUANTITY) }))
+    .array(z.object({ productId: z.string().trim().min(1).max(64), variantId: z.string().trim().min(1).max(64).optional(), quantity: z.number().int().min(1).max(GUEST_MAX_QUANTITY) }))
     .min(1, "Səbət boşdur")
     .max(GUEST_MAX_LINES, `Qonaq sifarişində ən çox ${GUEST_MAX_LINES} fərqli məhsul ola bilər`),
   paymentMethod: z.literal(PaymentMethod.CASH_ON_DELIVERY).default(PaymentMethod.CASH_ON_DELIVERY),
@@ -47,8 +48,12 @@ const maskPhone = (phone: unknown) => {
 
 export const guestCheckout = asyncHandler(async (req, res) => {
   const { email, shippingAddress, items, paymentMethod } = req.body as z.infer<typeof guestCheckoutSchema>;
-  const quantities = new Map<string, number>();
-  for (const item of items) quantities.set(item.productId, Math.min(GUEST_MAX_QUANTITY, (quantities.get(item.productId) ?? 0) + item.quantity));
+  const lines = new Map<string, { productId: string; variantId?: string; quantity: number }>();
+  for (const item of items) {
+    const key = `${item.productId}:${item.variantId ?? ""}`;
+    const current = lines.get(key);
+    lines.set(key, { productId: item.productId, variantId: item.variantId, quantity: Math.min(GUEST_MAX_QUANTITY, (current?.quantity ?? 0) + item.quantity) });
+  }
   const open = await prisma.order.count({
     where: { guestEmail: email, status: { in: [OrderStatus.PENDING, OrderStatus.PROCESSING] } },
   });
@@ -58,20 +63,20 @@ export const guestCheckout = asyncHandler(async (req, res) => {
   const token = randomBytes(24).toString("base64url");
 
   const order = await prisma.$transaction(async (tx) => {
-    const products = await tx.product.findMany({ where: { id: { in: [...quantities.keys()] } } });
-    if (products.length !== quantities.size) throw new AppError(409, "Səbətdəki bəzi məhsullar artıq mövcud deyil");
+    const productIds = [...new Set([...lines.values()].map((line) => line.productId))];
+    const products = await tx.product.findMany({ where: { id: { in: productIds } } });
+    if (products.length !== productIds.length) throw new AppError(409, "Səbətdəki bəzi məhsullar artıq mövcud deyil");
+    const byId = new Map(products.map((product) => [product.id, product]));
 
-    for (const product of products) {
-      const quantity = quantities.get(product.id) ?? 0;
+    const priced = [];
+    for (const line of lines.values()) {
+      const product = byId.get(line.productId)!;
       if (!product.isActive) throw new AppError(409, `${product.name} artıq satışda deyil`);
-      const reserved = await tx.product.updateMany({
-        where: { id: product.id, stock: { gte: quantity } },
-        data: { stock: { decrement: quantity } },
-      });
-      if (reserved.count === 0) throw new AppError(409, `${product.name} üçün kifayət qədər stok yoxdur`);
+      const variant = await resolveVariant(tx, product, line.variantId);
+      await reserveStock(tx, product, variant, line.quantity);
+      priced.push({ product, variant, quantity: line.quantity, unitPrice: effectivePrice(pricedSource(product, variant)) });
     }
 
-    const priced = products.map((product) => ({ product, quantity: quantities.get(product.id) ?? 0, unitPrice: effectivePrice(product) }));
     const subtotal = priced.reduce((sum, item) => sum.add(item.unitPrice.mul(item.quantity)), new Prisma.Decimal(0));
     const shippingFee = shippingFor(subtotal);
 
@@ -91,7 +96,9 @@ export const guestCheckout = asyncHandler(async (req, res) => {
         items: {
           create: priced.map((item) => ({
             productId: item.product.id,
-            productName: item.product.name,
+            productName: lineName(item.product, item.variant),
+            variantId: item.variant?.id ?? null,
+            variantName: item.variant?.name ?? null,
             unitPrice: item.unitPrice,
             quantity: item.quantity,
           })),

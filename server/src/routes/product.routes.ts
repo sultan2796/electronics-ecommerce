@@ -11,6 +11,8 @@ import {
   updateProduct,
 } from "../controllers/product.controller";
 import { authenticate, requirePermission } from "../middleware/auth";
+import { replaceVariants } from "../controllers/variant.controller";
+import { variantListSchema } from "../models/variant.model";
 import { validate } from "../middleware/validate";
 import { idParamSchema } from "../models/common.model";
 import { reviewBodySchema, reviewListQuerySchema } from "../models/review.model";
@@ -46,3 +48,10 @@ productRouter.patch(
   updateProduct,
 );
 productRouter.delete("/:id", authenticate, requirePermission("products:write"), validate({ params: idParamSchema }), deleteProduct);
+productRouter.put(
+  "/:id/variants",
+  authenticate,
+  requirePermission("products:write"),
+  validate({ params: idParamSchema, body: variantListSchema }),
+  replaceVariants,
+);

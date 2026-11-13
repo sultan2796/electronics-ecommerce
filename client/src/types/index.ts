@@ -132,6 +132,7 @@ export interface Product {
   compareAtPrice?: string | null;
   campaign?: { name: string; discountPercent: number; endsAt: string } | null;
   reviewCount?: number;
+  variants?: ProductVariant[];
 }
 
 export interface Paginated<T> {
@@ -169,9 +170,29 @@ export interface ProductFilters {
   page: number;
 }
 
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  name: string;
+  color: string | null;
+  colorHex: string | null;
+  size: string | null;
+  sku: string;
+  price: string | null;
+  basePrice?: string | null;
+  compareAtPrice?: string | null;
+  salePrice: string | null;
+  stock: number;
+  images: string[];
+  isActive: boolean;
+  sortOrder: number;
+}
+
 export interface CartItem {
   id: string;
   productId: string;
+  variantId?: string | null;
+  variant?: Pick<ProductVariant, "id" | "name" | "color" | "colorHex" | "size" | "sku"> | null;
   quantity: number;
   product: Product;
 }

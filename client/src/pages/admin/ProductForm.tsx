@@ -11,6 +11,7 @@ import { productService } from "../../services/product.service";
 import { Product, ProductPayload, StorageType } from "../../types";
 import { extraService, fileToDataUrl } from "../../services/extra.service";
 import ModelManager from "../../components/admin/ModelManager";
+import VariantEditor from "../../components/admin/VariantEditor";
 
 const storageTypes: StorageType[] = ["SSD", "NVME", "HDD", "EMMC", "UFS"];
 
@@ -181,6 +182,7 @@ export default function ProductForm() {
   const navigate = useNavigate();
   const categories = useAsync(() => productService.categories(), []);
   const brands = useAsync(() => adminService.brands(true), []);
+  const [variantSource, setVariantSource] = useState<Product | null>(null);
   const existing = useAsync(() => (id ? adminService.getProduct(id) : Promise.resolve(null)), [id]);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [slugTouched, setSlugTouched] = useState(false);
@@ -342,7 +344,16 @@ export default function ProductForm() {
             </Field>
             <Field label="Qiymət (AZN) *">{input("price", { type: "number", step: "0.01", required: true })}</Field>
             <Field label="Endirimli qiymət (AZN)">{input("salePrice", { type: "number", step: "0.01" })}</Field>
-            <Field label="Stok *">{input("stock", { type: "number", step: "1", required: true })}</Field>
+            <Field label="Stok *">
+              {(variantSource ?? existing.data)?.variants?.some((variant) => variant.isActive) ? (
+                <>
+                  <input className="input rounded-xl" value={String(form.stock)} disabled readOnly />
+                  <span className="mt-1 block text-xs text-muted">Variantların cəmidir, stoku variantlarda dəyişin</span>
+                </>
+              ) : (
+                input("stock", { type: "number", step: "1", required: true })
+              )}
+            </Field>
             <Field label="Təsvir" wide>
               <textarea
                 className="input min-h-[120px] rounded-xl"
@@ -378,6 +389,18 @@ export default function ProductForm() {
               <p className="text-xs text-muted">Video yoxdursa, məhsul səhifəsində video bölməsi göstərilmir. Demo, istifadə qaydası və ya unboxing videosunun birbaşa faylına link verin.</p>
             )}
           </section>
+
+          {isEdit && existing.data ? (
+            <VariantEditor
+              product={variantSource ?? existing.data}
+              onSaved={(saved) => {
+                setVariantSource(saved);
+                setForm((current) => ({ ...current, stock: String(saved.stock) }));
+              }}
+            />
+          ) : (
+            <p className="card p-5 text-sm text-muted">Rəng, ölçü və ya yaddaş variantlarını məhsulu yaratdıqdan sonra əlavə edə bilərsiniz.</p>
+          )}
 
           <ModelManager
             alt={form.name || "3D model"}

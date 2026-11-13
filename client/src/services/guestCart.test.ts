@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { clearGuestLines, readGuestLines, upsertGuestLine, writeGuestLines } from "./guestCart";
+import { clearGuestLines, guestItemId, parseGuestItemId, readGuestLines, upsertGuestLine, writeGuestLines } from "./guestCart";
 
 describe("qonaq səbəti", () => {
   beforeEach(() => localStorage.clear());
@@ -29,5 +29,18 @@ describe("qonaq səbəti", () => {
   it("10 fərqli məhsuldan çoxunu qəbul etmir", () => {
     const lines = Array.from({ length: 10 }, (_, index) => ({ productId: `p${index}`, quantity: 1 }));
     expect(() => upsertGuestLine(lines, "yeni", 1, "add")).toThrow();
+  });
+
+  it("eyni məhsulun fərqli variantlarını ayrı sətir kimi saxlayır", () => {
+    let lines = upsertGuestLine([], "p1", 1, "add", "v1");
+    lines = upsertGuestLine(lines, "p1", 2, "add", "v2");
+    lines = upsertGuestLine(lines, "p1", 1, "add", "v1");
+    expect(lines).toEqual([
+      { productId: "p1", variantId: "v1", quantity: 2 },
+      { productId: "p1", variantId: "v2", quantity: 2 },
+    ]);
+    expect(upsertGuestLine(lines, "p1", 0, "set", "v1")).toEqual([{ productId: "p1", variantId: "v2", quantity: 2 }]);
+    expect(parseGuestItemId(guestItemId("p1", "v2"))).toEqual({ productId: "p1", variantId: "v2" });
+    expect(parseGuestItemId(guestItemId("p1"))).toEqual({ productId: "p1", variantId: undefined });
   });
 });

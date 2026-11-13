@@ -24,7 +24,7 @@ export interface TrackedOrder {
 }
 
 export const orderService = {
-  guestCheckout: (input: { email: string; shippingAddress: ShippingAddress; items: { productId: string; quantity: number }[] }) =>
+  guestCheckout: (input: { email: string; shippingAddress: ShippingAddress; items: { productId: string; variantId?: string; quantity: number }[] }) =>
     api.post<GuestOrderResult>("/guest-orders", input).then((r) => r.data),
   track: (orderNumber: string, token: string) => api.get<TrackedOrder>(`/track/${orderNumber}`, { params: { token } }).then((r) => r.data),
   checkout: (shippingAddress: ShippingAddress, paymentMethod: PaymentMethod, extra: { couponCode?: string; saveAddress?: boolean; usePoints?: boolean } = {}) =>

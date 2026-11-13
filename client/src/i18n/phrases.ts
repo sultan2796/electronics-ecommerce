@@ -806,6 +806,20 @@ Loqo URL (istəyə bağlı)|URL логотипа (необязательно)|Lo
 Hələ brend yoxdur.|Брендов пока нет.|No brands yet.
 {} aktiv məhsul|{} активных товаров|{} active products
 Brendin adını dəyişəndə ona bağlı bütün məhsullarda ad yenilənir. Məhsulu olan brend silinə bilməz, onu deaktiv edə bilərsiniz.|При переименовании бренда имя обновляется во всех его товарах. Бренд с товарами нельзя удалить, но можно деактивировать.|Renaming a brand updates the name on all its products. A brand with products can't be deleted, but you can deactivate it.
+Variant seçin|Выберите вариант|Choose a variant
+Variantlar (rəng, ölçü, yaddaş)|Варианты (цвет, размер, память)|Variants (color, size, storage)
++ Variant əlavə et|+ Добавить вариант|+ Add variant
+Variantları saxla|Сохранить варианты|Save variants
+Variantlar saxlanıldı|Варианты сохранены|Variants saved
+Rəng kodu|Код цвета|Color code
+Ölçü / yaddaş|Размер / память|Size / storage
++ Variant şəkli|+ Фото варианта|+ Variant image
+Yeni variant|Новый вариант|New variant
+Şəkil yoxdursa, məhsulun əsas şəkilləri göstərilir.|Если фото нет, показываются основные фото товара.|Without images, the product's main images are shown.
+Variantların cəmidir, stoku variantlarda dəyişin|Сумма вариантов, меняйте остаток в вариантах|Sum of variants, change stock on the variants
+Rəng, ölçü və ya yaddaş variantlarını məhsulu yaratdıqdan sonra əlavə edə bilərsiniz.|Варианты цвета, размера или памяти можно добавить после создания товара.|You can add color, size or storage variants after creating the product.
+Aktiv variantların ümumi stoku: {}. Məhsulun stoku variantların cəmindən hesablanır.|Общий остаток активных вариантов: {}. Остаток товара считается как сумма вариантов.|Total stock of active variants: {}. Product stock is the sum of its variants.
+Variant yoxdursa, məhsul tək seçim kimi satılır. Qiyməti boş qoysanız, məhsulun qiyməti istifadə olunur.|Без вариантов товар продаётся как единственный. Пустая цена означает цену товара.|Without variants the product sells as a single option. An empty price uses the product price.
 `;
 
 const months = [
