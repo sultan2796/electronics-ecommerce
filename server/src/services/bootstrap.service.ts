@@ -6,22 +6,26 @@ import { prisma } from "../config/prisma";
 import { enrichImportedSpecs, importCatalog } from "./catalogImport.service";
 
 const ensureAdmin = async () => {
-  if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD) return;
-  if (env.ADMIN_PASSWORD.length < 8) {
+  if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD) {
+    console.log("Admin yoxlaması: ADMIN_EMAIL və ya ADMIN_PASSWORD təyin edilməyib");
+    return;
+  }
+  const password = env.ADMIN_PASSWORD.trim();
+  if (password.length < 8) {
     console.warn("ADMIN_PASSWORD ən az 8 simvol olmalıdır, admin hesabı yenilənmədi");
     return;
   }
   const email = loginIdentifierToEmail(env.ADMIN_EMAIL);
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    const passwordMatches = await bcrypt.compare(env.ADMIN_PASSWORD, existing.passwordHash);
+    const passwordMatches = await bcrypt.compare(password, existing.passwordHash);
     if (!passwordMatches || existing.role !== Role.ADMIN || existing.isBlocked) {
       await prisma.user.update({
         where: { id: existing.id },
         data: {
           role: Role.ADMIN,
           isBlocked: false,
-          ...(!passwordMatches && { passwordHash: await bcrypt.hash(env.ADMIN_PASSWORD, 12) }),
+          ...(!passwordMatches && { passwordHash: await bcrypt.hash(password, 12) }),
         },
       });
       if (!passwordMatches) {
@@ -29,10 +33,11 @@ const ensureAdmin = async () => {
         console.log(`Admin şifrəsi ADMIN_PASSWORD dəyişəninə uyğun yeniləndi: ${email}`);
       }
     }
+    console.log(`Admin yoxlaması: ${email} hazırdır (rol: ADMIN, şifrə: ${passwordMatches ? "artıq uyğun idi" : "yeniləndi"}, uzunluq: ${password.length})`);
     return;
   }
   await prisma.user.create({
-    data: { email, name: "Administrator", role: Role.ADMIN, passwordHash: await bcrypt.hash(env.ADMIN_PASSWORD, 12) },
+    data: { email, name: "Administrator", role: Role.ADMIN, passwordHash: await bcrypt.hash(password, 12) },
   });
   console.log(`Admin hesabı yaradıldı: ${email}`);
 };
