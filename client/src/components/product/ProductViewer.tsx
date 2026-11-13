@@ -1,6 +1,7 @@
 import { PointerEvent, Suspense, WheelEvent, lazy, useEffect, useRef, useState } from "react";
 import type { CameraView, ModelStageHandle } from "./ModelStage";
 import ProductImage from "./ProductImage";
+import ImageLightbox from "./ImageLightbox";
 
 const ModelStage = lazy(() => import("./ModelStage"));
 
@@ -43,7 +44,10 @@ export default function ProductViewer({ images, alt, category, model3d, modelCre
   const [modelProgress, setModelProgress] = useState(0);
   const [modelSpin, setModelSpin] = useState(true);
   const modelRef = useRef<ModelStageHandle>(null);
-  const drag = useRef<{ x: number; y: number; index: number; offset: { x: number; y: number } } | null>(null);
+  const drag = useRef<{ x: number; y: number; index: number; offset: { x: number; y: number }; time: number } | null>(null);
+  const [lightbox, setLightbox] = useState(false);
+  const [swipeX, setSwipeX] = useState(0);
+  const [slideDir, setSlideDir] = useState<1 | -1>(1);
   const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -95,7 +99,7 @@ export default function ProductViewer({ images, alt, category, model3d, modelCre
   const onPointerDown = (event: PointerEvent) => {
     if (mode === "model") return;
     (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-    drag.current = { x: event.clientX, y: event.clientY, index, offset };
+    drag.current = { x: event.clientX, y: event.clientY, index, offset, time: Date.now() };
     setAutoSpin(false);
   };
 
@@ -107,14 +111,33 @@ export default function ProductViewer({ images, alt, category, model3d, modelCre
     if (zoom > 1) {
       const limit = ((zoom - 1) / zoom) * ((stageRef.current?.clientWidth ?? 400) / 2);
       setOffset({ x: clamp(start.offset.x + dx / zoom, -limit, limit), y: clamp(start.offset.y + dy / zoom, -limit, limit) });
+    } else if (mode === "photo" && frames.length > 1 && Math.abs(dx) > Math.abs(dy)) {
+      setSwipeX(dx);
     } else if (mode === "spin" && canSpin) {
       const step = Math.round(dx / 45);
       setIndex((((start.index - step) % frames.length) + frames.length) % frames.length);
     }
   };
 
-  const onPointerUp = () => {
+  const onPointerUp = (event: PointerEvent) => {
+    const start = drag.current;
     drag.current = null;
+    setSwipeX(0);
+    if (!start || mode !== "photo" || zoom > 1) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (frames.length > 1 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      const dir = dx < 0 ? 1 : -1;
+      setSlideDir(dir);
+      setIndex((current) => (current + dir + frames.length) % frames.length);
+      return;
+    }
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && Date.now() - start.time < 400) setLightbox(true);
+  };
+
+  const cancelPointer = () => {
+    drag.current = null;
+    setSwipeX(0);
   };
 
   const tabs: { key: "photo" | "spin" | "model"; label: string; show: boolean }[] = [
@@ -125,6 +148,18 @@ export default function ProductViewer({ images, alt, category, model3d, modelCre
 
   return (
     <div className="flex h-full flex-col gap-3">
+      {lightbox && (
+        <ImageLightbox
+          images={frames}
+          start={index}
+          alt={alt}
+          category={category}
+          onClose={(last) => {
+            setLightbox(false);
+            setIndex(last);
+          }}
+        />
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex rounded-xl bg-chip p-1" role="tablist" aria-label="Baxış rejimi">
           {tabs
@@ -199,15 +234,15 @@ export default function ProductViewer({ images, alt, category, model3d, modelCre
 
       <div
         ref={stageRef}
-        className={`relative flex aspect-square w-full select-none items-center justify-center overflow-hidden rounded-2xl bg-[#f6f7f9] touch-none dark:bg-white ${
+        className={`relative flex aspect-square w-full select-none items-center justify-center overflow-hidden rounded-2xl bg-[#f6f7f9] dark:bg-white ${mode === "photo" && zoom === 1 ? "touch-pan-y" : "touch-none"} ${
           mode === "model" ? "" : zoom > 1 ? "cursor-grab active:cursor-grabbing" : mode === "spin" ? "cursor-ew-resize" : "cursor-zoom-in"
         }`}
         onWheel={onWheel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-        onDoubleClick={() => mode !== "model" && (zoom > 1 ? resetView() : changeZoom(1))}
+        onPointerCancel={cancelPointer}
+        onDoubleClick={() => mode === "spin" && (zoom > 1 ? resetView() : changeZoom(1))}
       >
         {mode === "model" && model3d ? (
           <>
@@ -249,8 +284,12 @@ export default function ProductViewer({ images, alt, category, model3d, modelCre
           </>
         ) : (
           <div
-            className="flex size-full items-center justify-center p-8 transition-transform duration-150 ease-out"
-            style={{ transform: `scale(${zoom}) translate(${offset.x}px, ${offset.y}px)` }}
+            key={mode === "photo" ? index : "frame"}
+            className={`flex size-full items-center justify-center p-8 ease-out ${swipeX ? "" : "transition-transform duration-150"} ${mode === "photo" && !swipeX ? "viewer-slide" : ""}`}
+            style={{
+              transform: `translate3d(${swipeX}px,0,0) scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
+              ["--slide-from" as string]: `${slideDir * 6}%`,
+            }}
           >
             <ProductImage src={frames[index]} category={category} alt={alt} className="pointer-events-none max-h-full max-w-full object-contain mix-blend-multiply dark:rounded-none dark:bg-transparent" />
           </div>

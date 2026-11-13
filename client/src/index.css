@@ -411,6 +411,44 @@
       transform: translate3d(calc(var(--dir, 1) * -1.5%), 0, 0) scale(1.02);
     }
   }
+  .viewer-slide {
+    animation: viewer-slide 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes viewer-slide {
+    from {
+      opacity: 0;
+      transform: translate3d(var(--slide-from, 6%), 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .lightbox {
+    animation: lightbox-in 0.3s ease both;
+  }
+  .lightbox-slide {
+    animation: lightbox-slide 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes lightbox-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes lightbox-slide {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
   .product-card {
     transition: border-color 0.35s ease;
   }
@@ -509,6 +547,9 @@
     .hero-slide[data-state="leaving"] .hero-kenburns,
     .product-card-img,
     .product-card-alt,
+    .viewer-slide,
+    .lightbox,
+    .lightbox-slide,
     .stagger > *,
     .heart-pop,
     .cart-bump {

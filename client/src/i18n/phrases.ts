@@ -858,6 +858,8 @@ indicə|только что|just now
 {} dəq əvvəl|{} мин назад|{} min ago
 {} saat əvvəl|{} ч назад|{} h ago
 {} gün əvvəl|{} дн назад|{} d ago
+Əvvəlki şəkil|Предыдущее фото|Previous image
+Növbəti şəkil|Следующее фото|Next image
 `;
 
 const months = [
