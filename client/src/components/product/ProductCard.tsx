@@ -81,13 +81,14 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="relative">
         <Link
           to={`/products/${product.slug}`}
-          className="product-card-media relative flex aspect-square items-center justify-center overflow-hidden bg-[#f5f5f7] p-[12%] dark:bg-[#ecebe7]"
+          className="product-card-media relative isolate flex aspect-square items-center justify-center overflow-hidden bg-[#f4f4f6] p-[10%] dark:bg-[#ececee]"
           aria-label={product.name}
         >
           <ProductImage
             src={product.images[0]}
             category={product.category?.slug}
             alt={product.name}
+            blend
             className={`product-card-img size-full object-contain ${secondImage ? "group-hover:opacity-0" : ""} ${soldOut ? "opacity-50 grayscale" : ""}`}
           />
           {secondImage && (
@@ -97,7 +98,7 @@ export default function ProductCard({ product }: { product: Product }) {
               aria-hidden="true"
               loading="lazy"
               decoding="async"
-              className={`product-card-alt absolute inset-0 m-auto size-full object-contain p-[12%] opacity-0 group-hover:opacity-100 ${soldOut ? "grayscale" : ""}`}
+              className={`product-card-alt absolute inset-0 m-auto size-full object-contain p-[10%] mix-blend-multiply opacity-0 group-hover:opacity-100 ${soldOut ? "grayscale" : ""}`}
             />
           )}
           {soldOut && (

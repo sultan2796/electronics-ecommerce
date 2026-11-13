@@ -146,7 +146,8 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
               src={product.images[0]}
               category={product.category?.slug}
               alt={product.name}
-              className="hero-kenburns relative size-full object-contain mix-blend-multiply dark:rounded-none dark:bg-transparent"
+              blend
+              className="hero-kenburns relative size-full object-contain"
             />
           </div>
         </div>

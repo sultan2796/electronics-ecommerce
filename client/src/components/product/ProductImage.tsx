@@ -21,9 +21,10 @@ interface ProductImageProps {
   alt: string;
   category?: string;
   className?: string;
+  blend?: boolean;
 }
 
-export default function ProductImage({ src, alt, category, className = "" }: ProductImageProps) {
+export default function ProductImage({ src, alt, category, className = "", blend = false }: ProductImageProps) {
   const real = isRealImage(src);
   return (
     <img
@@ -35,7 +36,7 @@ export default function ProductImage({ src, alt, category, className = "" }: Pro
         const fallback = fallbackImage(category);
         if (!event.currentTarget.src.endsWith(fallback)) event.currentTarget.src = fallback;
       }}
-      className={`object-contain ${real ? "dark:rounded-xl dark:bg-white" : "p-[6%]"} ${className}`}
+      className={`object-contain ${real ? (blend ? "mix-blend-multiply" : "dark:rounded-xl dark:bg-white") : "p-[6%]"} ${className}`}
     />
   );
 }
