@@ -137,7 +137,7 @@ export const cancelOrder = asyncHandler(async (req, res) => {
     const existing = await tx.order.findUnique({ where: { id: req.params.id } });
     if (!existing || (existing.userId !== user.id && !hasPermission(user.role, "orders:write"))) throw new AppError(404, "Sifariş tapılmadı");
     if (existing.status !== OrderStatus.PENDING) throw new AppError(409, "Yalnız gözləmədə olan sifariş ləğv edilə bilər");
-    return restockAndCancel(tx, existing.id);
+    return restockAndCancel(tx, existing.id, OrderStatus.PENDING);
   });
 
   res.json(order);

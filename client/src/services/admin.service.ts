@@ -1,5 +1,22 @@
-import { Brand, AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role, AdminUserDetail } from "../types";
+import { PaymentStatus, Brand, AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role, AdminUserDetail } from "../types";
 import { api } from "./api";
+
+export interface AdminPayment {
+  id: string;
+  provider: string;
+  reference: string;
+  amount: string;
+  currency: string;
+  status: PaymentStatus;
+  createdAt: string;
+  order: { id: string; orderNumber: string | null; guestEmail: string | null; guestName: string | null; user: { name: string; email: string } | null };
+}
+
+export interface AdminSearchResult {
+  orders: { id: string; orderNumber: string | null; status: OrderStatus; total: string; guestName: string | null; user: { name: string } | null }[];
+  products: { id: string; name: string; sku: string; stock: number; isActive: boolean }[];
+  users: { id: string; name: string; email: string; role: Role }[];
+}
 
 export interface VariantInput {
   id?: string;
@@ -34,6 +51,11 @@ export const adminService = {
   createCategory: (body: { name: string; slug: string }) => api.post<Category>("/categories", body).then((r) => r.data),
   updateCategory: (id: string, body: { name?: string; slug?: string }) => api.patch<Category>(`/categories/${id}`, body).then((r) => r.data),
   deleteCategory: (id: string) => api.delete(`/categories/${id}`),
+  payments: (params: { status?: PaymentStatus; q?: string; page?: number }) =>
+    api
+      .get<Paginated<AdminPayment> & { summary: Partial<Record<PaymentStatus, { count: number; amount: number }>> }>("/admin/payments", { params })
+      .then((r) => r.data),
+  search: (q: string, signal?: AbortSignal) => api.get<AdminSearchResult>("/admin/search", { params: { q }, signal }).then((r) => r.data),
   brands: (all = false) => api.get<Brand[]>("/brands", { params: all ? { all: "1" } : {} }).then((r) => r.data),
   createBrand: (body: { name: string; slug?: string; logoUrl?: string | null; isActive?: boolean }) => api.post<Brand>("/brands", body).then((r) => r.data),
   updateBrand: (id: string, body: { name?: string; slug?: string; logoUrl?: string | null; isActive?: boolean }) =>

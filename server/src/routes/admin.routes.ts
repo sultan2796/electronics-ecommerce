@@ -23,11 +23,15 @@ import { adminOrdersQuerySchema, catalogImportSchema, inventoryQuerySchema, orde
 import { stockUpdateSchema } from "../models/product.model";
 import { userQuerySchema, userUpdateSchema } from "../models/user.model";
 
+import { adminPaymentsQuerySchema, adminSearch, adminSearchQuerySchema, listPayments } from "../controllers/adminExtra.controller";
+
 export const adminRouter = Router();
 
 adminRouter.use(authenticate, requirePermission("dashboard:read"));
 
 adminRouter.get("/stats", getStats);
+adminRouter.get("/search", validate({ query: adminSearchQuerySchema }), adminSearch);
+adminRouter.get("/payments", requirePermission("orders:read"), validate({ query: adminPaymentsQuerySchema }), listPayments);
 
 adminRouter.get("/orders", requirePermission("orders:read"), validate({ query: adminOrdersQuerySchema }), listOrders);
 adminRouter.patch(

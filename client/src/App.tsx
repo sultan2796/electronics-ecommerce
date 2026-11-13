@@ -26,6 +26,7 @@ import Wishlist from "./pages/Wishlist";
 import Spinner from "./components/common/Spinner";
 
 const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminBrands = lazy(() => import("./pages/admin/AdminBrands"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminEmails = lazy(() => import("./pages/admin/AdminEmails"));
@@ -57,6 +58,7 @@ export default function App() {
             </Route>
             <Route element={<ProtectedRoute permission="orders:read" />}>
               <Route path="orders" element={<AdminOrders />} />
+              <Route path="payments" element={<AdminPayments />} />
             </Route>
             <Route element={<ProtectedRoute permission="categories:write" />}>
               <Route path="categories" element={<AdminCategories />} />

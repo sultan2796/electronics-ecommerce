@@ -1,3 +1,4 @@
+import AdminSearch from "../../components/admin/AdminSearch";
 import Avatar from "../../components/user/Avatar";
 import {
   Box,
@@ -6,6 +7,7 @@ import {
   GalleryHorizontal,
   LayoutDashboard,
   LayoutGrid,
+  CreditCard,
   Tags,
   LogOut,
   LucideIcon,
@@ -33,6 +35,7 @@ import { Permission } from "../../types";
 type IconName =
   | "dashboard"
   | "orders"
+  | "payments"
   | "inventory"
   | "categories"
   | "brands"
@@ -54,6 +57,7 @@ type IconName =
 const icons: Record<IconName, LucideIcon> = {
   dashboard: LayoutDashboard,
   orders: ShoppingBag,
+  payments: CreditCard,
   inventory: Package,
   categories: LayoutGrid,
   brands: Tags,
@@ -98,6 +102,7 @@ const groups: { title: string; items: NavItem[] }[] = [
     title: "Satış",
     items: [
       { to: "/admin/orders", label: "Sifarişlər", permission: "orders:read", icon: "orders" },
+      { to: "/admin/payments", label: "Ödənişlər", permission: "orders:read", icon: "payments" },
       { to: "/admin/users", label: "Müştərilər", permission: "users:read", icon: "users" },
       { to: "/admin/reviews", label: "Rəylər", permission: "reviews:moderate", icon: "reviews" },
     ],
@@ -138,6 +143,7 @@ const titles: [string, string][] = [
   ["/admin/users", "Müştərilər"],
   ["/admin/reviews", "Rəylər"],
   ["/admin/emails", "E-poçtlar"],
+  ["/admin/payments", "Ödənişlər"],
   ["/admin/coupons", "Kuponlar"],
   ["/admin/campaigns", "Kampaniyalar"],
   ["/admin/slides", "Slayder və bannerlər"],
@@ -298,6 +304,7 @@ export default function AdminLayout() {
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted">Admin panel</p>
             <p className="truncate text-base font-semibold leading-tight">{title}</p>
           </div>
+          <AdminSearch />
           <ThemeToggle />
           {user && (
             <div ref={menuRef} className="relative">

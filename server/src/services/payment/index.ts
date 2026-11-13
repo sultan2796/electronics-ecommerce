@@ -28,6 +28,8 @@ export const paymentConfig = () => {
 
 const newReference = (provider: string) => `${provider.toUpperCase()}-${Date.now().toString(36)}-${crypto.randomBytes(4).toString("hex")}`;
 
+const REUSE_SESSION_MS = 15 * 60 * 1000;
+
 export const startPayment = async (orderId: string) => {
   const provider = activeProvider();
   if (!provider) throw new AppError(503, "Kartla ödəniş hazırda mümkün deyil");
@@ -37,6 +39,19 @@ export const startPayment = async (orderId: string) => {
   if (order.status !== OrderStatus.PENDING || order.paymentStatus === PaymentStatus.SUCCEEDED) {
     throw new AppError(409, "Bu sifariş üçün ödəniş tələb olunmur");
   }
+
+  const reusable = await prisma.payment.findFirst({
+    where: {
+      orderId: order.id,
+      provider: provider.name,
+      status: PaymentStatus.PENDING,
+      redirectUrl: { not: null },
+      amount: order.total,
+      createdAt: { gt: new Date(Date.now() - REUSE_SESSION_MS) },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  if (reusable?.redirectUrl) return { reference: reusable.reference, redirectUrl: reusable.redirectUrl };
 
   const reference = newReference(provider.name);
   const payment = await prisma.payment.create({
@@ -75,13 +90,24 @@ export const finalizePayment = async (reference: string, outcome: PaymentOutcome
     if (payment.status !== PaymentStatus.PENDING) return payment;
 
     const succeeded = outcome === "succeeded";
-    const updated = await tx.payment.update({
-      where: { id: payment.id },
+    const orphaned =
+      succeeded && (payment.order.status === OrderStatus.CANCELLED || payment.order.paymentStatus === PaymentStatus.SUCCEEDED);
+    const claimed = await tx.payment.updateMany({
+      where: { id: payment.id, status: PaymentStatus.PENDING },
       data: {
         status: succeeded ? PaymentStatus.SUCCEEDED : PaymentStatus.FAILED,
-        ...(raw !== undefined && { raw: raw as Prisma.InputJsonValue }),
+        ...(raw !== undefined || orphaned
+          ? { raw: { ...(raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {}), ...(orphaned && { refundRequired: true }) } as Prisma.InputJsonValue }
+          : {}),
       },
     });
+    const updated = await tx.payment.findUniqueOrThrow({ where: { id: payment.id } });
+    if (claimed.count === 0) return updated;
+
+    if (orphaned) {
+      console.error("[payment] refund required", { reference, orderId: payment.orderId, orderStatus: payment.order.status });
+      return updated;
+    }
 
     if (succeeded) {
       outcomeState.paidOrderId = payment.orderId;

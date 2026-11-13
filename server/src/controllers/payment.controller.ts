@@ -51,10 +51,12 @@ export const epointCallback = asyncHandler(async (req, res) => {
 
 export const getOrderPaymentStatus = asyncHandler(async (req, res) => {
   const user = currentUser(req);
-  const order = await refreshPaymentStatus(req.params.orderId);
-  if (!order || (order.userId !== user.id && !hasPermission(user.role, "orders:read"))) {
+  const owner = await prisma.order.findUnique({ where: { id: req.params.orderId }, select: { userId: true } });
+  if (!owner || (owner.userId !== user.id && !hasPermission(user.role, "orders:read"))) {
     throw new AppError(404, "Sifariş tapılmadı");
   }
+  const order = await refreshPaymentStatus(req.params.orderId);
+  if (!order) throw new AppError(404, "Sifariş tapılmadı");
   const { userId, ...rest } = order;
   res.json({ ...rest, paid: order.paymentStatus === PaymentStatus.SUCCEEDED });
 });

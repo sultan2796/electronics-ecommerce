@@ -1,3 +1,4 @@
+import { couponLimiter } from "../middleware/rateLimit";
 import express, { Router } from "express";
 import rateLimit from "express-rate-limit";
 import {
@@ -41,7 +42,7 @@ extraRouter.post(
 );
 extraRouter.post("/uploads", authenticate, requirePermission("products:write"), validate({ body: uploadSchema }), uploadImage);
 
-extraRouter.post("/coupons/check", authenticate, validate({ body: couponCheckSchema }), checkCoupon);
+extraRouter.post("/coupons/check", authenticate, couponLimiter, validate({ body: couponCheckSchema }), checkCoupon);
 extraRouter.get("/admin/coupons", authenticate, requirePermission("products:write"), listCoupons);
 extraRouter.post("/admin/coupons", authenticate, requirePermission("products:write"), validate({ body: couponCreateSchema }), createCoupon);
 extraRouter.patch("/admin/coupons/:id", authenticate, requirePermission("products:write"), validate({ params: idParamSchema, body: couponUpdateSchema }), updateCoupon);

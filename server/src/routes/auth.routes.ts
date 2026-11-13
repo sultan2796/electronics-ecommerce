@@ -1,3 +1,4 @@
+import { sameOrigin } from "../middleware/sameOrigin";
 import { z } from "zod";
 import { Router } from "express";
 import {
@@ -34,8 +35,8 @@ export const authRouter = Router();
 
 authRouter.post("/register", authLimiter, validate({ body: registerSchema }), register);
 authRouter.post("/login", authLimiter, validate({ body: loginSchema }), login);
-authRouter.post("/refresh", authLimiter, refresh);
-authRouter.post("/logout", logout);
+authRouter.post("/refresh", authLimiter, sameOrigin, refresh);
+authRouter.post("/logout", sameOrigin, logout);
 authRouter.get("/me", authenticate, me);
 authRouter.patch("/me", authenticate, validate({ body: updateProfileSchema }), updateProfile);
 authRouter.put("/me/avatar", authLimiter, authenticate, validate({ body: avatarSchema }), uploadAvatar);

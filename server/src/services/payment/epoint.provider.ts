@@ -32,7 +32,10 @@ const post = async (path: string, payload: Record<string, unknown>) => {
     body: new URLSearchParams({ data, signature: signEpoint(data, privateKey) }),
   });
   const body = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-  if (!response.ok) throw new AppError(502, `Epoint xətası (HTTP ${response.status})`, body);
+  if (!response.ok) {
+    console.error("[epoint] http error", response.status, body);
+    throw new AppError(502, `Epoint xətası (HTTP ${response.status})`);
+  }
   return body;
 };
 
@@ -59,7 +62,8 @@ export const epointProvider: PaymentProvider = {
       result_url: `${apiPublicUrl}/api/payments/epoint/callback`,
     });
     if (body.status !== "success" || typeof body.redirect_url !== "string") {
-      throw new AppError(502, "Epoint ödəniş sessiyası yaratmadı", body);
+      console.error("[epoint] session error", body);
+      throw new AppError(502, "Epoint ödəniş sessiyası yaratmadı");
     }
     return { redirectUrl: body.redirect_url, providerTransactionId: String(body.transaction ?? ""), raw: body };
   },

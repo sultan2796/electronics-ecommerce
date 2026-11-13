@@ -1,3 +1,4 @@
+import { AppError } from "../utils/AppError";
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 import { releaseStock } from "./variant.service";
 import { orderRecipient } from "./orderRecipient";
@@ -33,7 +34,12 @@ export const uniqueOrderNumber = async (tx: Prisma.TransactionClient) => {
 export const recordOrderStatus = (tx: Prisma.TransactionClient, orderId: string, status: OrderStatus, note?: string) =>
   tx.orderStatusHistory.create({ data: { orderId, status, note: note ?? null } });
 
-export const restockAndCancel = async (tx: Prisma.TransactionClient, orderId: string) => {
+export const restockAndCancel = async (tx: Prisma.TransactionClient, orderId: string, expected?: OrderStatus) => {
+  const claimed = await tx.order.updateMany({
+    where: { id: orderId, status: expected ?? { notIn: [OrderStatus.CANCELLED, OrderStatus.DELIVERED] } },
+    data: { status: OrderStatus.CANCELLED },
+  });
+  if (claimed.count === 0) throw new AppError(409, "Sifarişin statusu artıq dəyişib. Səhifəni yeniləyin.");
   const items = await tx.orderItem.findMany({ where: { orderId } });
   for (const item of items) {
     await releaseStock(tx, item.productId, item.variantId, item.quantity);
@@ -55,16 +61,24 @@ export const expireUnpaidOrders = async () => {
     },
     select: { id: true },
   });
+  let expired = 0;
   for (const order of stale) {
-    await prisma.$transaction(async (tx) => {
-      const fresh = await tx.order.findUnique({ where: { id: order.id }, select: { status: true, paymentStatus: true } });
-      if (fresh?.status === OrderStatus.PENDING && fresh.paymentStatus !== PaymentStatus.SUCCEEDED) {
-        await restockAndCancel(tx, order.id);
-      }
-    });
+    const cancelled = await prisma
+      .$transaction(async (tx) => {
+        const fresh = await tx.order.findUnique({ where: { id: order.id }, select: { status: true, paymentStatus: true } });
+        if (fresh?.status !== OrderStatus.PENDING || fresh.paymentStatus === PaymentStatus.SUCCEEDED) return false;
+        await restockAndCancel(tx, order.id, OrderStatus.PENDING);
+        return true;
+      })
+      .catch((error: unknown) => {
+        if (error instanceof AppError && error.statusCode === 409) return false;
+        throw error;
+      });
+    if (!cancelled) continue;
+    expired += 1;
     await notifyOrderStatus(order.id, OrderStatus.CANCELLED);
   }
-  return stale.length;
+  return expired;
 };
 
 export const notifyOrderStatus = async (orderId: string, status: OrderStatus) => {

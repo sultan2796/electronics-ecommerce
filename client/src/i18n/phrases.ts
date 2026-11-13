@@ -832,6 +832,16 @@ Bütün sifarişlərin {}%-i|{}% всех заказов|{}% of all orders
 Hələ sifariş yoxdur|Заказов пока нет|No orders yet
 Satışda görünür, amma alına bilməz|Показывается в продаже, но купить нельзя|Listed, but can't be bought
 Bütün aktiv məhsullar stokdadır|Все активные товары в наличии|All active products are in stock
+Ödənişlər|Платежи|Payments
+{} əməliyyat|{} операций|{} transactions
+Kartla ödəniş alınmayıb|Оплата картой не прошла|Card payment did not go through
+Sifariş nömrəsi, e-poçt və ya referans|Номер заказа, e-mail или референс|Order number, email or reference
+Provayder|Провайдер|Provider
+Bu filtrə uyğun ödəniş tapılmadı.|По этому фильтру платежей нет.|No payments match this filter.
+Hələ kartla ödəniş yoxdur. Qapıda ödənişli sifarişlər burada görünmür, onlar Sifarişlər bölməsindədir.|Платежей картой пока нет. Заказы с оплатой при получении здесь не показываются, они в разделе «Заказы».|No card payments yet. Cash-on-delivery orders aren't listed here; they're in Orders.
+Sifariş, məhsul, müştəri axtar|Поиск заказов, товаров, клиентов|Search orders, products, customers
+Axtarılır...|Поиск...|Searching...
+Heç nə tapılmadı|Ничего не найдено|Nothing found
 `;
 
 const months = [

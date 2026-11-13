@@ -13,7 +13,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   }
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
-      res.status(409).json({ message: "Bu resurs artıq mövcuddur", details: err.meta });
+      res.status(409).json({ message: "Bu resurs artıq mövcuddur" });
       return;
     }
     if (err.code === "P2025") {

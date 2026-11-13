@@ -150,7 +150,7 @@ export const salesReport = asyncHandler(async (req, res) => {
 
 const csvCell = (value: unknown) => {
   const text = value === null || value === undefined ? "" : String(value);
-  const safe = /^[=+\-@]/.test(text) ? `'${text}` : text;
+  const safe = /^[=+\-@\t\r\uFF1D\uFF0B\uFF0D\uFF20]/.test(text) ? `'${text}` : text;
   return /[",\n;]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 };
 

@@ -187,11 +187,13 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
       throw new AppError(409, `${existing.status} statusundan ${status} statusuna keçid mümkün deyil`);
     }
     if (status === OrderStatus.CANCELLED) {
-      await restockAndCancel(tx, existing.id);
+      await restockAndCancel(tx, existing.id, existing.status);
     } else {
       const marksPaid =
         status === OrderStatus.PAID ||
         (status === OrderStatus.DELIVERED && existing.paymentMethod === PaymentMethod.CASH_ON_DELIVERY);
+      const moved = await tx.order.updateMany({ where: { id: existing.id, status: existing.status }, data: { status } });
+      if (moved.count === 0) throw new AppError(409, "Sifarişin statusu artıq dəyişib. Səhifəni yeniləyin.");
       await tx.order.update({
         where: { id: existing.id },
         data: {
