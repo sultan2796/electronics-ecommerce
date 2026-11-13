@@ -2,17 +2,8 @@ import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { audit } from "../services/audit.service";
 import { AppError } from "../utils/AppError";
+import { isSafeUrl } from "../utils/safeUrl";
 import { asyncHandler } from "../utils/asyncHandler";
-
-const isSafeUrl = (value: string) => {
-  if (/[\\\s\u0000-\u001f]/.test(value)) return false;
-  if (value.startsWith("/")) return !value.startsWith("//");
-  try {
-    return new URL(value).protocol === "https:";
-  } catch {
-    return false;
-  }
-};
 
 const optionalText = (max: number) =>
   z

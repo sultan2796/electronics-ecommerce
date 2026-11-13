@@ -1,4 +1,5 @@
 import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL, WHATSAPP_URL } from "../../config/contact";
+import Logo from "../brand/Logo";
 import { Link } from "react-router-dom";
 import { useI18n } from "../../context/I18nContext";
 import { TranslationKey } from "../../i18n/dictionary";
@@ -39,10 +40,7 @@ export default function Footer() {
     <footer className="hidden bg-[#0f172a] text-slate-300 md:block">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
         <div className="space-y-4">
-          <p className="flex items-center gap-2 text-lg font-bold text-white">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white">E</span>
-            Electro<span className="-ml-2 text-brand-500">Shop</span>
-          </p>
+          <Logo tone="inverse" />
           <p className="max-w-xs text-sm leading-relaxed text-slate-400">{t("footer.tagline")}</p>
           <div className="space-y-2 pt-1 text-sm">
             <a href={`tel:${CONTACT_PHONE_TEL}`} className="flex items-center gap-2 font-semibold text-white transition hover:text-brand-500">

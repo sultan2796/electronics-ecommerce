@@ -385,6 +385,12 @@ model AuditLog {
   @@index([entity, entityId])
 }
 
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model Slide {
   id         String   @id @default(cuid())
   title      String

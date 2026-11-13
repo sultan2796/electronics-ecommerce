@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { describeAudit as describe } from "../../utils/audit";
 import Alert from "../../components/common/Alert";
 import Pagination from "../../components/common/Pagination";
 import Spinner from "../../components/common/Spinner";
@@ -18,25 +19,6 @@ const entityLabels: Record<string, string> = {
   Campaign: "Kampaniya",
 };
 
-const actionLabels: Record<string, string> = {
-  "order.status": "Sifariş statusu dəyişdi",
-  "product.stock": "Stok yeniləndi",
-  "product.create": "Məhsul yaradıldı",
-  "product.update": "Məhsul redaktə edildi",
-  "product.deactivate": "Məhsul deaktiv edildi",
-  "category.create": "Kateqoriya yaradıldı",
-  "category.update": "Kateqoriya redaktə edildi",
-  "category.delete": "Kateqoriya silindi",
-  "coupon.create": "Promo kod yaradıldı",
-  "coupon.update": "Promo kod dəyişdi",
-  "coupon.delete": "Promo kod silindi",
-  "campaign.create": "Kampaniya yaradıldı",
-  "campaign.update": "Kampaniya dəyişdi",
-  "campaign.delete": "Kampaniya silindi",
-  "user.update": "İstifadəçi dəyişdi",
-};
-
-const describe = (action: string) => actionLabels[action] ?? (action.startsWith("product.bulk.") ? "Toplu məhsul əməliyyatı" : action);
 
 const summary = (details: Record<string, unknown> | null) => {
   if (!details) return "";

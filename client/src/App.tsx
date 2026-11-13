@@ -32,6 +32,8 @@ const AdminAudit = lazy(() => import("./pages/admin/AdminAudit"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const AdminCampaigns = lazy(() => import("./pages/admin/AdminCampaigns"));
 const AdminSlides = lazy(() => import("./pages/admin/AdminSlides"));
+const AdminModels = lazy(() => import("./pages/admin/AdminModels"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -69,6 +71,10 @@ export default function App() {
             <Route element={<ProtectedRoute permission="products:write" />}>
               <Route path="campaigns" element={<AdminCampaigns />} />
               <Route path="slides" element={<AdminSlides />} />
+              <Route path="models" element={<AdminModels />} />
+            </Route>
+            <Route element={<ProtectedRoute permission="settings:write" />}>
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
             <Route element={<ProtectedRoute permission="dashboard:read" />}>
               <Route path="reports" element={<AdminReports />} />

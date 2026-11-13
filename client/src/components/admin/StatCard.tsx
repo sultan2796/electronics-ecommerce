@@ -18,7 +18,7 @@ const tones = {
 
 export default function StatCard({ label, value, hint, to, tone = "brand" }: StatCardProps) {
   const content = (
-    <div className="card flex h-full flex-col gap-2 p-5 transition hover:shadow-md">
+    <div className="card flex h-full flex-col gap-2 p-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-20px_rgba(15,23,42,0.35)]">
       <span className={`w-fit rounded-full px-2.5 py-0.5 text-[11px] font-medium ${tones[tone]}`}>{label}</span>
       <p className="text-2xl font-bold text-ink">{value}</p>
       {hint && <p className="text-xs text-muted">{hint}</p>}

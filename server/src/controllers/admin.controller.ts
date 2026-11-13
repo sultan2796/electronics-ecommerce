@@ -207,7 +207,13 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 });
 
 export const listInventory = asyncHandler(async (req, res) => {
-  const { q, lowStock, page, limit } = req.query as unknown as { q?: string; lowStock: boolean; page: number; limit: number };
+  const { q, lowStock, page, limit, model } = req.query as unknown as {
+    q?: string;
+    lowStock: boolean;
+    page: number;
+    limit: number;
+    model?: "with" | "without";
+  };
   const where: Prisma.ProductWhereInput = {
     ...(q && {
       OR: [
@@ -217,6 +223,8 @@ export const listInventory = asyncHandler(async (req, res) => {
       ],
     }),
     ...(lowStock && { stock: { lte: LOW_STOCK_THRESHOLD } }),
+    ...(model === "with" && { model3dUrl: { not: null } }),
+    ...(model === "without" && { model3dUrl: null }),
   };
 
   const [items, total] = await prisma.$transaction([

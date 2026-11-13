@@ -54,7 +54,8 @@ export default function Login() {
           </button>
         </div>
       </label>
-      <button className="btn-primary w-full" disabled={submitting}>
+      <button className="btn-primary w-full" disabled={submitting} aria-busy={submitting || undefined}>
+        {submitting && <span className="btn-spinner" aria-hidden="true" />}
         {submitting ? "Yoxlanılır..." : "Daxil ol"}
       </button>
       <GoogleButton />

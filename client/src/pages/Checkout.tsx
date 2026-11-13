@@ -280,7 +280,8 @@ export default function Checkout() {
           <span>Cəmi</span>
           <span>{formatPrice(finalTotal)}</span>
         </div>
-        <button type="submit" className="btn-primary w-full" disabled={submitting || !cart}>
+        <button type="submit" className="btn-primary btn-lg w-full" disabled={submitting || !cart} aria-busy={submitting || undefined}>
+          {submitting && <span className="btn-spinner" aria-hidden="true" />}
           {submitting ? "Göndərilir..." : selected === "CARD" ? "Ödənişə keç" : "Sifarişi təsdiqlə"}
         </button>
         {earnPoints > 0 && <p className="text-center text-xs text-emerald-600 dark:text-emerald-400">Bu sifarişdən {earnPoints} bonus bal qazanacaqsınız</p>}

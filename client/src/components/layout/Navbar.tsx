@@ -1,4 +1,5 @@
 import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../../config/contact";
+import Logo from "../brand/Logo";
 import { useDeliveryText } from "../common/DeliveryNote";
 import { ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
@@ -105,11 +106,8 @@ export default function Navbar() {
       </div>
 
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:gap-6">
-        <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="ElectroShop">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-base font-bold text-white shadow-sm">E</span>
-          <span className="text-lg font-bold tracking-tight text-ink">
-            Electro<span className="text-brand-600">Shop</span>
-          </span>
+        <Link to="/" className="flex shrink-0 items-center rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgb(var(--ring)/0.3)]" aria-label="ElectroShop">
+          <Logo />
         </Link>
 
         <SearchBox className="hidden flex-1 lg:block" />

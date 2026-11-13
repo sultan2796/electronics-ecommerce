@@ -39,6 +39,7 @@ export const adminOrdersQuerySchema = z.object({
 });
 
 export const inventoryQuerySchema = z.object({
+  model: z.enum(["with", "without"]).optional(),
   q: z.string().trim().optional(),
   lowStock: z
     .enum(["true", "false"])

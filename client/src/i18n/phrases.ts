@@ -728,6 +728,50 @@ Onlayn kartla və ya qapıda ödəniş. Kart məlumatları mağazada saxlanılm�
 Qapıda ödəniş (nağd və ya kartla kuryerə).|Оплата при получении (наличными или картой курьеру).|Pay on delivery (cash or card to the courier).
 Sualınız var?|Есть вопрос?|Have a question?
 Bizimlə əlaqə saxlayın|Свяжитесь с нами|Contact us
+Ümumi|Общее|General
+Satış|Продажи|Sales
+Kataloq|Каталог|Catalog
+Marketinq|Маркетинг|Marketing
+Sistem|Система|System
+Analitika|Аналитика|Analytics
+Müştərilər|Клиенты|Customers
+3D modellər|3D-модели|3D models
+Slayder və bannerlər|Слайдер и баннеры|Slider and banners
+Kuponlar|Купоны|Coupons
+Parametrlər|Настройки|Settings
+Mağazaya keç|Перейти в магазин|Go to store
+Menyunu genişləndir|Развернуть меню|Expand menu
+Menyunu yığ|Свернуть меню|Collapse menu
+Son fəaliyyətlər|Последние действия|Recent activity
+Fəaliyyətlər yüklənmədi.|Не удалось загрузить действия.|Could not load activity.
+Hələ fəaliyyət qeydə alınmayıb.|Действий пока нет.|No activity yet.
+Slaydların sırası dəyişdi|Порядок слайдов изменён|Slide order changed
+Sayt parametrləri yeniləndi|Настройки сайта обновлены|Site settings updated
+Loqo, ikon və favicon. Dəyişikliklər saxlandıqdan sonra bütün saytda tətbiq olunur.|Логотип, иконка и favicon. Изменения применяются ко всему сайту после сохранения.|Logo, icon and favicon. Changes apply across the site after saving.
+Tam loqo|Полный логотип|Full logo
+Loqo ikonu|Иконка логотипа|Logo icon
+Favicon|Favicon|Favicon
+Standart loqo istifadə olunur|Используется стандартный логотип|Default logo in use
+Dəyiş|Изменить|Change
+Yüklə|Загрузить|Upload
+Standarta qaytar|Вернуть стандартный|Restore default
+Ölçü: {}|Размер: {}|Size: {}
+Parametrlər saxlanıldı və bütün saytda tətbiq olundu|Настройки сохранены и применены ко всему сайту|Settings saved and applied across the site
+Yalnız PNG, JPG və ya WEBP şəkil yükləyin|Загружайте только PNG, JPG или WEBP|Upload PNG, JPG or WEBP only
+Ad və nişan birlikdə. Şəffaf fonlu PNG və ya WEBP, hündürlüyü ən azı 72px. Yüklənsə, başlıqda və footer-də yalnız bu şəkil göstərilir.|Название и знак вместе. PNG или WEBP с прозрачным фоном, высота от 72px. Если загружен, в шапке и футере показывается только он.|Name and mark together. Transparent PNG or WEBP, at least 72px tall. If uploaded, only this image is shown in the header and footer.
+Kvadrat nişan, ən azı 128×128px. Yazının yanında göstərilir.|Квадратный знак, не менее 128×128px. Показывается рядом с названием.|Square mark, at least 128×128px. Shown next to the name.
+Brauzer tabında görünən kvadrat ikon, ən azı 64×64px.|Квадратная иконка во вкладке браузера, не менее 64×64px.|Square icon shown in the browser tab, at least 64×64px.
+Məhsullara bağlı GLB/GLTF modelləri. Modeli yükləmək, dəyişmək və silmək üçün məhsulu redaktə edin.|GLB/GLTF-модели товаров. Чтобы загрузить, заменить или удалить модель, отредактируйте товар.|GLB/GLTF models linked to products. Edit a product to upload, replace or remove its model.
+3D modeli olanlar|С 3D-моделью|With 3D model
+3D modeli olmayanlar|Без 3D-модели|Without 3D model
+Hələ heç bir məhsula 3D model bağlanmayıb.|Ни у одного товара пока нет 3D-модели.|No product has a 3D model yet.
+Bütün məhsulların 3D modeli var.|У всех товаров есть 3D-модель.|All products have a 3D model.
+Model yoxdur|Нет модели|No model
+Lisenziya / mənbə|Лицензия / источник|License / source
+İdarə et|Управлять|Manage
+Model əlavə et|Добавить модель|Add model
+Model filtri|Фильтр моделей|Model filter
+https://... və ya /figma/hero.jpg|https://... или /figma/hero.jpg|https://... or /figma/hero.jpg
 `;
 
 const months = [

@@ -47,13 +47,15 @@ describe("HeroSlider", () => {
     expect(screen.getByRole("link", { name: "Al" })).toHaveAttribute("href", "/products");
   });
 
-  it("oxlarla irəli və geri keçir, əvvəlki slayd çıxış animasiyası alır", () => {
+  it("oxlar yoxdur, nöqtə və klaviatura ilə irəli-geri keçir, əvvəlki slayd çıxış animasiyası alır", () => {
     renderSlider();
-    fireEvent.click(screen.getByRole("button", { name: "Növbəti slayd" }));
+    expect(screen.queryByRole("button", { name: "Növbəti slayd" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Əvvəlki slayd" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "2-ci slayd" }));
     expect(activeTitle()).toBe("Noutbuk həftəsi");
     expect(document.querySelector('.hero-slide[data-state="leaving"] h2')?.textContent).toBe("Qış endirimi");
-    fireEvent.click(screen.getByRole("button", { name: "Əvvəlki slayd" }));
-    fireEvent.click(screen.getByRole("button", { name: "Əvvəlki slayd" }));
+    fireEvent.keyDown(screen.getByRole("region"), { key: "ArrowLeft" });
+    fireEvent.keyDown(screen.getByRole("region"), { key: "ArrowLeft" });
     expect(activeTitle()).toBe("Aksesuarlar");
   });
 

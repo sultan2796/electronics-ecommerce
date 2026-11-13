@@ -8,12 +8,18 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: "#fff4ef",
-          100: "#ffe4d8",
-          500: "#f97847",
-          600: "#fe5e22",
-          700: "#e2480f",
+          50: token("brand-50"),
+          100: token("brand-100"),
+          500: token("brand-500"),
+          600: token("brand-600"),
+          700: token("brand-700"),
         },
+        secondary: token("secondary"),
+        accent: token("accent"),
+        success: { DEFAULT: token("success"), soft: token("success-soft") },
+        warning: { DEFAULT: token("warning"), soft: token("warning-soft") },
+        danger: { DEFAULT: token("danger"), soft: token("danger-soft") },
+        info: { DEFAULT: token("info"), soft: token("info-soft") },
         canvas: token("canvas"),
         surface: token("surface"),
         chip: token("chip"),

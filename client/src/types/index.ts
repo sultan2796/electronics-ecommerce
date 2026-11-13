@@ -10,7 +10,8 @@ export type Permission =
   | "users:read"
   | "users:write"
   | "reviews:moderate"
-  | "emails:read";
+  | "emails:read"
+  | "settings:write";
 export type StorageType = "SSD" | "NVME" | "HDD" | "EMMC" | "UFS";
 export type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 export type PaymentStatus = "PENDING" | "SUCCEEDED" | "FAILED" | "REFUNDED";

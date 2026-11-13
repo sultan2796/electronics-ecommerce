@@ -155,11 +155,6 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
   );
 }
 
-const Chevron = ({ direction }: { direction: "left" | "right" }) => (
-  <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d={direction === "left" ? "M15 18l-6-6 6-6" : "M9 6l6 6-6 6"} />
-  </svg>
-);
 
 export default function HeroSlider({ products, slides: managed = [] }: { products: Product[]; slides?: HeroSlide[] }) {
   const { t } = useI18n();
@@ -343,21 +338,8 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
 
       {count > 1 && (
         <>
-          {(["left", "right"] as const).map((side) => (
-            <button
-              key={side}
-              type="button"
-              onClick={() => go(index + (side === "left" ? -1 : 1), side === "left" ? -1 : 1)}
-              aria-label={side === "left" ? t("hero.prev") : t("hero.next")}
-              className={`absolute top-1/2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border transition duration-300 hover:scale-105 focus-visible:opacity-100 active:scale-95 sm:flex sm:opacity-0 sm:group-hover/hero:opacity-100 ${
-                side === "left" ? "left-4" : "right-4"
-              } ${darkSlide ? "border-white/25 bg-slate-900/35 text-white hover:bg-slate-900/55" : "border-slate-900/10 bg-white/70 text-slate-900 hover:bg-white"}`}
-            >
-              <Chevron direction={side} />
-            </button>
-          ))}
 
-          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/15 px-3 sm:bottom-4">
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/20 px-2.5 sm:bottom-5">
             {slides.map((slide, position) => {
               const current = position === index;
               return (

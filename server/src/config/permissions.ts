@@ -12,6 +12,7 @@ export const allPermissions = [
   "users:write",
   "reviews:moderate",
   "emails:read",
+  "settings:write",
 ] as const;
 
 export type Permission = (typeof allPermissions)[number];

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import RecentActivity from "../../components/admin/RecentActivity";
 import SalesChart from "../../components/admin/SalesChart";
 import StatCard from "../../components/admin/StatCard";
 import Alert from "../../components/common/Alert";
@@ -9,7 +10,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useAsync } from "../../hooks/useAsync";
 import { adminService } from "../../services/admin.service";
 import { OrderStatus } from "../../types";
-import { formatDate, formatLongDate, formatPrice, orderStatusLabels, orderStatusStyles } from "../../utils/format";
+import { formatDate, formatLongDate, formatPrice, orderStatusLabels, orderStatusStyles, orderCode } from "../../utils/format";
 import CatalogImport from "./CatalogImport";
 
 const statusBarColors: Record<OrderStatus, string> = {
@@ -171,7 +172,7 @@ export default function AdminDashboard() {
             <tbody>
               {stats.recentOrders.map((order) => (
                 <tr key={order.id} className="border-b border-chip last:border-0">
-                  <td className="px-5 py-3 font-medium">#{order.id.slice(-8).toUpperCase()}</td>
+                  <td className="whitespace-nowrap px-5 py-3 font-medium">{orderCode(order)}</td>
                   <td className="px-5 py-3">
                     <p>{order.user?.name}</p>
                     <p className="text-xs text-muted">{order.user?.email}</p>
@@ -190,6 +191,8 @@ export default function AdminDashboard() {
           <p className="px-5 py-6 text-sm text-muted">Hələ sifariş yoxdur.</p>
         )}
       </section>
+
+      {can("users:read") && <RecentActivity />}
 
       {can("catalog:import") && <CatalogImport onImported={reload} />}
     </div>

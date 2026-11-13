@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import Logo from "../components/brand/Logo";
 import { Link, useParams } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import Spinner from "../components/common/Spinner";
@@ -35,10 +36,7 @@ export default function Invoice() {
       <article className="rounded-2xl bg-white p-8 text-slate-900 shadow-sm ring-1 ring-slate-200 print:rounded-none print:p-0 print:shadow-none print:ring-0 sm:p-12">
         <header className="flex flex-wrap items-start justify-between gap-6 border-b border-slate-200 pb-6">
           <div>
-            <p className="flex items-center gap-2 text-xl font-bold">
-              <span className="flex size-9 items-center justify-center rounded-xl bg-[#fe5e22] text-white">E</span>
-              ElectroShop
-            </p>
+            <Logo />
             <p className="mt-2 text-xs leading-relaxed text-slate-500">
               ElectroShop MMC
               <br />

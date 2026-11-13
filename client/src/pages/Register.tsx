@@ -54,7 +54,8 @@ export default function Register() {
           onChange={(e) => update("password")(e.target.value)}
         />
       </label>
-      <button className="btn-primary w-full" disabled={submitting}>
+      <button className="btn-primary w-full" disabled={submitting} aria-busy={submitting || undefined}>
+        {submitting && <span className="btn-spinner" aria-hidden="true" />}
         {submitting ? "Yaradılır..." : "Hesab yarat"}
       </button>
       <GoogleButton />
