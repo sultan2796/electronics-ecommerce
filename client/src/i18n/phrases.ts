@@ -860,6 +860,10 @@ indicə|только что|just now
 {} gün əvvəl|{} дн назад|{} d ago
 Əvvəlki şəkil|Предыдущее фото|Previous image
 Növbəti şəkil|Следующее фото|Next image
+Kiçilt|Уменьшить|Zoom out
+Böyüt|Увеличить|Zoom in
+Sürüşdürərək dəyişin · iki dəfə toxunaraq böyüdün|Листайте для смены · двойное касание для увеличения|Swipe to browse · double-tap to zoom
+İki dəfə toxunaraq böyüdün|Двойное касание для увеличения|Double-tap to zoom
 `;
 
 const months = [

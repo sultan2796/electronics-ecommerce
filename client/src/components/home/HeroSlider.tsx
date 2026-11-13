@@ -139,7 +139,7 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
           </div>
         </div>
         <div className="flex h-full items-center justify-center py-6 [perspective:1000px]">
-          <div className="hero-float relative flex aspect-square w-[120px] items-center justify-center sm:w-[340px]">
+          <div className="hero-float relative flex aspect-square mix-blend-multiply w-[120px] items-center justify-center sm:w-[340px]">
             <div className="absolute inset-[6%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.95)_0%,rgba(255,255,255,0.6)_38%,transparent_70%)]" />
             <div className="absolute inset-x-[18%] bottom-[2%] h-[10%] rounded-[50%] bg-[radial-gradient(ellipse,rgba(15,23,42,0.18)_0%,transparent_70%)]" />
             <ProductImage

@@ -428,8 +428,7 @@
     animation: lightbox-in 0.3s ease both;
   }
   .lightbox-slide {
-    animation: lightbox-slide 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: lightbox-slide 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   @keyframes lightbox-in {
     from {
@@ -442,7 +441,7 @@
   @keyframes lightbox-slide {
     from {
       opacity: 0;
-      transform: scale(0.97);
+      transform: translate3d(var(--slide-from, 0), 0, 0);
     }
     to {
       opacity: 1;

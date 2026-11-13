@@ -285,7 +285,7 @@ export default function ProductViewer({ images, alt, category, model3d, modelCre
         ) : (
           <div
             key={mode === "photo" ? index : "frame"}
-            className={`flex size-full items-center justify-center p-8 ease-out ${swipeX ? "" : "transition-transform duration-150"} ${mode === "photo" && !swipeX ? "viewer-slide" : ""}`}
+            className={`flex size-full items-center justify-center bg-[#f6f7f9] p-8 ease-out dark:bg-white ${swipeX ? "" : "transition-transform duration-150"} ${mode === "photo" && !swipeX ? "viewer-slide" : ""}`}
             style={{
               transform: `translate3d(${swipeX}px,0,0) scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
               ["--slide-from" as string]: `${slideDir * 6}%`,
