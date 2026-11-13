@@ -10,7 +10,7 @@ const csvInt = csv.transform((items) => items?.map(Number).filter((n) => Number.
 
 const optionalNumber = z.coerce.number().nonnegative().optional();
 
-export const productSortOptions = ["newest", "price_asc", "price_desc", "name_asc"] as const;
+export const productSortOptions = ["newest", "price_asc", "price_desc", "name_asc", "bestsellers", "rating"] as const;
 
 export const productQuerySchema = z.object({
   q: z.string().trim().optional(),

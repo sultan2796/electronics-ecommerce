@@ -650,6 +650,8 @@ Hamısı →|Все →|All →
 Son giriş:|Последний вход:|Last login:
 Endirimli qiymət (AZN)|Цена со скидкой (AZN)|Sale price (AZN)
 Endirimli qiymət əsas qiymətdən aşağı olmalıdır|Цена со скидкой должна быть ниже основной цены|Sale price must be lower than the regular price
+Ən çox satılan|Хиты продаж|Best sellers
+Ən yüksək reytinq|Высокий рейтинг|Top rated
 `;
 
 const months = [

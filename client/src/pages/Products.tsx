@@ -17,6 +17,8 @@ const sortLabels: Record<ProductSort, string> = {
   price_asc: "Qiymət: artan",
   price_desc: "Qiymət: azalan",
   name_asc: "Ad: A-Z",
+  bestsellers: "Ən çox satılan",
+  rating: "Ən yüksək reytinq",
 };
 
 export default function Products() {

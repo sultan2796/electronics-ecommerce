@@ -15,7 +15,7 @@ export type StorageType = "SSD" | "NVME" | "HDD" | "EMMC" | "UFS";
 export type OrderStatus = "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 export type PaymentStatus = "PENDING" | "SUCCEEDED" | "FAILED" | "REFUNDED";
 export type PaymentMethod = "CARD" | "CASH_ON_DELIVERY";
-export type ProductSort = "newest" | "price_asc" | "price_desc" | "name_asc";
+export type ProductSort = "newest" | "price_asc" | "price_desc" | "name_asc" | "bestsellers" | "rating";
 
 export interface User {
   id: string;

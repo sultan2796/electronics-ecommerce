@@ -1,4 +1,5 @@
 import { confirmDialog } from "../../components/common/Overlays";
+import DatePicker from "../../components/common/DatePicker";
 import Select from "../../components/common/Select";
 import { FormEvent, useState } from "react";
 import Alert from "../../components/common/Alert";
@@ -92,14 +93,14 @@ export default function AdminCampaigns() {
             options={[{ value: "", label: "Bütün məhsullar" }, ...(categories.data ?? []).map((category) => ({ value: category.id, label: category.name }))]}
           />
         </label>
-        <label className="space-y-1">
+        <div className="space-y-1">
           <span className="text-sm font-medium">Başlayır</span>
-          <input className="input" type="datetime-local" required value={form.startsAt} onChange={(e) => set("startsAt", e.target.value)} />
-        </label>
-        <label className="space-y-1">
+          <DatePicker withTime required ariaLabel="Başlayır" value={form.startsAt} onChange={(next) => set("startsAt", next)} />
+        </div>
+        <div className="space-y-1">
           <span className="text-sm font-medium">Bitir</span>
-          <input className="input" type="datetime-local" required value={form.endsAt} onChange={(e) => set("endsAt", e.target.value)} />
-        </label>
+          <DatePicker withTime required ariaLabel="Bitir" min={form.startsAt.slice(0, 10)} value={form.endsAt} onChange={(next) => set("endsAt", next)} />
+        </div>
         <div className="flex items-end">
           <button className="btn-primary w-full" disabled={saving}>
             {saving ? "Yaradılır..." : "Kampaniya yarat"}

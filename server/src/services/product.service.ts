@@ -60,6 +60,10 @@ export const buildProductOrderBy = (sort: ProductSort): Prisma.ProductOrderByWit
       return { price: "desc" };
     case "name_asc":
       return { name: "asc" };
+    case "bestsellers":
+      return { orderItems: { _count: "desc" } };
+    case "rating":
+      return { ratingAverage: { sort: "desc", nulls: "last" } };
     default:
       return { createdAt: "desc" };
   }

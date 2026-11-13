@@ -1,4 +1,5 @@
 import { confirmDialog } from "../../components/common/Overlays";
+import DatePicker from "../../components/common/DatePicker";
 import Select from "../../components/common/Select";
 import { FormEvent, useState } from "react";
 import Alert from "../../components/common/Alert";
@@ -108,10 +109,10 @@ export default function AdminCoupons() {
           <span className="text-sm font-medium">İstifadə limiti</span>
           <input className="input" type="number" min="1" placeholder="Limitsiz" value={form.maxUses} onChange={(e) => set("maxUses", e.target.value)} />
         </label>
-        <label className="space-y-1">
+        <div className="space-y-1">
           <span className="text-sm font-medium">Son tarix</span>
-          <input className="input" type="date" value={form.expiresAt} onChange={(e) => set("expiresAt", e.target.value)} />
-        </label>
+          <DatePicker ariaLabel="Son tarix" placeholder="Limitsiz" min={new Date().toISOString().slice(0, 10)} value={form.expiresAt} onChange={(next) => set("expiresAt", next)} />
+        </div>
         <label className="flex items-end gap-2 pb-3 text-sm">
           <input type="checkbox" className="accent-brand-600" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} />
           Dərhal aktiv

@@ -1,6 +1,6 @@
 import { ProductFilters, ProductSort } from "../types";
 
-const sortOptions: ProductSort[] = ["newest", "price_asc", "price_desc", "name_asc"];
+const sortOptions: ProductSort[] = ["newest", "price_asc", "price_desc", "name_asc", "bestsellers", "rating"];
 
 const list = (value: string | null) => (value ? value.split(",").filter(Boolean) : []);
 

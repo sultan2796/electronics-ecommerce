@@ -155,6 +155,20 @@
   .animate-page {
     animation: page-in 0.35s ease-out both;
   }
+  .animate-pop {
+    animation: pop-in 0.16s ease-out both;
+    transform-origin: top;
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
   @keyframes slide-progress {
     from {
       width: 0;
@@ -174,7 +188,8 @@
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .animate-page {
+    .animate-page,
+    .animate-pop {
       animation: none;
     }
   }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DatePicker from "../../components/common/DatePicker";
 import Alert from "../../components/common/Alert";
 import Spinner from "../../components/common/Spinner";
 import { useAuth } from "../../context/AuthContext";
@@ -51,14 +52,14 @@ export default function AdminReports() {
           <p className="text-sm text-muted">Ödənilmiş və icra olunan sifarişlər üzrə gəlir</p>
         </div>
         <div className="flex flex-wrap items-end gap-2">
-          <label className="space-y-1 text-xs text-muted">
+          <div className="space-y-1 text-xs text-muted">
             Başlanğıc
-            <input className="input py-2" type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} />
-          </label>
-          <label className="space-y-1 text-xs text-muted">
+            <DatePicker className="w-48" required ariaLabel="Başlanğıc" value={from} max={to} onChange={setFrom} />
+          </div>
+          <div className="space-y-1 text-xs text-muted">
             Son
-            <input className="input py-2" type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} />
-          </label>
+            <DatePicker className="w-48" required ariaLabel="Son" value={to} min={from} onChange={setTo} />
+          </div>
           {can("orders:read") && (
             <button type="button" className="btn-primary py-2.5" onClick={download} disabled={downloading}>
               {downloading ? "Hazırlanır..." : "Excel (CSV) yüklə"}
