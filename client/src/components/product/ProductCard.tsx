@@ -1,6 +1,6 @@
 import { toast } from "../common/Overlays";
 import { Eye, Heart, Scale } from "lucide-react";
-import { MouseEvent, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -58,9 +58,8 @@ export default function ProductCard({ product }: { product: Product }) {
     }
   };
 
-  const openPreview = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
-    if (openQuickView(product)) event.preventDefault();
+  const openPreview = () => {
+    if (!openQuickView(product)) navigate(`/products/${product.slug}`);
   };
 
   const toggleWishlist = async () => {
@@ -74,74 +73,73 @@ export default function ProductCard({ product }: { product: Product }) {
     }
   };
 
+  const iconButton =
+    "flex size-8 items-center justify-center rounded-full border border-line/70 bg-surface/85 backdrop-blur-sm transition duration-200 ease-out hover:border-ink/20 hover:text-ink active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--ring))]";
+
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface transition duration-300 ease-out hover:-translate-y-0.5 hover:border-brand-500/40 hover:shadow-[0_8px_24px_-16px_rgb(0_0_0/0.35)] motion-reduce:hover:translate-y-0">
-      <div className="absolute left-3 top-3 z-10 flex flex-col items-start gap-1">
-        {price.percent > 0 && (
-          <span className={`rounded-md px-2 py-0.5 text-[11px] font-semibold text-white ${price.live ? "bg-red-600" : "bg-brand-600"}`}>−{price.percent}%</span>
-        )}
-        {product.campaign && <span className="rounded-md bg-ink px-2 py-0.5 text-[10px] font-medium text-surface">{product.campaign.name}</span>}
-      </div>
-      <div className="absolute right-3 top-3 z-10 flex flex-col gap-1.5 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-        <button
-          type="button"
-          onClick={toggleWishlist}
-          aria-pressed={liked}
-          aria-label={t("card.wishlist")}
-          className={`flex size-8 items-center justify-center rounded-full bg-surface shadow-sm ring-1 ring-line transition hover:text-red-500 ${liked ? "text-red-500 sm:opacity-100" : "text-muted"}`}
+    <article className="product-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface">
+      <div className="relative">
+        <Link
+          to={`/products/${product.slug}`}
+          className="product-card-media relative flex aspect-square items-center justify-center overflow-hidden bg-[#f5f5f7] p-[12%] dark:bg-[#ecebe7]"
+          aria-label={product.name}
         >
-          <span key={heartPulse} className={heartPulse ? "heart-pop" : ""}>
-            <Heart className={`size-4 ${liked ? "fill-current" : ""}`} strokeWidth={1.8} aria-hidden="true" />
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => flash(compare.toggle(product))}
-          aria-pressed={inCompare}
-          aria-label={t("card.compare")}
-          className={`flex size-8 items-center justify-center rounded-full bg-surface shadow-sm ring-1 ring-line transition hover:text-brand-600 ${inCompare ? "text-brand-600" : "text-muted"}`}
-        >
-          <Scale className="size-4" strokeWidth={1.8} aria-hidden="true" />
-        </button>
-      </div>
-
-      <Link
-        to={`/products/${product.slug}`}
-        onClick={openPreview}
-        className="relative flex aspect-square items-center justify-center overflow-hidden bg-[#f6f7f9] p-6 dark:bg-[#ecebe7]"
-      >
-        <ProductImage
-          src={product.images[0]}
-          category={product.category?.slug}
-          alt={product.name}
-          className={`size-full object-contain transition duration-500 ease-out group-hover:scale-[1.06] ${secondImage ? "group-hover:opacity-0" : ""} ${soldOut ? "opacity-50 grayscale" : ""}`}
-        />
-        {secondImage && (
-          <img
-            src={secondImage}
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            decoding="async"
-            className={`absolute inset-0 m-auto size-full scale-95 object-contain p-6 opacity-0 transition duration-500 ease-out group-hover:scale-100 group-hover:opacity-100 ${soldOut ? "grayscale" : ""}`}
+          <ProductImage
+            src={product.images[0]}
+            category={product.category?.slug}
+            alt={product.name}
+            className={`product-card-img size-full object-contain ${secondImage ? "group-hover:opacity-0" : ""} ${soldOut ? "opacity-50 grayscale" : ""}`}
           />
-        )}
-        {soldOut ? (
-          <span className="absolute bottom-3 rounded-full bg-ink/80 px-3 py-1 text-[11px] font-medium text-surface">{t("card.soldOut")}</span>
-        ) : (
-          <span className="absolute bottom-3 left-1/2 hidden -translate-x-1/2 translate-y-2 items-center gap-1.5 whitespace-nowrap rounded-full bg-ink/85 px-3.5 py-1.5 text-[11px] font-semibold text-surface opacity-0 shadow-lg backdrop-blur transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:flex">
-            <Eye className="size-3.5" strokeWidth={1.8} aria-hidden="true" />
-            {t("card.quickView")}
-          </span>
-        )}
-      </Link>
+          {secondImage && (
+            <img
+              src={secondImage}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
+              className={`product-card-alt absolute inset-0 m-auto size-full object-contain p-[12%] opacity-0 group-hover:opacity-100 ${soldOut ? "grayscale" : ""}`}
+            />
+          )}
+          {soldOut && (
+            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink/80 px-3 py-1 text-[11px] font-medium text-surface">{t("card.soldOut")}</span>
+          )}
+        </Link>
+        <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col items-start gap-1">
+          {price.percent > 0 && (
+            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold text-white ${price.live ? "bg-red-600" : "bg-brand-600"}`}>−{price.percent}%</span>
+          )}
+          {product.campaign && <span className="max-w-[9rem] truncate rounded-full bg-ink/85 px-2 py-0.5 text-[10px] font-medium text-surface">{product.campaign.name}</span>}
+        </div>
+        <div className="absolute right-2.5 top-2.5 flex flex-col gap-1.5">
+          <button
+            type="button"
+            onClick={toggleWishlist}
+            aria-pressed={liked}
+            aria-label={t("card.wishlist")}
+            className={`${iconButton} ${liked ? "text-red-500" : "text-muted"}`}
+          >
+            <span key={heartPulse} className={heartPulse ? "heart-pop" : ""}>
+              <Heart className={`size-4 ${liked ? "fill-current" : ""}`} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => flash(compare.toggle(product))}
+            aria-pressed={inCompare}
+            aria-label={t("card.compare")}
+            className={`${iconButton} product-card-reveal ${inCompare ? "text-brand-600 opacity-100" : "text-muted"}`}
+          >
+            <Scale className="size-4" strokeWidth={1.8} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
 
-      <div className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
-        <p lang="en" className="truncate text-[11px] font-medium uppercase tracking-wide text-muted">{product.brand}</p>
-        <Link to={`/products/${product.slug}`} onClick={openPreview} translate="no" className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-ink transition hover:text-brand-600">
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
+        <p lang="en" className="truncate text-[11px] font-medium uppercase tracking-[0.08em] text-muted">{product.brand}</p>
+        <Link to={`/products/${product.slug}`} translate="no" className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 text-ink transition-colors duration-200 hover:text-brand-600">
           {product.name}
         </Link>
-        <div className="flex h-4 items-center gap-1 text-xs text-muted">
+        <div className="mt-1.5 flex h-4 items-center gap-1 text-xs text-muted">
           {rating && (
             <>
               <svg viewBox="0 0 24 24" className="size-3.5 fill-amber-400" aria-hidden="true">
@@ -153,7 +151,7 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
           {!soldOut &&
             (product.stock <= 5 ? (
-              <span className="ml-auto text-[11px] font-medium text-amber-600">{t("card.lowStock", { count: product.stock })}</span>
+              <span className="ml-auto truncate text-[11px] font-medium text-amber-600">{t("card.lowStock", { count: product.stock })}</span>
             ) : (
               <span className="ml-auto flex items-center gap-1 text-[11px] font-medium text-emerald-600">
                 <span className="size-1.5 rounded-full bg-emerald-500" />
@@ -162,26 +160,37 @@ export default function ProductCard({ product }: { product: Product }) {
             ))}
         </div>
 
-        <div className="mt-auto pt-2">
+        <div className="mt-auto pt-3">
           <div className="flex flex-wrap items-baseline gap-x-2">
-            <span className={`text-lg font-bold ${price.percent > 0 ? "text-red-600" : "text-ink"}`}>{formatPrice(price.price)}</span>
+            <span className={`text-base font-bold tracking-tight sm:text-lg ${price.percent > 0 ? "text-red-600" : "text-ink"}`}>{formatPrice(price.price)}</span>
             {price.was && <span className="text-xs text-muted line-through">{formatPrice(price.was.toFixed(2))}</span>}
           </div>
-          {price.price >= 100 && (
-            <p className="text-[11px] text-muted">{t("card.monthly", { amount: formatPrice(monthlyPayment(price.price)) })}</p>
-          )}
+          <p className="h-4 truncate text-[11px] text-muted">
+            {price.price >= 100 ? t("card.monthly", { amount: formatPrice(monthlyPayment(price.price)) }) : ""}
+          </p>
         </div>
 
-        <button
-          type="button"
-          onClick={addToCart}
-          disabled={busy || soldOut}
-          className={`mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition hover:bg-cta-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-chip disabled:text-muted ${
-            cartPulse && message ? "cart-bump bg-success text-white dark:text-canvas" : "bg-cta text-white"
-          }`}
-        >
-          {message ?? (soldOut ? t("card.soldOut") : t("card.addToCart"))}
-        </button>
+        <div className="mt-3 flex gap-2">
+          <button
+            type="button"
+            onClick={addToCart}
+            disabled={busy || soldOut}
+            className={`flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-[13px] font-semibold transition duration-200 ease-out hover:bg-cta-hover active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:bg-chip disabled:text-muted sm:text-sm ${
+              cartPulse && message ? "cart-bump bg-success text-white dark:text-canvas" : "bg-cta text-white"
+            }`}
+          >
+            <span className="truncate">{message ?? (soldOut ? t("card.soldOut") : product.variants?.length ? t("card.chooseOption") : t("card.addToCart"))}</span>
+          </button>
+          <button
+            type="button"
+            onClick={openPreview}
+            aria-label={t("card.quickView")}
+            title={t("card.quickView")}
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-line text-muted transition duration-200 ease-out hover:border-ink/25 hover:bg-chip hover:text-ink active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--ring))]"
+          >
+            <Eye className="size-[18px]" strokeWidth={1.7} aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </article>
   );

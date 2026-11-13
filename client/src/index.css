@@ -319,78 +319,133 @@
     animation-delay: 300ms;
   }
   .hero-slide {
+    --ease-cine: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
     position: absolute;
     inset: 0;
     contain: layout paint;
-    backface-visibility: hidden;
     opacity: 0;
     visibility: hidden;
-    transform: perspective(1600px) translateX(calc(var(--dir, 1) * 6%)) rotateY(calc(var(--dir, 1) * -9deg)) scale(0.96);
+    z-index: 0;
     transition:
-      opacity 0.75s ease,
-      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0s linear 0.9s;
-  }
-  .hero-slide[data-state="active"],
-  .hero-slide[data-state="leaving"] {
-    will-change: transform, opacity;
+      opacity 0.9s var(--ease-cine),
+      visibility 0s linear 1.1s;
   }
   .hero-slide[data-state="leaving"] {
-    transform: perspective(1600px) translateX(calc(var(--dir, 1) * -6%)) rotateY(calc(var(--dir, 1) * 9deg)) scale(0.96);
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+    transition:
+      opacity 0.5s var(--ease-cine) 0.55s,
+      visibility 0s linear 1.1s;
   }
   .hero-slide[data-state="active"] {
     opacity: 1;
     visibility: visible;
-    transform: none;
     z-index: 2;
     transition:
-      opacity 0.75s ease,
-      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.9s var(--ease-cine),
       visibility 0s;
+  }
+  .hero-slide[data-state="active"] .hero-kenburns,
+  .hero-slide[data-state="leaving"] .hero-kenburns {
+    will-change: transform;
+  }
+  .hero-slide[data-state="active"] .hero-kenburns {
+    animation: hero-settle 1.6s var(--ease-settle) both;
+  }
+  .hero-slide[data-state="leaving"] .hero-kenburns {
+    animation: hero-drift 1.1s var(--ease-cine) both;
   }
   .hero-slide .hero-reveal > * {
     opacity: 0;
-    transform: translateY(22px);
+    transform: translate3d(0, 14px, 0);
+    transition:
+      opacity 0.3s ease,
+      transform 0.4s var(--ease-cine);
+  }
+  .hero-slide[data-state="leaving"] .hero-reveal > * {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
   }
   .hero-slide[data-state="active"] .hero-reveal > * {
     opacity: 1;
     transform: none;
     transition:
-      opacity 0.7s ease,
-      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .hero-slide[data-state="active"] .hero-reveal > *:nth-child(1) {
-    transition-delay: 0.35s;
+      opacity 0.8s ease 0.45s,
+      transform 1s var(--ease-settle) 0.45s;
   }
   .hero-slide[data-state="active"] .hero-reveal > *:nth-child(2) {
-    transition-delay: 0.45s;
+    transition-delay: 0.53s;
   }
   .hero-slide[data-state="active"] .hero-reveal > *:nth-child(3) {
-    transition-delay: 0.55s;
+    transition-delay: 0.61s;
   }
   .hero-slide[data-state="active"] .hero-reveal > *:nth-child(4) {
-    transition-delay: 0.65s;
+    transition-delay: 0.69s;
   }
   .hero-slide[data-state="active"] .hero-reveal > *:nth-child(n + 5) {
-    transition-delay: 0.75s;
+    transition-delay: 0.77s;
   }
   .hero-media {
-    transform: translate3d(calc(var(--px, 0) * -14px), calc(var(--py, 0) * -10px), 0) scale(1.08);
-    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .hero-slide[data-state="active"] .hero-kenburns {
-    animation: ken-burns 14s ease-out both;
+    transform: translate3d(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -6px), 0) scale(1.04);
+    transition: transform 1.2s var(--ease-settle);
   }
   .hero-float {
-    transform: translate3d(calc(var(--px, 0) * 18px), calc(var(--py, 0) * 14px), 0);
-    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translate3d(calc(var(--px, 0) * 12px), calc(var(--py, 0) * 8px), 0);
+    transition: transform 1.2s var(--ease-settle);
   }
-  @keyframes ken-burns {
+  @keyframes hero-settle {
     from {
-      transform: scale(1);
+      transform: translate3d(calc(var(--dir, 1) * 2.5%), 0, 0) scale(1.08);
     }
     to {
-      transform: scale(1.07);
+      transform: none;
+    }
+  }
+  @keyframes hero-drift {
+    from {
+      transform: none;
+    }
+    to {
+      transform: translate3d(calc(var(--dir, 1) * -1.5%), 0, 0) scale(1.02);
+    }
+  }
+  .product-card {
+    transition: border-color 0.35s ease;
+  }
+  .product-card-img,
+  .product-card-alt {
+    transition:
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.45s ease;
+  }
+  .product-card-alt {
+    transform: scale(0.97);
+  }
+  .product-card-reveal {
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .product-card:hover {
+      border-color: rgb(var(--ink) / 0.16);
+    }
+    .product-card:hover .product-card-img,
+    .product-card:hover .product-card-alt {
+      transform: scale(1.035);
+    }
+    .product-card .product-card-reveal:not([aria-pressed="true"]) {
+      opacity: 0;
+      transform: translate3d(0, -4px, 0);
+    }
+    .product-card:hover .product-card-reveal,
+    .product-card:focus-within .product-card-reveal {
+      opacity: 1;
+      transform: none;
     }
   }
   .heart-pop {
@@ -451,6 +506,9 @@
       transition-delay: 0s !important;
     }
     .hero-slide[data-state="active"] .hero-kenburns,
+    .hero-slide[data-state="leaving"] .hero-kenburns,
+    .product-card-img,
+    .product-card-alt,
     .stagger > *,
     .heart-pop,
     .cart-bump {

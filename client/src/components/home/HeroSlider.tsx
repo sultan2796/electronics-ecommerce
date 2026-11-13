@@ -24,7 +24,7 @@ const SWIPE_THRESHOLD = 45;
 const isExternal = (href: string) => /^https:\/\//.test(href);
 
 function SlideLink({ href, active, children }: { href: string; active: boolean; children: string }) {
-  const className = "btn-primary mt-2 w-fit px-7 py-3 shadow-lg shadow-brand-600/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-600/30";
+  const className = "btn-primary mt-2 w-fit px-7 py-3 transition duration-300 active:scale-[0.97]";
   if (isExternal(href)) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" tabIndex={active ? 0 : -1} className={className}>
@@ -129,7 +129,7 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
             <Link
               to={`/products/${product.slug}`}
               tabIndex={active ? 0 : -1}
-              className="btn-primary px-6 py-2.5 shadow-lg shadow-brand-600/20 transition hover:-translate-y-0.5"
+              className="btn-primary px-6 py-2.5 transition duration-300 active:scale-[0.97]"
             >
               {t("hero.details")}
             </Link>
@@ -272,7 +272,7 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
   return (
     <section
       ref={rootRef}
-      className="group/hero relative h-[340px] touch-pan-y select-none overflow-hidden rounded-none bg-[#0f172a] shadow-[0_30px_60px_-30px_rgba(15,23,42,0.45)] outline-none ring-brand-500/30 focus-visible:ring-4 sm:h-[460px] sm:rounded-3xl"
+      className="group/hero relative h-[340px] touch-pan-y select-none overflow-hidden rounded-none bg-[#0f172a] outline-none ring-brand-500/30 focus-visible:ring-4 sm:h-[460px] sm:rounded-3xl"
       aria-roledescription="carousel"
       aria-label={t("hero.carousel")}
       tabIndex={0}
@@ -339,7 +339,7 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
       {count > 1 && (
         <>
 
-          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/20 px-2.5 sm:bottom-5">
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/15 px-2.5 backdrop-blur-sm sm:bottom-5">
             {slides.map((slide, position) => {
               const current = position === index;
               return (
@@ -352,7 +352,7 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
                   className="py-2"
                 >
                   <span
-                    className={`relative block h-1.5 overflow-hidden rounded-full transition-all duration-500 ${current ? "w-10" : "w-1.5 hover:w-3"} ${darkSlide ? "bg-white/35" : "bg-slate-900/15"}`}
+                    className={`relative block h-1.5 overflow-hidden rounded-full transition-[width,background-color] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${current ? "w-10" : "w-1.5 hover:w-3"} ${darkSlide ? "bg-white/35" : "bg-slate-900/15"}`}
                   >
                     {current && (
                       <span
