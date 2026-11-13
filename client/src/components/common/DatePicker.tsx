@@ -59,15 +59,20 @@ export default function DatePicker({
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const selected = parseDateKey(value);
+  const selectedKey = selected ? toDateKey(selected) : null;
   const time = withTime && value.length >= 16 ? value.slice(11, 16) : "12:00";
   const [view, setView] = useState(() => {
     const base = selected ?? new Date();
     return new Date(base.getFullYear(), base.getMonth(), 1);
   });
   const [focusKey, setFocusKey] = useState<string>(() => toDateKey(selected ?? new Date()));
-  const minDate = min ? parseDateKey(min) : null;
-  const maxDate = max ? parseDateKey(max) : null;
-  const todayKey = toDateKey(new Date());
+  const minDate = useMemo(() => (min ? parseDateKey(min) : null), [min]);
+  const maxDate = useMemo(() => (max ? parseDateKey(max) : null), [max]);
+  const today = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }, []);
+  const todayKey = toDateKey(today);
 
   useEffect(() => {
     if (!open) return;
@@ -78,12 +83,12 @@ export default function DatePicker({
     return () => document.removeEventListener("pointerdown", onPointer);
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const base = selected ?? new Date();
+  const openPicker = () => {
+    const base = selected ?? today;
     setView(new Date(base.getFullYear(), base.getMonth(), 1));
     setFocusKey(toDateKey(base));
-  }, [open]);
+    setOpen(true);
+  };
 
   const isDisabled = (date: Date) => Boolean((minDate && date < minDate) || (maxDate && date > maxDate));
 
@@ -94,11 +99,11 @@ export default function DatePicker({
   }, [view]);
 
   const years = useMemo(() => {
-    const current = new Date().getFullYear();
+    const current = today.getFullYear();
     const from = Math.min(minDate?.getFullYear() ?? current - 5, view.getFullYear());
     const to = Math.max(maxDate?.getFullYear() ?? current + 5, view.getFullYear());
     return Array.from({ length: to - from + 1 }, (_, index) => from + index);
-  }, [view, minDate, maxDate]);
+  }, [view, minDate, maxDate, today]);
 
   const emit = (date: Date, nextTime = time) => onChange(withTime ? `${toDateKey(date)}T${nextTime}` : toDateKey(date));
 
@@ -134,7 +139,7 @@ export default function DatePicker({
         month: "long",
         year: "numeric",
         ...(withTime && { hour: "2-digit", minute: "2-digit", hour12: false }),
-      }).format(withTime ? new Date(`${toDateKey(selected)}T${time}`) : selected)
+      }).format(withTime ? new Date(`${selectedKey}T${time}`) : selected)
     : "";
 
   return (
@@ -145,7 +150,7 @@ export default function DatePicker({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={ariaLabel}
-        onClick={() => setOpen((current) => !current)}
+        onClick={() => (open ? setOpen(false) : openPicker())}
       >
         <span className={display ? "" : "text-muted"}>{display || placeholder || labels.choose}</span>
         <svg viewBox="0 0 20 20" className="size-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
@@ -205,7 +210,7 @@ export default function DatePicker({
               const key = toDateKey(date);
               const outside = date.getMonth() !== view.getMonth();
               const disabled = isDisabled(date);
-              const isSelected = selected && key === toDateKey(selected);
+              const isSelected = key === selectedKey;
               const isToday = key === todayKey;
               const focused = key === focusKey;
               return (
@@ -215,7 +220,7 @@ export default function DatePicker({
                   role="gridcell"
                   tabIndex={-1}
                   disabled={disabled}
-                  aria-selected={Boolean(isSelected)}
+                  aria-selected={isSelected}
                   aria-current={isToday ? "date" : undefined}
                   onClick={() => pick(date)}
                   className={`flex h-9 items-center justify-center rounded-lg text-sm transition ${
@@ -262,8 +267,8 @@ export default function DatePicker({
             <button
               type="button"
               className="font-medium text-brand-600 hover:text-brand-700 disabled:opacity-40"
-              disabled={isDisabled(parseDateKey(todayKey) as Date)}
-              onClick={() => pick(parseDateKey(todayKey) as Date)}
+              disabled={isDisabled(today)}
+              onClick={() => pick(today)}
             >
               {labels.today}
             </button>
