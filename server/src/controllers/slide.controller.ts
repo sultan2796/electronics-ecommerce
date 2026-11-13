@@ -1,7 +1,18 @@
 import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { audit } from "../services/audit.service";
+import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
+
+const isSafeUrl = (value: string) => {
+  if (/[\\\s\u0000-\u001f]/.test(value)) return false;
+  if (value.startsWith("/")) return !value.startsWith("//");
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+};
 
 const optionalText = (max: number) =>
   z
@@ -17,14 +28,14 @@ const safeLink = z
   .max(300)
   .nullish()
   .transform((value) => (value ? value : null))
-  .refine((value) => value === null || /^(\/(?!\/)|https:\/\/)/.test(value), "Keçid / ilə və ya https:// ilə başlamalıdır");
+  .refine((value) => value === null || isSafeUrl(value), "Keçid / ilə və ya https:// ilə başlamalıdır");
 
 const imageUrl = z
   .string()
   .trim()
   .min(1, "Şəkil tələb olunur")
   .max(500)
-  .refine((value) => /^(\/(?!\/)|https:\/\/)/.test(value), "Şəkil ünvanı / ilə və ya https:// ilə başlamalıdır");
+  .refine(isSafeUrl, "Şəkil ünvanı / ilə və ya https:// ilə başlamalıdır");
 
 export const slideSchema = z.object({
   title: z.string().trim().min(2, "Başlıq ən az 2 simvol olmalıdır").max(120),
@@ -43,7 +54,7 @@ export const slideOrderSchema = z.object({ ids: z.array(z.string().min(1)).min(1
 const publicSelect = { id: true, title: true, subtitle: true, eyebrow: true, imageUrl: true, buttonText: true, buttonLink: true } as const;
 
 export const listActiveSlides = asyncHandler(async (_req, res) => {
-  res.set("Cache-Control", "public, max-age=60");
+  res.set("Cache-Control", "no-cache");
   res.json(await prisma.slide.findMany({ where: { isActive: true }, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }], select: publicSelect, take: 10 }));
 });
 
@@ -72,6 +83,11 @@ export const deleteSlide = asyncHandler(async (req, res) => {
 
 export const reorderSlides = asyncHandler(async (req, res) => {
   const { ids } = req.body as z.infer<typeof slideOrderSchema>;
+  const existing = await prisma.slide.findMany({ select: { id: true } });
+  const known = new Set(existing.map((slide) => slide.id));
+  if (new Set(ids).size !== ids.length || ids.length !== known.size || ids.some((id) => !known.has(id))) {
+    throw new AppError(409, "Slayd siyahısı köhnəlib, səhifəni yeniləyin");
+  }
   await prisma.$transaction(ids.map((id, sortOrder) => prisma.slide.update({ where: { id }, data: { sortOrder } })));
   audit(req, "slide.reorder", "Slide", null, { ids });
   res.json(await prisma.slide.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] }));

@@ -169,13 +169,15 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
     ...products.map((product) => ({ kind: "product" as const, id: product.id, product })),
   ];
   const count = slides.length;
+  const firstProduct = slides.findIndex((slide) => slide.kind === "product");
   const [index, setIndex] = useState(0);
   const [previous, setPrevious] = useState<number | null>(null);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [touching, setTouching] = useState(false);
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(() => typeof document !== "undefined" && document.visibilityState === "hidden");
+  const touchTimer = useRef(0);
   const rootRef = useRef<HTMLElement>(null);
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
@@ -209,16 +211,28 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
     return () => window.clearTimeout(timer);
   }, [paused, count, index, reducedMotion, go]);
 
-  useEffect(() => () => cancelAnimationFrame(frame.current), []);
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(frame.current);
+      window.clearTimeout(touchTimer.current);
+    },
+    [],
+  );
 
   const onPointerDown = (event: PointerEvent) => {
     startX.current = event.clientX;
     startY.current = event.clientY;
-    if (event.pointerType !== "mouse") setTouching(true);
+    if (event.pointerType !== "mouse") {
+      window.clearTimeout(touchTimer.current);
+      setTouching(true);
+    }
   };
 
   const finishSwipe = (event: PointerEvent) => {
-    if (event.pointerType !== "mouse") window.setTimeout(() => setTouching(false), 1500);
+    if (event.pointerType !== "mouse") {
+      window.clearTimeout(touchTimer.current);
+      touchTimer.current = window.setTimeout(() => setTouching(false), 4000);
+    }
     if (startX.current === null || startY.current === null) return;
     const deltaX = event.clientX - startX.current;
     const deltaY = event.clientY - startY.current;
@@ -273,7 +287,15 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
         setHovered(false);
         resetParallax();
       }}
-      onFocus={() => setFocused(true)}
+      onFocus={(event) => {
+        let keyboard = true;
+        try {
+          keyboard = event.target.matches(":focus-visible");
+        } catch {
+          keyboard = true;
+        }
+        if (keyboard) setFocused(true);
+      }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false);
       }}
@@ -282,7 +304,10 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
       onPointerCancel={finishSwipe}
       onPointerMove={onPointerMove}
     >
-      <div aria-live={paused ? "polite" : "off"} className="relative h-full">
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {`${index + 1} / ${count}`}
+      </p>
+      <div className="relative h-full">
         {slides.map((slide, position) => {
           const active = position === index;
           const state = active ? "active" : position === previous ? "leaving" : "idle";
@@ -310,7 +335,7 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
                   priority={position === 0}
                 />
               )}
-              {slide.kind === "product" && <ProductSlide product={slide.product} index={position - 1} active={active} />}
+              {slide.kind === "product" && <ProductSlide product={slide.product} index={position - firstProduct} active={active} />}
             </div>
           );
         })}

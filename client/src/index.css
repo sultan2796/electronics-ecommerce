@@ -200,15 +200,14 @@
     --rx: 0deg;
     --ry: 0deg;
     --glare: 0;
-    transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
-    transform-style: preserve-3d;
     transition:
       transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.35s ease,
       border-color 0.35s ease;
-    will-change: transform;
   }
   .tilt[data-tilting="true"] {
+    transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+    will-change: transform;
     transition:
       transform 0.12s linear,
       box-shadow 0.35s ease,
@@ -224,12 +223,6 @@
     mix-blend-mode: soft-light;
     transition: opacity 0.4s ease;
     z-index: 5;
-  }
-  .depth-1 {
-    transform: translateZ(18px);
-  }
-  .depth-2 {
-    transform: translateZ(34px);
   }
   [data-revealed="false"] {
     opacity: 0;
@@ -367,7 +360,7 @@
     }
   }
   @media (hover: none), (pointer: coarse) {
-    .tilt {
+    .tilt[data-tilting="true"] {
       transform: none;
       will-change: auto;
     }

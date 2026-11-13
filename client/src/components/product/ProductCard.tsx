@@ -126,7 +126,7 @@ export default function ProductCard({ product }: { product: Product }) {
           src={product.images[0]}
           category={product.category?.slug}
           alt={product.name}
-          className={`depth-1 size-full object-contain transition duration-500 ease-out group-hover:scale-[1.06] ${secondImage ? "group-hover:opacity-0" : ""} ${soldOut ? "opacity-50 grayscale" : ""}`}
+          className={`size-full object-contain transition duration-500 ease-out group-hover:scale-[1.06] ${secondImage ? "group-hover:opacity-0" : ""} ${soldOut ? "opacity-50 grayscale" : ""}`}
         />
         {secondImage && (
           <img

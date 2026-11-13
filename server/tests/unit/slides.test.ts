@@ -54,7 +54,7 @@ describe("slaydlar", () => {
   });
 
   it("təhlükəli keçid ünvanını rədd edir", async () => {
-    for (const buttonLink of ["javascript:alert(1)", "//evil.com", "http://evil.com"]) {
+    for (const buttonLink of ["javascript:alert(1)", "//evil.com", "http://evil.com", "/\\evil.com", "/ok\nx"]) {
       const response = await request(app)
         .post("/api/admin/slides")
         .set("Authorization", asRole("ADMIN"))
@@ -64,9 +64,17 @@ describe("slaydlar", () => {
     expect(db.slide.create).not.toHaveBeenCalled();
   });
 
+  it("köhnəlmiş sıralama siyahısını rədd edir", async () => {
+    db.slide.findMany.mockResolvedValueOnce([{ id: "a" }, { id: "b" }]);
+    const response = await request(app).put("/api/admin/slides/order").set("Authorization", asRole("ADMIN")).send({ ids: ["a", "x"] });
+    expect(response.status).toBe(409);
+    expect(db.slide.update).not.toHaveBeenCalled();
+  });
+
   it("sıralama verilən ardıcıllıqla saxlanılır", async () => {
     db.$transaction.mockImplementation(async (queries: Promise<unknown>[]) => Promise.all(queries));
     db.slide.update.mockResolvedValue({});
+    db.slide.findMany.mockResolvedValueOnce([{ id: "a" }, { id: "b" }, { id: "c" }]);
     db.slide.findMany.mockResolvedValue([]);
     const response = await request(app).put("/api/admin/slides/order").set("Authorization", asRole("ADMIN")).send({ ids: ["b", "a", "c"] });
     expect(response.status).toBe(200);

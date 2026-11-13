@@ -67,13 +67,13 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Noutbuklar</p>
             <p className="mt-1 text-xl font-bold leading-tight">İş və oyun üçün güclü seçim</p>
             <span className="mt-3 inline-block text-sm font-semibold text-brand-500">Bax →</span>
-            <img src={fallbackImage("laptops")} alt="" className="depth-2 absolute -bottom-4 -right-6 w-40 opacity-90 transition duration-500 group-hover:scale-105" />
+            <img src={fallbackImage("laptops")} alt="" className="absolute -bottom-4 -right-6 w-40 opacity-90 transition duration-500 group-hover:scale-105" />
           </TiltLink>
           <TiltLink to="/products?category=mobile-accessories" className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 to-brand-700 p-6 text-white">
             <p className="text-xs font-semibold uppercase tracking-wider text-white/70">Aksesuarlar</p>
             <p className="mt-1 text-xl font-bold leading-tight">Hər gün üçün vacib detallar</p>
             <span className="mt-3 inline-block text-sm font-semibold">Bax →</span>
-            <img src={fallbackImage("earphones")} alt="" className="depth-2 absolute -bottom-4 -right-4 w-36 opacity-90 transition duration-500 group-hover:scale-105" />
+            <img src={fallbackImage("earphones")} alt="" className="absolute -bottom-4 -right-4 w-36 opacity-90 transition duration-500 group-hover:scale-105" />
           </TiltLink>
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function Home() {
                   degrees={8}
                   className="group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-line bg-surface p-4 text-center hover:border-brand-500/40 hover:shadow-[0_16px_32px_-18px_rgba(15,23,42,0.35)]"
                 >
-                  <span className="depth-1 flex size-16 items-center justify-center rounded-2xl bg-chip transition group-hover:bg-brand-50 dark:group-hover:bg-brand-500/10">
+                  <span className="flex size-16 items-center justify-center rounded-2xl bg-chip transition group-hover:bg-brand-50 dark:group-hover:bg-brand-500/10">
                     <img src={fallbackImage(category.slug)} alt="" className="size-11 object-contain transition duration-500 group-hover:scale-110" />
                   </span>
                   <span className="text-sm font-medium text-ink">{category.name}</span>
