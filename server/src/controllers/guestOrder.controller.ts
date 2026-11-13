@@ -17,6 +17,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 const GUEST_MAX_QUANTITY = 5;
 const GUEST_MAX_LINES = 10;
 const GUEST_MAX_OPEN_ORDERS = 3;
+const GUEST_OPEN_QUANTITY_PER_PRODUCT = 15;
 
 export const guestCheckoutSchema = z.object({
   email: z.string().trim().toLowerCase().email("E-poçt düzgün deyil").max(120),
@@ -60,10 +61,21 @@ export const guestCheckout = asyncHandler(async (req, res) => {
   if (open >= GUEST_MAX_OPEN_ORDERS) {
     throw new AppError(429, "Bu e-poçt üçün çoxlu açıq sifariş var. Hesab yaradın və ya bizimlə əlaqə saxlayın.");
   }
+  const productIds = [...new Set([...lines.values()].map((line) => line.productId))];
+  const held = await prisma.orderItem.groupBy({
+    by: ["productId"],
+    where: { productId: { in: productIds }, order: { userId: null, status: OrderStatus.PENDING } },
+    _sum: { quantity: true },
+  });
+  for (const row of held) {
+    const requested = [...lines.values()].filter((line) => line.productId === row.productId).reduce((sum, line) => sum + line.quantity, 0);
+    if ((row._sum.quantity ?? 0) + requested > GUEST_OPEN_QUANTITY_PER_PRODUCT) {
+      throw new AppError(429, "Bu məhsul üçün çoxlu təsdiqlənməmiş qonaq sifarişi var. Hesaba daxil olaraq sifariş verin və ya bizimlə əlaqə saxlayın.");
+    }
+  }
   const token = randomBytes(24).toString("base64url");
 
   const order = await prisma.$transaction(async (tx) => {
-    const productIds = [...new Set([...lines.values()].map((line) => line.productId))];
     const products = await tx.product.findMany({ where: { id: { in: productIds } } });
     if (products.length !== productIds.length) throw new AppError(409, "Səbətdəki bəzi məhsullar artıq mövcud deyil");
     const byId = new Map(products.map((product) => [product.id, product]));

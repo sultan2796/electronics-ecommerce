@@ -8,6 +8,7 @@ export interface AdminPayment {
   amount: string;
   currency: string;
   status: PaymentStatus;
+  refundRequired?: boolean;
   createdAt: string;
   order: { id: string; orderNumber: string | null; guestEmail: string | null; guestName: string | null; user: { name: string; email: string } | null };
 }
@@ -55,6 +56,7 @@ export const adminService = {
     api
       .get<Paginated<AdminPayment> & { summary: Partial<Record<PaymentStatus, { count: number; amount: number }>> }>("/admin/payments", { params })
       .then((r) => r.data),
+  markPaymentRefunded: (id: string) => api.post(`/admin/payments/${id}/refunded`).then((r) => r.data),
   search: (q: string, signal?: AbortSignal) => api.get<AdminSearchResult>("/admin/search", { params: { q }, signal }).then((r) => r.data),
   brands: (all = false) => api.get<Brand[]>("/brands", { params: all ? { all: "1" } : {} }).then((r) => r.data),
   createBrand: (body: { name: string; slug?: string; logoUrl?: string | null; isActive?: boolean }) => api.post<Brand>("/brands", body).then((r) => r.data),

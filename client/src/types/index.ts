@@ -25,6 +25,7 @@ export interface User {
   role: Role;
   points?: number;
   avatarUrl?: string | null;
+  googleLinked?: boolean;
   permissions: Permission[];
 }
 

@@ -35,6 +35,7 @@ export const extraService = {
   salesCsv: (params: { from?: string; to?: string }) =>
     api.get<Blob>("/admin/reports/sales.csv", { params, responseType: "blob" }).then((r) => r.data),
   audit: (params: { entity?: string; page?: number }) => api.get<Paginated<AuditEntry>>("/admin/audit", { params }).then((r) => r.data),
+  linkGoogle: (credential: string) => api.post("/auth/google/link", { credential }).then((r) => r.data),
   googleLogin: (credential: string) => api.post("/auth/google", { credential }).then((r) => r.data),
   uploadModel: (file: File) =>
     api

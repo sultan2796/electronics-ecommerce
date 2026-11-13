@@ -32,6 +32,7 @@ export const toPublicUser = (user: User) => ({
   role: user.role,
   points: user.points,
   avatarUrl: avatarUrl(user.avatarId),
+  googleLinked: Boolean(user.googleId),
   permissions: permissionsFor(user.role),
 });
 
@@ -196,15 +197,34 @@ interface GoogleTokenInfo {
   name?: string;
 }
 
-export const googleLogin = asyncHandler(async (req, res) => {
+const GOOGLE_OWNED_DOMAINS = new Set(["gmail.com", "googlemail.com"]);
+
+export const canAutoLinkGoogle = (email: string, role: Role) =>
+  role === Role.CUSTOMER && GOOGLE_OWNED_DOMAINS.has(email.split("@")[1] ?? "");
+
+export const linkGoogle = asyncHandler(async (req, res) => {
   if (!env.GOOGLE_CLIENT_ID) throw new AppError(503, "Google ilə giriş qurulmayıb");
-  const { credential } = req.body as { credential: string };
+  const info = await verifyGoogleCredential((req.body as { credential: string }).credential);
+  const current = currentUser(req);
+  const owner = await prisma.user.findUnique({ where: { googleId: info.sub }, select: { id: true } });
+  if (owner && owner.id !== current.id) throw new AppError(409, "Bu Google hesabı başqa istifadəçiyə bağlıdır");
+  const updated = await prisma.user.update({ where: { id: current.id }, data: { googleId: info.sub } });
+  res.json({ user: toPublicUser(updated) });
+});
+
+const verifyGoogleCredential = async (credential: string) => {
   const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
   const info = (await response.json().catch(() => ({}))) as GoogleTokenInfo;
   const verified = info.email_verified === true || info.email_verified === "true";
   if (!response.ok || info.aud !== env.GOOGLE_CLIENT_ID || !info.sub || !info.email || !verified) {
     throw new AppError(401, "Google girişi təsdiqlənmədi");
   }
+  return { ...info, sub: info.sub, email: info.email };
+};
+
+export const googleLogin = asyncHandler(async (req, res) => {
+  if (!env.GOOGLE_CLIENT_ID) throw new AppError(503, "Google ilə giriş qurulmayıb");
+  const info = await verifyGoogleCredential((req.body as { credential: string }).credential);
   const email = info.email.toLowerCase();
   let user = await prisma.user.findFirst({ where: { OR: [{ googleId: info.sub }, { email }] } });
   if (user?.isBlocked) throw new AppError(403, BLOCKED_MESSAGE);
@@ -214,7 +234,15 @@ export const googleLogin = asyncHandler(async (req, res) => {
     });
     queueEmail({ ...welcomeEmail(user), to: user.email, userId: user.id });
   } else if (!user.googleId) {
+    if (!canAutoLinkGoogle(email, user.role)) {
+      throw new AppError(
+        409,
+        "Bu e-poçtla artıq hesab var. Əvvəlcə e-poçt və şifrə ilə daxil olun, sonra profildən Google hesabını bağlayın.",
+      );
+    }
     user = await prisma.user.update({ where: { id: user.id }, data: { googleId: info.sub } });
+  } else if (user.googleId !== info.sub) {
+    throw new AppError(409, "Bu hesab başqa Google hesabına bağlıdır");
   }
   const updated = await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
   const accessToken = await issueTokens(res, updated);

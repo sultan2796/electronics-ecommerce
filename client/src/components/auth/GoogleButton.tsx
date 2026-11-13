@@ -1,3 +1,4 @@
+import { extraService } from "../../services/extra.service";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -35,9 +36,10 @@ const loadScript = () => {
   return loader;
 };
 
-export default function GoogleButton({ redirectTo = "/" }: { redirectTo?: string }) {
+export default function GoogleButton({ redirectTo = "/", mode = "login" }: { redirectTo?: string; mode?: "login" | "link" }) {
   const container = useRef<HTMLDivElement>(null);
-  const { googleLogin } = useAuth();
+  const { googleLogin, reloadUser } = useAuth();
+  const [linked, setLinked] = useState(false);
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
@@ -52,6 +54,12 @@ export default function GoogleButton({ redirectTo = "/" }: { redirectTo?: string
           callback: async ({ credential }) => {
             try {
               setError(null);
+              if (mode === "link") {
+                await extraService.linkGoogle(credential);
+                await reloadUser();
+                setLinked(true);
+                return;
+              }
               await googleLogin(credential);
               navigate(redirectTo, { replace: true });
             } catch (err) {
@@ -65,9 +73,18 @@ export default function GoogleButton({ redirectTo = "/" }: { redirectTo?: string
     return () => {
       cancelled = true;
     };
-  }, [googleLogin, navigate, redirectTo]);
+  }, [googleLogin, navigate, redirectTo, mode, reloadUser]);
 
   if (!clientId) return null;
+
+  if (mode === "link") {
+    return (
+      <div className="space-y-2">
+        {linked ? <p className="text-sm text-emerald-600 dark:text-emerald-400">Google hesabı bağlandı</p> : <div ref={container} className="flex min-h-[44px]" />}
+        {error && <p className="text-xs text-red-600">{error}</p>}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">

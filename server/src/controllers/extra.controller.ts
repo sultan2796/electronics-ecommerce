@@ -1,3 +1,4 @@
+import { optimizeImage } from "../services/image.service";
 import { Prisma } from "@prisma/client";
 import { shippingConfig } from "../services/shipping.service";
 import { apiPublicUrl, clientUrl } from "../config/env";
@@ -86,10 +87,10 @@ export const subscribeStockAlert = asyncHandler(async (req, res) => {
 });
 
 export const uploadImage = asyncHandler(async (req, res) => {
-  const [meta, base64] = (req.body.dataUrl as string).split(",");
-  const mimeType = meta.slice(5, meta.indexOf(";"));
-  const data = Buffer.from(base64, "base64");
-  if (data.length > MAX_UPLOAD_BYTES) throw new AppError(413, "Şəkil 2 MB-dan böyük olmamalıdır");
+  const [, base64] = (req.body.dataUrl as string).split(",");
+  const raw = Buffer.from(base64 ?? "", "base64");
+  if (raw.length > MAX_UPLOAD_BYTES) throw new AppError(413, "Şəkil 2 MB-dan böyük olmamalıdır");
+  const { data, mimeType } = await optimizeImage(raw);
   const upload = await prisma.upload.create({ data: { mimeType, data, size: data.length } });
   res.status(201).json({ id: upload.id, url: `${apiPublicUrl}/api/uploads/${upload.id}` });
 });

@@ -5,6 +5,7 @@ import {
   changePassword,
   forgotPassword,
   googleLogin,
+  linkGoogle,
   login,
   logout,
   me,
@@ -42,6 +43,7 @@ authRouter.patch("/me", authenticate, validate({ body: updateProfileSchema }), u
 authRouter.put("/me/avatar", authLimiter, authenticate, validate({ body: avatarSchema }), uploadAvatar);
 authRouter.delete("/me/avatar", authenticate, removeAvatar);
 authRouter.post("/change-password", authLimiter, authenticate, validate({ body: changePasswordSchema }), changePassword);
+authRouter.post("/google/link", authLimiter, authenticate, validate({ body: z.object({ credential: z.string().min(20).max(5000) }) }), linkGoogle);
 authRouter.post("/google", authLimiter, validate({ body: z.object({ credential: z.string().min(20).max(5000) }) }), googleLogin);
 authRouter.post("/forgot-password", authLimiter, validate({ body: forgotPasswordSchema }), forgotPassword);
 authRouter.get("/reset-password/validate", authLimiter, validate({ query: resetTokenQuerySchema }), validateResetToken);

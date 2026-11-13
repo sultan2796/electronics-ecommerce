@@ -1,3 +1,4 @@
+import GoogleButton from "../components/auth/GoogleButton";
 import AvatarPicker from "../components/user/AvatarPicker";
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -102,6 +103,14 @@ export default function Profile() {
           <Link to="/cart" className="card p-4 text-sm font-medium hover:text-brand-600">Səbət →</Link>
         )}
       </div>
+
+      {import.meta.env.VITE_GOOGLE_CLIENT_ID && !user.googleLinked && (
+        <section className="card space-y-3 p-6">
+          <h2 className="font-semibold">Google ilə giriş</h2>
+          <p className="text-sm text-muted">Google hesabınızı bağlasanız, növbəti dəfə şifrəsiz daxil ola bilərsiniz.</p>
+          <GoogleButton mode="link" />
+        </section>
+      )}
 
       <form onSubmit={saveProfile} className="card space-y-4 p-6">
         <h2 className="font-semibold">Şəxsi məlumatlar</h2>

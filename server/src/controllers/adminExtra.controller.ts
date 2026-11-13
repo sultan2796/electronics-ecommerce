@@ -1,4 +1,6 @@
-import { PaymentStatus, Prisma } from "@prisma/client";
+import { OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
+import { audit } from "../services/audit.service";
+import { AppError } from "../utils/AppError";
 import { z } from "zod";
 import { hasPermission } from "../config/permissions";
 import { prisma } from "../config/prisma";
@@ -13,6 +15,31 @@ export const adminPaymentsQuerySchema = z.object({
 });
 
 export const adminSearchQuerySchema = z.object({ q: z.string().trim().min(2).max(80) });
+
+const needsRefund = (raw: Prisma.JsonValue | null) =>
+  Boolean(raw && typeof raw === "object" && !Array.isArray(raw) && (raw as Record<string, unknown>).refundRequired === true);
+
+export const markPaymentRefunded = asyncHandler(async (req, res) => {
+  const payment = await prisma.$transaction(async (tx) => {
+    const current = await tx.payment.findUnique({ where: { id: req.params.id }, include: { order: { select: { id: true, status: true } } } });
+    if (!current) throw new AppError(404, "Ödəniş tapılmadı");
+    const claimed = await tx.payment.updateMany({
+      where: { id: current.id, status: PaymentStatus.SUCCEEDED },
+      data: {
+        status: PaymentStatus.REFUNDED,
+        raw: { ...(current.raw && typeof current.raw === "object" && !Array.isArray(current.raw) ? current.raw : {}), refundRequired: false, refundedAt: new Date().toISOString() },
+      },
+    });
+    if (claimed.count === 0) throw new AppError(409, "Yalnız uğurlu ödəniş geri qaytarılmış kimi qeyd oluna bilər");
+    if (current.order.status === OrderStatus.CANCELLED) {
+      const stillPaid = await tx.payment.count({ where: { orderId: current.orderId, status: PaymentStatus.SUCCEEDED } });
+      if (stillPaid === 0) await tx.order.update({ where: { id: current.orderId }, data: { paymentStatus: PaymentStatus.REFUNDED } });
+    }
+    return tx.payment.findUniqueOrThrow({ where: { id: current.id }, select: { id: true, status: true } });
+  });
+  audit(req, "payment.refunded", "Payment", payment.id);
+  res.json(payment);
+});
 
 export const listPayments = asyncHandler(async (req, res) => {
   const { status, q, page, limit } = req.query as unknown as z.infer<typeof adminPaymentsQuerySchema>;
@@ -43,10 +70,12 @@ export const listPayments = asyncHandler(async (req, res) => {
         status: true,
         createdAt: true,
         updatedAt: true,
+        raw: true,
         order: {
           select: {
             id: true,
             orderNumber: true,
+            status: true,
             paymentMethod: true,
             guestEmail: true,
             guestName: true,
@@ -59,7 +88,7 @@ export const listPayments = asyncHandler(async (req, res) => {
     prisma.payment.groupBy({ by: ["status"], _count: { _all: true }, _sum: { amount: true } }),
   ]);
   res.json({
-    items,
+    items: items.map(({ raw, ...payment }) => ({ ...payment, refundRequired: needsRefund(raw) })),
     total,
     page,
     limit,

@@ -842,6 +842,11 @@ Hələ kartla ödəniş yoxdur. Qapıda ödənişli sifarişlər burada görünm
 Sifariş, məhsul, müştəri axtar|Поиск заказов, товаров, клиентов|Search orders, products, customers
 Axtarılır...|Поиск...|Searching...
 Heç nə tapılmadı|Ничего не найдено|Nothing found
+Geri qaytarılmalı|Требуется возврат|Refund required
+Qaytarıldı kimi qeyd et|Отметить как возвращённый|Mark as refunded
+Google ilə giriş|Вход через Google|Sign in with Google
+Google hesabınızı bağlasanız, növbəti dəfə şifrəsiz daxil ola bilərsiniz.|Привяжите Google, чтобы входить без пароля.|Link your Google account to sign in without a password next time.
+Google hesabı bağlandı|Google аккаунт привязан|Google account linked
 `;
 
 const months = [

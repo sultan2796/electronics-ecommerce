@@ -10,6 +10,7 @@ const tx = vi.hoisted(() => ({
 }));
 const db = vi.hoisted(() => ({
   order: { findUnique: vi.fn(), count: vi.fn().mockResolvedValue(0) },
+  orderItem: { groupBy: vi.fn().mockResolvedValue([]) },
   emailLog: { create: vi.fn().mockResolvedValue({ id: "e1" }), update: vi.fn().mockResolvedValue({}) },
   product: { findMany: vi.fn().mockResolvedValue([]) },
   $transaction: vi.fn(),
@@ -107,5 +108,20 @@ describe("qonaq kimi sifariş", () => {
     expect(ok.body.shippingAddress.phone).toBe("•••••••••4567");
     expect((await request(app).get(`/api/track/ES-261113-AB2CD7?token=${"b".repeat(32)}`)).status).toBe(404);
     expect((await request(app).get("/api/track/ES-261113-AB2CD7?token=qisa")).status).toBe(400);
+  });
+});
+
+describe("qonaq sifarişində stok bloklanmasına qarşı limit", () => {
+  it("bir məhsul üçün təsdiqlənməmiş qonaq sifarişləri limiti keçəndə 429 qaytarır", async () => {
+    db.orderItem.groupBy.mockResolvedValueOnce([{ productId: "p1", _sum: { quantity: 14 } }]);
+    const response = await request(createApp())
+      .post("/api/guest-orders")
+      .send({
+        email: "limit@example.com",
+        shippingAddress: { fullName: "Test User", phone: "+994501234567", line1: "Nizami 10", city: "Bakı", postalCode: "AZ1000", country: "Azərbaycan" },
+        items: [{ productId: "p1", quantity: 2 }],
+      });
+    expect(response.status).toBe(429);
+    expect(tx.order.create).not.toHaveBeenCalled();
   });
 });

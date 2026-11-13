@@ -52,12 +52,15 @@ export const restockAndCancel = async (tx: Prisma.TransactionClient, orderId: st
 
 export const expireUnpaidOrders = async () => {
   const cutoff = new Date(Date.now() - env.UNPAID_ORDER_TTL_MINUTES * 60 * 1000);
+  const guestCutoff = new Date(Date.now() - env.GUEST_ORDER_TTL_HOURS * 60 * 60 * 1000);
   const stale = await prisma.order.findMany({
     where: {
       status: OrderStatus.PENDING,
-      paymentMethod: PaymentMethod.CARD,
       paymentStatus: { not: PaymentStatus.SUCCEEDED },
-      createdAt: { lt: cutoff },
+      OR: [
+        { paymentMethod: PaymentMethod.CARD, createdAt: { lt: cutoff } },
+        { paymentMethod: PaymentMethod.CASH_ON_DELIVERY, userId: null, createdAt: { lt: guestCutoff } },
+      ],
     },
     select: { id: true },
   });

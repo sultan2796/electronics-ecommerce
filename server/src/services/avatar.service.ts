@@ -1,3 +1,4 @@
+import { optimizeImage } from "./image.service";
 import { apiPublicUrl } from "../config/env";
 import { prisma } from "../config/prisma";
 import { AppError } from "../utils/AppError";
@@ -22,8 +23,14 @@ export const decodeAvatar = (dataUrl: string) => {
   return { data, mimeType: detected.mime };
 };
 
+export const normalizeAvatar = async (dataUrl: string) => {
+  const decoded = decodeAvatar(dataUrl);
+  const optimized = await optimizeImage(decoded.data);
+  return { data: optimized.data, mimeType: optimized.mimeType };
+};
+
 export const replaceAvatar = async (userId: string, dataUrl: string | null) => {
-  const decoded = dataUrl ? decodeAvatar(dataUrl) : null;
+  const decoded = dataUrl ? await normalizeAvatar(dataUrl) : null;
   return prisma.$transaction(async (tx) => {
     const current = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { avatarId: true } });
     const upload = decoded ? await tx.upload.create({ data: { mimeType: decoded.mimeType, data: decoded.data, size: decoded.data.length } }) : null;

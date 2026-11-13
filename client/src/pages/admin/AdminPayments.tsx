@@ -1,3 +1,6 @@
+import { useAuth } from "../../context/AuthContext";
+import { confirmDialog } from "../../components/common/Overlays";
+import { getErrorMessage } from "../../services/api";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Alert from "../../components/common/Alert";
@@ -20,10 +23,33 @@ export default function AdminPayments() {
   const [page, setPage] = useState(1);
   const payments = useAsync(() => adminService.payments({ status: status || undefined, q: search || undefined, page }), [status, search, page]);
   const summary = payments.data?.summary ?? {};
+  const { can } = useAuth();
+  const canRefund = can("orders:write");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const refundCount = payments.data?.items.filter((item) => item.refundRequired && item.status === "SUCCEEDED").length ?? 0;
+
+  const markRefunded = async (id: string) => {
+    if (!(await confirmDialog("Məbləği Epoint panelindən qaytardınızmı? Ödəniş geri qaytarılmış kimi qeyd olunacaq.", { confirmLabel: "Bəli, qaytarılıb" }))) return;
+    setBusyId(id);
+    setActionError(null);
+    try {
+      await adminService.markPaymentRefunded(id);
+      await payments.reload();
+    } catch (err) {
+      setActionError(getErrorMessage(err));
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Ödənişlər</h1>
+      {refundCount > 0 && (
+        <Alert>{`${refundCount} ödəniş ləğv edilmiş və ya artıq ödənilmiş sifarişə gəlib. Məbləği Epoint panelindən müştəriyə qaytarın və burada qeyd edin.`}</Alert>
+      )}
+      {actionError && <Alert>{actionError}</Alert>}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Ödənilib" value={formatPrice(summary.SUCCEEDED?.amount ?? 0)} hint={`${summary.SUCCEEDED?.count ?? 0} əməliyyat`} tone="green" />
@@ -93,7 +119,19 @@ export default function AdminPayments() {
                   </td>
                   <td className="px-4 py-3 capitalize">{payment.provider}</td>
                   <td className="px-4 py-3 font-semibold">{formatPrice(payment.amount)}</td>
-                  <td className={`px-4 py-3 font-medium ${paymentStatusStyles[payment.status]}`}>{paymentStatusLabels[payment.status]}</td>
+                  <td className="px-4 py-3">
+                    <p className={`font-medium ${paymentStatusStyles[payment.status]}`}>{paymentStatusLabels[payment.status]}</p>
+                    {payment.refundRequired && payment.status === "SUCCEEDED" && (
+                      <div className="mt-1 space-y-1">
+                        <span className="inline-block rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600 dark:bg-red-500/15">Geri qaytarılmalı</span>
+                        {canRefund && (
+                          <button type="button" className="block text-xs text-brand-600 disabled:opacity-50" disabled={busyId === payment.id} onClick={() => void markRefunded(payment.id)}>
+                            Qaytarıldı kimi qeyd et
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-xs text-muted">{formatDate(payment.createdAt)}</td>
                 </tr>
               ))}
