@@ -448,6 +448,10 @@
       transform: none;
     }
   }
+  .dark .hero-product-img {
+    -webkit-mask-image: radial-gradient(circle closest-side, #000 80%, transparent 100%);
+    mask-image: radial-gradient(circle closest-side, #000 80%, transparent 100%);
+  }
   .product-card {
     transition: border-color 0.35s ease;
   }

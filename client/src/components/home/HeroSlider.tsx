@@ -12,10 +12,10 @@ type Slide =
   | { kind: "product"; id: string; product: Product };
 
 const themes = [
-  { bg: "from-[#eef2ff] via-[#f5f3ff] to-[#fdf2f8]", accent: "text-indigo-600", chip: "bg-indigo-600" },
-  { bg: "from-[#ecfeff] via-[#f0f9ff] to-[#eef2ff]", accent: "text-sky-600", chip: "bg-sky-600" },
-  { bg: "from-[#fff7ed] via-[#fffbeb] to-[#fef2f2]", accent: "text-brand-600", chip: "bg-brand-600" },
-  { bg: "from-[#f0fdf4] via-[#ecfdf5] to-[#f0f9ff]", accent: "text-emerald-600", chip: "bg-emerald-600" },
+  { bg: "from-[#eef2ff] via-[#f5f3ff] to-[#fdf2f8] dark:from-[#17171f] dark:via-[#121218] dark:to-[#0e0f12]", accent: "text-indigo-600 dark:text-indigo-300", chip: "bg-indigo-600" },
+  { bg: "from-[#ecfeff] via-[#f0f9ff] to-[#eef2ff] dark:from-[#12191d] dark:via-[#101418] dark:to-[#0e0f12]", accent: "text-sky-600 dark:text-sky-300", chip: "bg-sky-600" },
+  { bg: "from-[#fff7ed] via-[#fffbeb] to-[#fef2f2] dark:from-[#1b1713] dark:via-[#141210] dark:to-[#0e0f12]", accent: "text-brand-600 dark:text-brand-500", chip: "bg-brand-600" },
+  { bg: "from-[#f0fdf4] via-[#ecfdf5] to-[#f0f9ff] dark:from-[#121a16] dark:via-[#101512] dark:to-[#0e0f12]", accent: "text-emerald-600 dark:text-emerald-300", chip: "bg-emerald-600" },
 ];
 
 const AUTOPLAY_MS = 6500;
@@ -114,15 +114,15 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
       <div className="grid h-full grid-cols-[1fr_auto] items-center gap-4 px-6 pb-12 pt-6 sm:grid-cols-2 sm:gap-8 sm:px-14 sm:pb-14">
         <div className="hero-reveal min-w-0 space-y-3 sm:space-y-4">
           <p className={`text-sm font-semibold ${theme.accent}`}>{product.campaign?.name ?? product.category?.name ?? product.brand}</p>
-          <h2 translate="no" className="line-clamp-2 text-xl font-bold leading-tight text-slate-900 sm:text-[38px] sm:leading-[1.15]">
+          <h2 translate="no" className="line-clamp-2 text-xl font-bold leading-tight text-slate-900 dark:text-white sm:text-[38px] sm:leading-[1.15]">
             {product.name}
           </h2>
-          <p translate="no" className="hidden line-clamp-2 max-w-md text-sm text-slate-600 sm:block">
+          <p translate="no" className="hidden line-clamp-2 max-w-md text-sm text-slate-600 dark:text-white/60 sm:block">
             {product.description}
           </p>
           <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-            <span className="text-2xl font-bold text-slate-900 sm:text-4xl">{formatPrice(price.price)}</span>
-            {price.was && <span className="pb-1 text-sm text-slate-500 line-through">{formatPrice(price.was.toFixed(2))}</span>}
+            <span className="text-2xl font-bold text-slate-900 dark:text-white sm:text-4xl">{formatPrice(price.price)}</span>
+            {price.was && <span className="pb-1 text-sm text-slate-500 line-through dark:text-white/45">{formatPrice(price.was.toFixed(2))}</span>}
             {price.percent > 0 && <span className={`mb-1 rounded-md px-2 py-0.5 text-xs font-semibold text-white ${theme.chip}`}>−{price.percent}%</span>}
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
@@ -134,20 +134,20 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
               {t("hero.details")}
             </Link>
             {price.price >= 100 && (
-              <span className="text-xs text-slate-500 sm:text-sm">{t("card.monthly", { amount: formatPrice(monthlyPayment(price.price)) })}</span>
+              <span className="text-xs text-slate-500 dark:text-white/50 sm:text-sm">{t("card.monthly", { amount: formatPrice(monthlyPayment(price.price)) })}</span>
             )}
           </div>
         </div>
         <div className="flex h-full items-center justify-center py-6 [perspective:1000px]">
-          <div className="hero-float relative flex aspect-square mix-blend-multiply w-[120px] items-center justify-center sm:w-[340px]">
-            <div className="absolute inset-[6%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.95)_0%,rgba(255,255,255,0.6)_38%,transparent_70%)]" />
+          <div className="hero-float relative flex aspect-square w-[130px] items-center justify-center mix-blend-multiply dark:mix-blend-normal sm:w-[340px]">
+            <div className="absolute inset-[6%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.95)_0%,rgba(255,255,255,0.6)_38%,transparent_70%)] dark:inset-[-12%] dark:bg-[radial-gradient(circle,rgba(226,226,230,1)_0%,rgba(226,226,230,0.92)_30%,rgba(226,226,230,0.4)_50%,rgba(226,226,230,0.08)_64%,transparent_72%)]" />
             <div className="absolute inset-x-[18%] bottom-[2%] h-[10%] rounded-[50%] bg-[radial-gradient(ellipse,rgba(15,23,42,0.18)_0%,transparent_70%)]" />
             <ProductImage
               src={product.images[0]}
               category={product.category?.slug}
               alt={product.name}
               blend
-              className="hero-kenburns relative size-full object-contain"
+              className="hero-kenburns hero-product-img relative size-full object-contain"
             />
           </div>
         </div>
@@ -353,12 +353,12 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
                   className="py-2"
                 >
                   <span
-                    className={`relative block h-1.5 overflow-hidden rounded-full transition-[width,background-color] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${current ? "w-10" : "w-1.5 hover:w-3"} ${darkSlide ? "bg-white/35" : "bg-slate-900/15"}`}
+                    className={`relative block h-1.5 overflow-hidden rounded-full transition-[width,background-color] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${current ? "w-10" : "w-1.5 hover:w-3"} ${darkSlide ? "bg-white/35" : "bg-slate-900/15 dark:bg-white/30"}`}
                   >
                     {current && (
                       <span
                         key={`${index}-${paused}-${reducedMotion}`}
-                        className={`absolute inset-y-0 left-0 rounded-full ${darkSlide ? "bg-white" : "bg-slate-900"} ${paused || reducedMotion ? "w-full" : "animate-[slide-progress_linear_forwards]"}`}
+                        className={`absolute inset-y-0 left-0 rounded-full ${darkSlide ? "bg-white" : "bg-slate-900 dark:bg-white"} ${paused || reducedMotion ? "w-full" : "animate-[slide-progress_linear_forwards]"}`}
                         style={paused || reducedMotion ? undefined : { animationDuration: `${AUTOPLAY_MS}ms` }}
                       />
                     )}
