@@ -36,8 +36,8 @@ export default function Login() {
       <h1 className="text-2xl font-bold">Giriş</h1>
       {error && <Alert>{error}</Alert>}
       <label className="block space-y-1">
-        <span className="text-sm font-medium">E-poçt</span>
-        <input className="input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <span className="text-sm font-medium">E-poçt və ya istifadəçi adı</span>
+        <input className="input" type="text" inputMode="email" autoCapitalize="none" spellCheck={false} autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       <label className="block space-y-1">
         <span className="flex items-center justify-between text-sm font-medium">

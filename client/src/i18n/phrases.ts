@@ -577,6 +577,9 @@ Məhsul xüsusiyyətləri|Характеристики товара|Product spec
 Əlaqə|Контакты|Contact
 Bizimlə əlaqə|Связаться с нами|Contact us
 Zəng et|Позвонить|Call
+E-poçt və ya istifadəçi adı|E-mail или имя пользователя|E-mail or username
+E-poçt və ya istifadəçi adını daxil edin|Введите e-mail или имя пользователя|Enter your e-mail or username
+E-poçt və ya istifadəçi adı yanlışdır|Неверный e-mail или имя пользователя|Invalid e-mail or username
 360° fırlatma|Обзор 360°|360° spin
 3D model|3D-модель|3D model
 3D model yüklənmədi|3D-модель не загрузилась|3D model failed to load

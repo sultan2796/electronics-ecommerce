@@ -1,3 +1,4 @@
+import { loginIdentifierToEmail } from "../utils/loginIdentifier";
 import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client";
 import { env } from "../config/env";
@@ -6,10 +7,28 @@ import { enrichImportedSpecs, importCatalog } from "./catalogImport.service";
 
 const ensureAdmin = async () => {
   if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD) return;
-  const email = env.ADMIN_EMAIL.trim().toLowerCase();
+  if (env.ADMIN_PASSWORD.length < 8) {
+    console.warn("ADMIN_PASSWORD ən az 8 simvol olmalıdır, admin hesabı yenilənmədi");
+    return;
+  }
+  const email = loginIdentifierToEmail(env.ADMIN_EMAIL);
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    if (existing.role !== Role.ADMIN) await prisma.user.update({ where: { id: existing.id }, data: { role: Role.ADMIN, isBlocked: false } });
+    const passwordMatches = await bcrypt.compare(env.ADMIN_PASSWORD, existing.passwordHash);
+    if (!passwordMatches || existing.role !== Role.ADMIN || existing.isBlocked) {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          role: Role.ADMIN,
+          isBlocked: false,
+          ...(!passwordMatches && { passwordHash: await bcrypt.hash(env.ADMIN_PASSWORD, 12) }),
+        },
+      });
+      if (!passwordMatches) {
+        await prisma.refreshToken.deleteMany({ where: { userId: existing.id } });
+        console.log(`Admin şifrəsi ADMIN_PASSWORD dəyişəninə uyğun yeniləndi: ${email}`);
+      }
+    }
     return;
   }
   await prisma.user.create({

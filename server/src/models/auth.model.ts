@@ -1,3 +1,4 @@
+import { loginIdentifierToEmail } from "../utils/loginIdentifier";
 import { z } from "zod";
 
 const password = z.string().min(8, "Şifrə ən az 8 simvol olmalıdır").max(128);
@@ -9,7 +10,13 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email(),
+  email: z
+    .string()
+    .trim()
+    .min(2, "E-poçt və ya istifadəçi adını daxil edin")
+    .max(120)
+    .transform(loginIdentifierToEmail)
+    .pipe(z.string().email("E-poçt və ya istifadəçi adı yanlışdır")),
   password: z.string().min(1),
 });
 

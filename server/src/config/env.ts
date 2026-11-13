@@ -22,8 +22,8 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().default("ElectroShop <onboarding@resend.dev>"),
   PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().positive().default(30),
   GOOGLE_CLIENT_ID: z.string().optional(),
-  ADMIN_EMAIL: z.string().email().optional(),
-  ADMIN_PASSWORD: z.string().min(8).optional(),
+  ADMIN_EMAIL: z.string().trim().min(1).optional(),
+  ADMIN_PASSWORD: z.string().min(1).optional(),
   AUTO_IMPORT_CATALOG: z
     .enum(["true", "false"])
     .default("false")

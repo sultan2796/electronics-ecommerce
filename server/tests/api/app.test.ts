@@ -66,3 +66,12 @@ describe("API (verilənlər bazası tələb etməyən yoxlamalar)", () => {
     expect(response.status).toBe(400);
   });
 });
+
+describe("giriş identifikatoru", () => {
+  it("istifadəçi adı ilə girişi qəbul edir (validasiyadan keçir)", async () => {
+    const { loginSchema } = await import("../../src/models/auth.model");
+    expect(loginSchema.parse({ email: "Sultan", password: "x" }).email).toBe("sultan@admin.local");
+    expect(loginSchema.parse({ email: " Admin@Example.com ", password: "x" }).email).toBe("admin@example.com");
+    expect(loginSchema.safeParse({ email: "a b", password: "x" }).success).toBe(false);
+  });
+});
