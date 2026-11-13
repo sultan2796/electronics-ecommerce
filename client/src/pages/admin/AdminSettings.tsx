@@ -1,3 +1,4 @@
+import ImageOptimizer from "../../components/admin/ImageOptimizer";
 import { useEffect, useState } from "react";
 import Alert from "../../components/common/Alert";
 import { toast } from "../../components/common/Overlays";
@@ -124,6 +125,7 @@ export default function AdminSettings() {
           );
         })}
       </div>
+      <ImageOptimizer />
     </div>
   );
 }

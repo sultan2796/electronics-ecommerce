@@ -865,6 +865,10 @@ Böyüt|Увеличить|Zoom in
 Sürüşdürərək dəyişin · iki dəfə toxunaraq böyüdün|Листайте для смены · двойное касание для увеличения|Swipe to browse · double-tap to zoom
 İki dəfə toxunaraq böyüdün|Двойное касание для увеличения|Double-tap to zoom
 {} şəklini böyüt|Увеличить фото: {}|Enlarge photo of {}
+Şəkilləri optimallaşdır|Оптимизация изображений|Optimize images
+Yeni yüklənən şəkillər avtomatik WebP-yə çevrilir. Bu düymə əvvəl yüklənmiş PNG və JPG şəkilləri də çevirir və kiçildir. Linklər dəyişmir.|Новые изображения автоматически конвертируются в WebP. Эта кнопка конвертирует и уменьшает ранее загруженные PNG и JPG. Ссылки не меняются.|New uploads are converted to WebP automatically. This button also converts and shrinks previously uploaded PNG and JPG images. Links stay the same.
+Köhnə şəkilləri WebP-yə çevir|Конвертировать старые изображения в WebP|Convert old images to WebP
+Çevrilir...|Конвертация...|Converting...
 `;
 
 const months = [

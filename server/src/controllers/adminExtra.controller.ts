@@ -1,5 +1,6 @@
 import { EmailStatus, OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
 import { audit } from "../services/audit.service";
+import { optimizeImage } from "../services/image.service";
 import { AppError } from "../utils/AppError";
 import { z } from "zod";
 import { hasPermission } from "../config/permissions";
@@ -212,4 +213,39 @@ export const adminNotifications = asyncHandler(async (req, res) => {
 
   notices.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   res.json({ items: notices.slice(0, 20) });
+});
+
+const OPTIMIZE_BATCH = 20;
+
+export const optimizeImagesSchema = z.object({ cursor: z.string().trim().min(1).max(64).optional() });
+
+export const optimizeStoredImages = asyncHandler(async (req, res) => {
+  const { cursor } = req.body as z.infer<typeof optimizeImagesSchema>;
+  const candidates = await prisma.upload.findMany({
+    where: { mimeType: { in: ["image/png", "image/jpeg"] } },
+    orderBy: { id: "asc" },
+    take: OPTIMIZE_BATCH,
+    ...(cursor && { cursor: { id: cursor }, skip: 1 }),
+    select: { id: true, data: true, size: true },
+  });
+  let converted = 0;
+  let savedBytes = 0;
+  let skipped = 0;
+  for (const upload of candidates) {
+    try {
+      const result = await optimizeImage(Buffer.from(upload.data));
+      if (result.mimeType !== "image/webp" || result.data.length >= upload.size) {
+        skipped += 1;
+        continue;
+      }
+      await prisma.upload.update({ where: { id: upload.id }, data: { data: result.data, mimeType: result.mimeType, size: result.data.length } });
+      converted += 1;
+      savedBytes += upload.size - result.data.length;
+    } catch {
+      skipped += 1;
+    }
+  }
+  const nextCursor = candidates.length === OPTIMIZE_BATCH ? candidates[candidates.length - 1].id : null;
+  audit(req, "uploads.optimize", "Upload", null, { converted, savedBytes, skipped });
+  res.json({ converted, savedBytes, skipped, nextCursor });
 });
