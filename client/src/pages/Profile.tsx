@@ -1,12 +1,14 @@
+import AvatarPicker from "../components/user/AvatarPicker";
 import { FormEvent, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import { roleLabels, useAuth } from "../context/AuthContext";
 import { getErrorMessage } from "../services/api";
 import AddressBook from "../components/account/AddressBook";
 
 export default function Profile() {
-  const { user, updateProfile, changePassword, isStaff, logout, reloadUser } = useAuth();
+  const { user, updateProfile, changePassword, isStaff, logout, reloadUser, setAvatar } = useAuth();
+  const avatarFailed = Boolean((useLocation().state as { avatarFailed?: boolean } | null)?.avatarFailed);
 
   useEffect(() => {
     void reloadUser();
@@ -57,12 +59,23 @@ export default function Profile() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="card flex flex-wrap items-center gap-4 p-6">
-        <span className="flex size-14 items-center justify-center rounded-full bg-brand-500 text-xl font-semibold text-white">
-          {user.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
-        </span>
-        <div className="flex-1">
-          <h1 className="text-xl font-bold">{user.name}</h1>
-          <p className="text-sm text-muted">{user.email}</p>
+        <div className="min-w-0 flex-1 space-y-3">
+          <div>
+            <h1 className="text-xl font-bold">{user.name}</h1>
+            <p className="text-sm text-muted">{user.email}</p>
+          </div>
+          {avatarFailed && <p className="text-xs text-red-600">Hesab yaradıldı, amma profil şəkli yüklənmədi. Yenidən cəhd edin.</p>}
+          <AvatarPicker
+            name={user.name}
+            src={user.avatarUrl ?? null}
+            onPick={async (dataUrl) => {
+              await setAvatar(dataUrl);
+            }}
+            onRemove={async () => {
+              await setAvatar(null);
+            }}
+            size="size-16 text-xl"
+          />
         </div>
         <button type="button" className="btn-outline order-last px-4 py-1.5 sm:order-none" onClick={() => logout().then(() => navigate("/"))}>
           Çıxış

@@ -14,6 +14,7 @@ interface AuthContextValue {
   register: (name: string, email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   updateProfile: (name: string) => Promise<User>;
+  setAvatar: (dataUrl: string | null) => Promise<User>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   googleLogin: (credential: string) => Promise<User>;
   reloadUser: () => Promise<void>;
@@ -71,6 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return updated;
   }, []);
 
+  const setAvatar = useCallback(async (dataUrl: string | null) => {
+    const updated = dataUrl ? await authService.setAvatar(dataUrl) : await authService.removeAvatar();
+    setUser(updated);
+    return updated;
+  }, []);
+
   const changePassword = useCallback(
     async (currentPassword: string, newPassword: string) => {
       applySession(await authService.changePassword(currentPassword, newPassword));
@@ -104,11 +111,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       logout,
       updateProfile,
+      setAvatar,
       changePassword,
       googleLogin,
       reloadUser,
     }),
-    [user, initializing, can, login, register, logout, updateProfile, changePassword, googleLogin, reloadUser],
+    [user, initializing, can, login, register, logout, updateProfile, setAvatar, changePassword, googleLogin, reloadUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,3 +1,4 @@
+import Avatar from "../../components/user/Avatar";
 import Select from "../../components/common/Select";
 import { FormEvent, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -124,10 +125,15 @@ export default function AdminUsers() {
                   return (
                     <tr key={item.id} className={`border-b border-chip last:border-0 ${item.isBlocked ? "bg-red-50/60 dark:bg-red-500/10" : ""}`}>
                       <td className="px-4 py-3">
-                        <button className="text-left font-medium hover:text-brand-600" onClick={() => setDetailId(item.id)}>
-                          {item.name} {isMe && <span className="text-xs text-muted">(siz)</span>}
-                        </button>
-                        <p className="text-xs text-muted">{item.email}</p>
+                        <div className="flex items-center gap-3">
+                          <Avatar name={item.name} src={item.avatarUrl} className="size-9 text-xs" />
+                          <div className="min-w-0">
+                            <button className="text-left font-medium hover:text-brand-600" onClick={() => setDetailId(item.id)}>
+                              {item.name} {isMe && <span className="text-xs text-muted">(siz)</span>}
+                            </button>
+                            <p className="truncate text-xs text-muted">{item.email}</p>
+                          </div>
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         {disabled ? (

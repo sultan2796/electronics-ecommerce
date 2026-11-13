@@ -820,6 +820,11 @@ Variantların cəmidir, stoku variantlarda dəyişin|Сумма варианто
 Rəng, ölçü və ya yaddaş variantlarını məhsulu yaratdıqdan sonra əlavə edə bilərsiniz.|Варианты цвета, размера или памяти можно добавить после создания товара.|You can add color, size or storage variants after creating the product.
 Aktiv variantların ümumi stoku: {}. Məhsulun stoku variantların cəmindən hesablanır.|Общий остаток активных вариантов: {}. Остаток товара считается как сумма вариантов.|Total stock of active variants: {}. Product stock is the sum of its variants.
 Variant yoxdursa, məhsul tək seçim kimi satılır. Qiyməti boş qoysanız, məhsulun qiyməti istifadə olunur.|Без вариантов товар продаётся как единственный. Пустая цена означает цену товара.|Without variants the product sells as a single option. An empty price uses the product price.
+Profil şəkli (istəyə bağlı)|Фото профиля (необязательно)|Profile photo (optional)
+Şəkil əlavə et|Добавить фото|Add photo
+Şəkli dəyiş|Изменить фото|Change photo
+PNG, JPG və ya WEBP. Şəkil kvadrat kəsilib kiçildilir.|PNG, JPG или WEBP. Фото обрезается до квадрата и уменьшается.|PNG, JPG or WEBP. The photo is cropped to a square and resized.
+Hesab yaradıldı, amma profil şəkli yüklənmədi. Yenidən cəhd edin.|Аккаунт создан, но фото профиля не загрузилось. Попробуйте ещё раз.|Account created, but the profile photo didn't upload. Please try again.
 `;
 
 const months = [

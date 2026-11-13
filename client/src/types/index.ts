@@ -24,6 +24,7 @@ export interface User {
   name: string;
   role: Role;
   points?: number;
+  avatarUrl?: string | null;
   permissions: Permission[];
 }
 
@@ -35,6 +36,7 @@ export interface AdminUser {
   isBlocked: boolean;
   createdAt: string;
   lastLoginAt: string | null;
+  avatarUrl?: string | null;
   _count: { orders: number };
 }
 

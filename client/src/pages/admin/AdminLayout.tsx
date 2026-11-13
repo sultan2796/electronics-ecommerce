@@ -1,3 +1,4 @@
+import Avatar from "../../components/user/Avatar";
 import {
   Box,
   ChartColumn,
@@ -307,7 +308,7 @@ export default function AdminLayout() {
                 aria-expanded={menuOpen}
                 onClick={() => setMenuOpen((value) => !value)}
               >
-                <span className="flex size-8 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">{user.name.slice(0, 1).toUpperCase()}</span>
+                <Avatar name={user.name} src={user.avatarUrl} className="size-8 text-sm" />
                 <span className="hidden min-w-0 text-left leading-tight sm:block">
                   <span className="block max-w-[140px] truncate text-sm font-medium">{user.name}</span>
                   <span className="block text-[11px] text-muted">{roleLabels[user.role]}</span>

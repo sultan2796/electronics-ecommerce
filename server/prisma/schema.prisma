@@ -69,6 +69,8 @@ model User {
   updatedAt     DateTime       @updatedAt
   points        Int       @default(0)
   googleId      String?   @unique
+  avatarId      String?   @unique
+  avatar        Upload?   @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: SetNull)
   auditLogs     AuditLog[]
 }
 
@@ -371,6 +373,7 @@ model Upload {
   data      Bytes
   size      Int
   createdAt DateTime @default(now())
+  avatarOf  User?    @relation("UserAvatar")
 }
 
 model Campaign {

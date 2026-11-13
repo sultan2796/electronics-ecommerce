@@ -1,3 +1,4 @@
+import Avatar from "../user/Avatar";
 import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "../../config/contact";
 import { Heart, LucideIcon, Phone, Scale, ShoppingCart, Truck, UserRound } from "lucide-react";
 import Logo from "../brand/Logo";
@@ -20,7 +21,7 @@ function Icon({ name, className = "size-[22px]" }: { name: keyof typeof icons; c
   return <Glyph className={className} strokeWidth={1.7} aria-hidden="true" />;
 }
 
-function Action({ to, icon, label, count }: { to: string; icon: keyof typeof icons; label: string; count?: number }) {
+function Action({ to, icon, label, count, avatar }: { to: string; icon: keyof typeof icons; label: string; count?: number; avatar?: ReactNode }) {
   return (
     <NavLink
       to={to}
@@ -28,7 +29,7 @@ function Action({ to, icon, label, count }: { to: string; icon: keyof typeof ico
         `relative flex flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] transition ${isActive ? "text-brand-600" : "text-ink/70 hover:bg-chip hover:text-ink"}`
       }
     >
-      <Icon name={icon} />
+      {avatar ?? <Icon name={icon} />}
       <span className="hidden xl:block">{label}</span>
       {Boolean(count) && (
         <span className="absolute right-1 top-0 min-w-[18px] rounded-full bg-brand-600 px-1 text-center text-[10px] font-semibold leading-[18px] text-white ring-2 ring-surface">
@@ -117,11 +118,14 @@ export default function Navbar() {
           </span>
           {user ? (
             <div className="group relative">
-              <Action to="/profile" icon="user" label={user.name.split(" ")[0]} />
+              <Action to="/profile" icon="user" label={user.name.split(" ")[0]} avatar={user.avatarUrl ? <Avatar name={user.name} src={user.avatarUrl} className="size-6 text-[10px]" /> : undefined} />
               <div className="invisible absolute right-0 top-full z-40 w-56 translate-y-1 rounded-2xl border border-line bg-surface p-2 opacity-0 shadow-xl transition group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                <div className="border-b border-line px-3 pb-2 pt-1">
-                  <p className="truncate text-sm font-semibold">{user.name}</p>
-                  <p className="text-xs text-muted">{user.points ?? 0} bonus bal</p>
+                <div className="flex items-center gap-2.5 border-b border-line px-3 pb-2 pt-1">
+                  <Avatar name={user.name} src={user.avatarUrl} className="size-9 text-xs" />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{user.name}</p>
+                    <p className="text-xs text-muted">{`${user.points ?? 0} bonus bal`}</p>
+                  </div>
                 </div>
                 {[
                   { to: "/profile", label: t("nav.profile") },

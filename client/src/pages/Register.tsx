@@ -1,4 +1,5 @@
 import GoogleButton from "../components/auth/GoogleButton";
+import AvatarPicker from "../components/user/AvatarPicker";
 import { FormEvent, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
@@ -6,7 +7,8 @@ import { useAuth } from "../context/AuthContext";
 import { getErrorMessage } from "../services/api";
 
 export default function Register() {
-  const { user, register } = useAuth();
+  const { user, register, setAvatar } = useAuth();
+  const [photo, setPhoto] = useState<string | null>(null);
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +24,14 @@ export default function Register() {
     setError(null);
     try {
       await register(form.name, form.email, form.password);
+      if (photo) {
+        try {
+          await setAvatar(photo);
+        } catch {
+          navigate("/profile", { replace: true, state: { avatarFailed: true } });
+          return;
+        }
+      }
       navigate("/", { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
@@ -34,6 +44,10 @@ export default function Register() {
     <form onSubmit={submit} className="card mx-auto max-w-md space-y-4 p-8">
       <h1 className="text-2xl font-bold">Qeydiyyat</h1>
       {error && <Alert>{error}</Alert>}
+      <div className="space-y-1">
+        <span className="text-sm font-medium">Profil şəkli (istəyə bağlı)</span>
+        <AvatarPicker name={form.name} src={photo} busy={submitting} onPick={setPhoto} onRemove={() => setPhoto(null)} size="size-16 text-xl" />
+      </div>
       <label className="block space-y-1">
         <span className="text-sm font-medium">Ad Soyad</span>
         <input className="input" required minLength={2} value={form.name} onChange={(e) => update("name")(e.target.value)} />

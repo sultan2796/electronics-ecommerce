@@ -7,6 +7,7 @@ import { permissionsFor } from "../config/permissions";
 import { prisma } from "../config/prisma";
 import { ChangePasswordInput, LoginInput, RegisterInput } from "../models/auth.model";
 import { queueEmail } from "../services/email";
+import { avatarUrl, replaceAvatar } from "../services/avatar.service";
 import { passwordChangedEmail, passwordResetEmail, welcomeEmail } from "../services/email/templates";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -30,7 +31,18 @@ export const toPublicUser = (user: User) => ({
   name: user.name,
   role: user.role,
   points: user.points,
+  avatarUrl: avatarUrl(user.avatarId),
   permissions: permissionsFor(user.role),
+});
+
+export const uploadAvatar = asyncHandler(async (req, res) => {
+  const user = await replaceAvatar(currentUser(req).id, req.body.dataUrl as string);
+  res.json({ user: toPublicUser(user) });
+});
+
+export const removeAvatar = asyncHandler(async (req, res) => {
+  const user = await replaceAvatar(currentUser(req).id, null);
+  res.json({ user: toPublicUser(user) });
 });
 
 const issueTokens = async (res: Response, user: { id: string; role: Role }) => {

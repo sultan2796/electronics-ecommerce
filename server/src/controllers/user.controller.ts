@@ -1,4 +1,5 @@
 import { Prisma, Role } from "@prisma/client";
+import { avatarUrl } from "../services/avatar.service";
 import { prisma } from "../config/prisma";
 import { UserUpdateInput } from "../models/user.model";
 import { AppError } from "../utils/AppError";
@@ -15,8 +16,11 @@ const userSelect = {
   isBlocked: true,
   createdAt: true,
   lastLoginAt: true,
+  avatarId: true,
   _count: { select: { orders: true } },
 } satisfies Prisma.UserSelect;
+
+const withAvatar = <T extends { avatarId: string | null }>({ avatarId, ...user }: T) => ({ ...user, avatarUrl: avatarUrl(avatarId) });
 
 export const listUsers = asyncHandler(async (req, res) => {
   const { q, role, page, limit } = req.query as unknown as { q?: string; role?: Role; page: number; limit: number };
@@ -34,7 +38,7 @@ export const listUsers = asyncHandler(async (req, res) => {
   ]);
 
   res.json({
-    items,
+    items: items.map(withAvatar),
     total,
     page,
     limit,
@@ -67,7 +71,7 @@ export const updateUser = asyncHandler(async (req, res) => {
 
   if (isBlocked === true) await revokeAllSessions(targetId);
 
-  res.json(updated);
+  res.json(withAvatar(updated));
   audit(req, "user.update", "User", req.params.id ?? null, req.body);
 });
 

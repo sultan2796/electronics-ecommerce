@@ -8,6 +8,8 @@ export const authService = {
   logout: () => api.post("/auth/logout"),
   me: () => api.get<{ user: User }>("/auth/me").then((r) => r.data.user),
   updateProfile: (name: string) => api.patch<{ user: User }>("/auth/me", { name }).then((r) => r.data.user),
+  setAvatar: (dataUrl: string) => api.put<{ user: User }>("/auth/me/avatar", { dataUrl }).then((r) => r.data.user),
+  removeAvatar: () => api.delete<{ user: User }>("/auth/me/avatar").then((r) => r.data.user),
   changePassword: (currentPassword: string, newPassword: string) =>
     api.post<AuthResponse>("/auth/change-password", { currentPassword, newPassword }).then((r) => r.data),
   forgotPassword: (email: string) => api.post<{ message: string }>("/auth/forgot-password", { email }).then((r) => r.data),
