@@ -1,7 +1,13 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { AuthResponse } from "../types";
 
-const configuredApiUrl = (import.meta.env.VITE_API_URL ?? "").trim().replace(/\/$/, "");
+const normalizeApiUrl = (value: string) => {
+  const trimmed = value.trim().replace(/\/+$/, "");
+  if (!trimmed) return "";
+  return /\/api$/i.test(trimmed) ? trimmed : `${trimmed}/api`;
+};
+
+const configuredApiUrl = normalizeApiUrl(import.meta.env.VITE_API_URL ?? "");
 
 export const apiOrigin = import.meta.env.DEV ? "/api" : configuredApiUrl || "/api";
 

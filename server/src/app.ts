@@ -24,6 +24,7 @@ export const createApp = () => {
   });
 
   app.use("/api", apiRouter);
+  app.use("/", apiRouter);
   app.use(notFound);
   app.use(errorHandler);
 
