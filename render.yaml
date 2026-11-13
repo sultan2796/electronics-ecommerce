@@ -30,6 +30,6 @@ services:
       - key: AUTO_IMPORT_CATALOG
         value: "true"
       - key: ADMIN_EMAIL
-        value: admin@example.com
+        sync: false
       - key: ADMIN_PASSWORD
         generateValue: true
