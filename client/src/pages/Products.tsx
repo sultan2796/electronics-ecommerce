@@ -48,7 +48,7 @@ export default function Products() {
           <div>
             <h1 className="text-2xl font-bold">Məhsullar</h1>
             {filters.q && <p className="text-sm text-muted">“{filters.q}” üzrə axtarış</p>}
-            {products.data && <p className="text-sm text-muted">{products.data.total} nəticə</p>}
+            {products.data && <p className="text-sm text-muted">{`${products.data.total} nəticə`}</p>}
           </div>
           <label className="flex items-center gap-2 text-sm">
             Sırala

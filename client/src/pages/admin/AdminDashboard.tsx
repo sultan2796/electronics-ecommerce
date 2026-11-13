@@ -176,7 +176,7 @@ export default function AdminDashboard() {
                     <p>{order.user?.name}</p>
                     <p className="text-xs text-muted">{order.user?.email}</p>
                   </td>
-                  <td className="px-5 py-3 text-muted">{order.items.reduce((sum, item) => sum + item.quantity, 0)} məhsul</td>
+                  <td className="px-5 py-3 text-muted">{`${order.items.reduce((sum, item) => sum + item.quantity, 0)} məhsul`}</td>
                   <td className="px-5 py-3 text-muted">{formatDate(order.createdAt)}</td>
                   <td className="px-5 py-3 font-semibold">{formatPrice(order.total)}</td>
                   <td className="px-5 py-3">

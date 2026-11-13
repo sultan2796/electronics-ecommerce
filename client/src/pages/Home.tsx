@@ -92,7 +92,7 @@ export default function Home() {
                     <img src={fallbackImage(category.slug)} alt="" className="size-11 object-contain" />
                   </span>
                   <span className="text-sm font-medium text-ink">{category.name}</span>
-                  <span className="-mt-2 text-xs text-muted">{category._count?.products ?? 0} məhsul</span>
+                  <span className="-mt-2 text-xs text-muted">{`${category._count?.products ?? 0} məhsul`}</span>
                 </Link>
               ))}
             </div>

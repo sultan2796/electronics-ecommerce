@@ -79,7 +79,7 @@ export default function SearchBox({ className = "" }: { className?: string }) {
       {showPanel && (
         <div className="absolute inset-x-0 top-12 z-40 overflow-hidden rounded-2xl border border-line bg-surface shadow-xl" role="listbox">
           {results.length === 0 ? (
-            <p className="px-4 py-5 text-center text-sm text-muted">“{debounced}” üzrə nəticə yoxdur</p>
+            <p className="px-4 py-5 text-center text-sm text-muted">{`“${debounced}” üzrə nəticə yoxdur`}</p>
           ) : (
             <>
               {results.map((product, index) => (

@@ -652,6 +652,11 @@ Endirimli qiymət (AZN)|Цена со скидкой (AZN)|Sale price (AZN)
 Endirimli qiymət əsas qiymətdən aşağı olmalıdır|Цена со скидкой должна быть ниже основной цены|Sale price must be lower than the regular price
 Ən çox satılan|Хиты продаж|Best sellers
 Ən yüksək reytinq|Высокий рейтинг|Top rated
+“{}” üzrə nəticə yoxdur|По запросу «{}» ничего не найдено|No results for “{}”
+{} yeni məhsul əlavə edildi, {} yeniləndi|Добавлено новых товаров: {}, обновлено: {}|{} new products added, {} updated
+Hesabınız yoxdur?|Нет аккаунта?|Don't have an account?
+Sifariş axtarışı|Поиск заказов|Order search
+Cəmi {} rəy · yalnız alış etmiş müştərilər yaza bilər|Всего отзывов: {} · оставлять отзывы могут только покупатели|{} reviews in total · only verified buyers can review
 `;
 
 const months = [

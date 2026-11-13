@@ -42,7 +42,7 @@ export default function CatalogImport({ onImported }: { onImported: () => void }
       {error && <Alert>{error}</Alert>}
       {result && (
         <Alert variant="success">
-          {result.created} yeni məhsul əlavə edildi, {result.updated} yeniləndi
+          {`${result.created} yeni məhsul əlavə edildi, ${result.updated} yeniləndi`}
           {result.deactivated > 0 && `, ${result.deactivated} test məhsulu satışdan çıxarıldı`}.
         </Alert>
       )}

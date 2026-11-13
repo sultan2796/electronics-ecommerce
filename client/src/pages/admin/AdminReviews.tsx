@@ -56,7 +56,7 @@ export default function AdminReviews() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Rəylər</h1>
-          <p className="text-sm text-muted">Cəmi {reviews.data?.total ?? 0} rəy · yalnız alış etmiş müştərilər yaza bilər</p>
+          <p className="text-sm text-muted">{`Cəmi ${reviews.data?.total ?? 0} rəy · yalnız alış etmiş müştərilər yaza bilər`}</p>
         </div>
         <form onSubmit={onSearch} className="flex gap-2">
           <input className="input w-64" placeholder="Məhsul, mətn və ya e-poçt" value={search} onChange={(e) => setSearch(e.target.value)} />

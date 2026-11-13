@@ -264,7 +264,7 @@ export default function Checkout() {
           <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl bg-amber-50 px-3 py-2.5 text-sm dark:bg-amber-500/10">
             <span className="flex items-center gap-2">
               <input type="checkbox" className="accent-brand-600" checked={usePoints} onChange={(e) => setUsePoints(e.target.checked)} />
-              {maxPoints} bonus bal istifadə et
+              {`${maxPoints} bonus bal istifadə et`}
             </span>
             <span className="font-medium text-amber-700 dark:text-amber-300">−{formatPrice(maxPoints * 0.01)}</span>
           </label>
