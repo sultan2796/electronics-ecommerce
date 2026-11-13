@@ -106,6 +106,8 @@ export interface Product {
   description: string;
   price: string;
   salePrice?: string | null;
+  videoUrl?: string | null;
+  videoPoster?: string | null;
   model3dUrl?: string | null;
   model3dActive?: boolean;
   model3dSize?: number | null;
@@ -287,6 +289,8 @@ export interface ProductPayload {
   description: string;
   price: number;
   salePrice?: number | null;
+  videoUrl?: string | null;
+  videoPoster?: string | null;
   model3dUrl?: string | null;
   model3dActive?: boolean;
   model3dSize?: number | null;

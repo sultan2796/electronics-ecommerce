@@ -21,3 +21,18 @@ describe("3D model linki", () => {
     }
   });
 });
+
+describe("məhsul videosu linki", () => {
+  it("https mp4 və webm qəbul edir, posteri saxlayır", () => {
+    const parsed = productCreateSchema.parse({ ...base, videoUrl: "https://cdn.az/demo.mp4", videoPoster: "https://cdn.az/poster.jpg" });
+    expect(parsed.videoUrl).toBe("https://cdn.az/demo.mp4");
+    expect(productCreateSchema.safeParse({ ...base, videoUrl: "https://cdn.az/demo.webm?v=1" }).success).toBe(true);
+  });
+
+  it("yanlış və təhlükəli video linklərini rədd edir", () => {
+    for (const videoUrl of ["http://cdn.az/a.mp4", "https://cdn.az/a.avi", "javascript:alert(1)//.mp4", "https://cdn.az\\a.mp4"]) {
+      expect(productCreateSchema.safeParse({ ...base, videoUrl }).success).toBe(false);
+    }
+    expect(productCreateSchema.safeParse({ ...base, videoPoster: "//evil.com/p.jpg" }).success).toBe(false);
+  });
+});

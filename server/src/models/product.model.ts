@@ -1,4 +1,5 @@
 import { StorageType } from "@prisma/client";
+import { isSafeUrl } from "../utils/safeUrl";
 import { z } from "zod";
 
 const csv = z
@@ -85,6 +86,23 @@ export const productCreateSchema = z.object({
       "3D model linki https:// ilə başlamalı və .glb və ya .gltf faylı olmalıdır",
     ),
   model3dActive: z.boolean().optional(),
+  videoUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .nullish()
+    .transform((value) => (value ? value : null))
+    .refine(
+      (value) => value === null || (isSafeUrl(value) && /^https:\/\/[^?#]+\.(mp4|webm)(\?[^\s]*)?$/i.test(value)),
+      "Video linki https:// ilə başlamalı və .mp4 və ya .webm faylı olmalıdır",
+    ),
+  videoPoster: z
+    .string()
+    .trim()
+    .max(500)
+    .nullish()
+    .transform((value) => (value ? value : null))
+    .refine((value) => value === null || isSafeUrl(value), "Poster linki / ilə və ya https:// ilə başlamalıdır"),
   model3dSize: z.number().int().min(0).max(50 * 1024 * 1024).nullish(),
   model3dLicense: z
     .string()

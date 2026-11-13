@@ -772,6 +772,13 @@ Lisenziya / mənbə|Лицензия / источник|License / source
 Model əlavə et|Добавить модель|Add model
 Model filtri|Фильтр моделей|Model filter
 https://... və ya /figma/hero.jpg|https://... или /figma/hero.jpg|https://... or /figma/hero.jpg
+Məhsul videosu|Видео товара|Product video
+Video yüklənir|Загрузка видео|Loading video
+Video linki (MP4 / WEBM)|Ссылка на видео (MP4 / WEBM)|Video link (MP4 / WEBM)
+Poster şəkli (ixtiyari)|Постер (необязательно)|Poster image (optional)
+Video yoxdursa, məhsul səhifəsində video bölməsi göstərilmir. Demo, istifadə qaydası və ya unboxing videosunun birbaşa faylına link verin.|Если видео нет, раздел видео на странице товара не показывается. Укажите прямую ссылку на файл демо, инструкции или распаковки.|If there is no video, the video section is hidden on the product page. Link directly to the demo, how-to or unboxing video file.
+Video linki https:// ilə başlamalı və .mp4 və ya .webm faylı olmalıdır|Ссылка на видео должна начинаться с https:// и вести к файлу .mp4 или .webm|The video link must start with https:// and point to an .mp4 or .webm file
+Poster linki / ilə və ya https:// ilə başlamalıdır|Ссылка на постер должна начинаться с / или https://|The poster link must start with / or https://
 `;
 
 const months = [

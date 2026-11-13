@@ -1,4 +1,7 @@
 import ProductViewer from "../components/product/ProductViewer";
+import ProductVideo from "../components/product/ProductVideo";
+import StickyBuyBar from "../components/product/StickyBuyBar";
+import Breadcrumbs from "../components/common/Breadcrumbs";
 import { productSpecGroups } from "../utils/productSpecs";
 import { useI18n } from "../context/I18nContext";
 import { useCallback, useEffect, useState } from "react";
@@ -35,6 +38,28 @@ export default function ProductDetail() {
   const compare = useCompare();
   const navigate = useNavigate();
   const [message, setMessage] = useState<string | null>(null);
+  const [ctaEl, setCtaEl] = useState<HTMLButtonElement | null>(null);
+  const [ctaVisible, setCtaVisible] = useState(true);
+
+  useEffect(() => {
+    if (!ctaEl) return;
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const rect = ctaEl.getBoundingClientRect();
+        setCtaVisible(rect.bottom > 0 && rect.top < window.innerHeight);
+      });
+    };
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+    };
+  }, [ctaEl]);
 
   const syncRating = useCallback(
     (average: number | null, count: number) =>
@@ -122,7 +147,7 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="-mx-4 -mt-8 sm:mx-0 sm:mt-0">
+    <div className="-mx-4 -mt-8 pb-20 sm:mx-0 sm:mt-0 md:pb-0">
       <div className="grid overflow-hidden bg-surface sm:rounded-phone sm:shadow-tile lg:grid-cols-2">
         <div className="relative p-5 pt-[34px] lg:p-8">
           <ProductViewer images={product.images} alt={product.name} category={product.category?.slug} model3d={product.model3dActive === false ? null : (product.model3dUrl ?? product.specs?.extra?.model3d)}
@@ -139,19 +164,15 @@ export default function ProductDetail() {
         </div>
 
         <div className="flex flex-col px-[27px] pb-[38px] pt-[37px] lg:px-12 lg:pt-12">
-          <nav className="mb-3 hidden text-xs text-muted lg:block">
-            <Link to="/products" className="hover:text-brand-600">
-              Məhsullar
-            </Link>
-            {product.category && (
-              <>
-                {" / "}
-                <Link to={`/products?category=${product.category.slug}`} className="hover:text-brand-600">
-                  {product.category.name}
-                </Link>
-              </>
-            )}
-          </nav>
+          <Breadcrumbs
+            className="mb-3"
+            items={[
+              { label: "Ana səhifə", to: "/" },
+              { label: "Məhsullar", to: "/products" },
+              ...(product.category ? [{ label: product.category.name, to: `/products?category=${product.category.slug}` }] : []),
+              { label: product.name },
+            ]}
+          />
           <p className="text-xs text-muted">{product.category?.name ?? product.brand}</p>
           <div className="flex items-start justify-between gap-4">
             <h1 translate="no" className="text-base font-semibold text-ink lg:text-2xl">{product.name}</h1>
@@ -234,10 +255,11 @@ export default function ProductDetail() {
               </button>
             )}
             <button
+              ref={setCtaEl}
               type="button"
               onClick={buyNow}
               disabled={busy || soldOut}
-              className="flex h-[45px] w-full items-center justify-center rounded-[10px] bg-brand-600 text-base font-semibold text-white shadow-cta transition hover:bg-brand-700 disabled:opacity-50"
+              className="btn-primary btn-lg w-full"
             >
               {soldOut ? "Stokda yoxdur" : "İndi al"}
             </button>
@@ -257,6 +279,19 @@ export default function ProductDetail() {
           <PurchaseInfo product={product} />
         </div>
       </div>
+      {product.videoUrl && (
+        <div className="px-4 sm:px-0">
+          <ProductVideo src={product.videoUrl} poster={product.videoPoster} title={product.name} />
+        </div>
+      )}
+      <StickyBuyBar
+        visible={!ctaVisible}
+        price={price.price}
+        soldOut={soldOut}
+        busy={busy}
+        onAdd={addToCart}
+        onBuy={buyNow}
+      />
       <ReviewSection productId={product.id} productSlug={product.slug} onSummaryChange={syncRating} />
       <RelatedProducts productId={product.id} />
       <div className="mt-10">

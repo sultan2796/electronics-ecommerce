@@ -34,6 +34,8 @@ interface FormState {
   description: string;
   price: string;
   salePrice: string;
+  videoUrl: string;
+  videoPoster: string;
   model3dUrl: string;
   model3dActive: boolean;
   model3dSize: number | null;
@@ -65,6 +67,8 @@ const emptyForm: FormState = {
   description: "",
   price: "",
   salePrice: "",
+  videoUrl: "",
+  videoPoster: "",
   model3dUrl: "",
   model3dActive: true,
   model3dSize: null,
@@ -98,6 +102,8 @@ const fromProduct = (product: Product): FormState => ({
   description: product.description,
   price: String(Number(product.price)),
   salePrice: product.salePrice ? String(Number(product.salePrice)) : "",
+  videoUrl: product.videoUrl ?? "",
+  videoPoster: product.videoPoster ?? "",
   model3dUrl: product.model3dUrl ?? "",
   model3dActive: product.model3dActive ?? true,
   model3dSize: product.model3dSize ?? null,
@@ -133,6 +139,8 @@ const toPayload = (form: FormState): ProductPayload => ({
   description: form.description.trim(),
   price: Number(form.price),
   salePrice: form.salePrice.trim() ? Number(form.salePrice) : null,
+  videoUrl: form.videoUrl.trim() || null,
+  videoPoster: form.videoUrl.trim() ? form.videoPoster.trim() || null : null,
   model3dUrl: form.model3dUrl.trim() || null,
   model3dActive: form.model3dActive,
   model3dSize: form.model3dUrl.trim() ? form.model3dSize : null,
@@ -324,6 +332,33 @@ export default function ProductForm() {
                 onChange={(event) => update("description", event.target.value)}
               />
             </Field>
+          </section>
+
+          <section className="card space-y-4 p-5">
+            <h2 className="font-semibold">Məhsul videosu</h2>
+            <Field label="Video linki (MP4 / WEBM)">
+              <input
+                className="input font-mono text-xs"
+                type="url"
+                placeholder="https://.../demo.mp4"
+                value={form.videoUrl}
+                onChange={(event) => update("videoUrl", event.target.value)}
+              />
+            </Field>
+            <Field label="Poster şəkli (ixtiyari)">
+              <input
+                className="input font-mono text-xs"
+                type="url"
+                placeholder="https://.../poster.jpg"
+                value={form.videoPoster}
+                onChange={(event) => update("videoPoster", event.target.value)}
+              />
+            </Field>
+            {form.videoUrl.trim() ? (
+              <video className="aspect-video w-full rounded-xl bg-black object-contain" controls preload="metadata" poster={form.videoPoster.trim() || undefined} src={form.videoUrl.trim()} />
+            ) : (
+              <p className="text-xs text-muted">Video yoxdursa, məhsul səhifəsində video bölməsi göstərilmir. Demo, istifadə qaydası və ya unboxing videosunun birbaşa faylına link verin.</p>
+            )}
           </section>
 
           <ModelManager
