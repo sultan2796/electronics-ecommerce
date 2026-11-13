@@ -1,5 +1,5 @@
 import { confirmDialog } from "../components/common/Overlays";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import Spinner from "../components/common/Spinner";
@@ -9,7 +9,7 @@ import { getErrorMessage } from "../services/api";
 import { orderService } from "../services/order.service";
 import { goToPayment } from "../services/payment.service";
 import { OrderStatus } from "../types";
-import { formatDate, formatPrice, orderStatusLabels, paymentMethodLabels, paymentStatusLabels, paymentStatusStyles } from "../utils/format";
+import { formatDate, formatPrice, orderCode, orderStatusLabels, paymentMethodLabels, paymentStatusLabels, paymentStatusStyles } from "../utils/format";
 
 const flow: OrderStatus[] = ["PENDING", "PAID", "PROCESSING", "SHIPPED", "DELIVERED"];
 
@@ -21,6 +21,20 @@ export default function OrderDetail() {
   const [paying, setPaying] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const finished = order?.status === "DELIVERED" || order?.status === "CANCELLED";
+
+  useEffect(() => {
+    if (!order || finished) return;
+    const timer = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      orderService
+        .get(id)
+        .then((fresh) => setData(fresh))
+        .catch(() => undefined);
+    }, 30000);
+    return () => window.clearInterval(timer);
+  }, [id, order?.id, finished, setData]);
+
   const state = (location.state as { placed?: boolean; paymentError?: string | null } | null) ?? null;
 
   if (loading && !order) return <Spinner />;
@@ -64,7 +78,7 @@ export default function OrderDetail() {
           <Link to="/orders" className="text-xs text-muted hover:text-brand-600">
             ← Sifarişlərim
           </Link>
-          <h1 className="text-2xl font-bold">Sifariş #{order.id.slice(-8).toUpperCase()}</h1>
+          <h1 className="text-2xl font-bold">Sifariş {orderCode(order)}</h1>
           <p className="text-sm text-muted">{formatDate(order.createdAt)}</p>
         </div>
         <div className="flex items-center gap-3">
@@ -101,6 +115,25 @@ export default function OrderDetail() {
               );
             })}
           </ol>
+        )}
+        {order.statusHistory && order.statusHistory.length > 0 && (
+          <div className="mt-6 border-t border-line pt-4">
+            <h2 className="mb-3 text-sm font-semibold">Status tarixçəsi</h2>
+            <ol className="space-y-3">
+              {[...order.statusHistory].reverse().map((event, index) => (
+                <li key={event.id} className="flex items-start gap-3 text-sm">
+                  <span className={`mt-1.5 size-2.5 shrink-0 rounded-full ${index === 0 ? "bg-brand-500" : "bg-chip"}`} />
+                  <div className="flex flex-1 flex-wrap items-baseline justify-between gap-x-4">
+                    <span className={index === 0 ? "font-medium text-ink" : "text-muted"}>
+                      {orderStatusLabels[event.status]}
+                      {event.note && <span className="text-muted"> · {event.note}</span>}
+                    </span>
+                    <span className="text-xs text-muted">{formatDate(event.createdAt)}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
         )}
       </section>
 

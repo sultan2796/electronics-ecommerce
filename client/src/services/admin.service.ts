@@ -1,9 +1,9 @@
-import { AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role } from "../types";
+import { AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role, AdminUserDetail } from "../types";
 import { api } from "./api";
 
 export const adminService = {
   stats: () => api.get<AdminStats>("/admin/stats").then((r) => r.data),
-  orders: (params: { status?: OrderStatus; page?: number }) =>
+  orders: (params: { status?: OrderStatus; page?: number; q?: string; userId?: string }) =>
     api.get<Paginated<Order>>("/admin/orders", { params }).then((r) => r.data),
   updateOrderStatus: (id: string, status: OrderStatus) =>
     api.patch<Order>(`/admin/orders/${id}/status`, { status }).then((r) => r.data),
@@ -12,6 +12,7 @@ export const adminService = {
   updateStock: (id: string, stock: number) =>
     api.patch<Product>(`/admin/products/${id}/stock`, { stock }).then((r) => r.data),
   deactivateProduct: (id: string) => api.delete(`/products/${id}`),
+  user: (id: string) => api.get<AdminUserDetail>(`/admin/users/${id}`).then((r) => r.data),
   users: (params: { q?: string; role?: Role; page?: number }) =>
     api.get<Paginated<AdminUser> & { roleCounts: Partial<Record<Role, number>> }>("/admin/users", { params }).then((r) => r.data),
   updateUser: (id: string, body: { role?: Role; isBlocked?: boolean }) =>

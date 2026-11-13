@@ -185,6 +185,8 @@ model WishlistItem {
 
 model Order {
   id              String        @id @default(cuid())
+  orderNumber     String?       @unique
+  statusHistory   OrderStatusHistory[]
   userId          String
   user            User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   status          OrderStatus   @default(PENDING)
@@ -206,6 +208,17 @@ model Order {
   pointsUsed      Int           @default(0)
   pointsEarned    Int           @default(0)
   pointsAwarded   Boolean       @default(false)
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([orderId, createdAt])
 }
 
 model OrderItem {

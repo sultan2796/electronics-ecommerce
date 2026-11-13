@@ -29,3 +29,11 @@ describe("formatlama", () => {
     expect(formatDate(new Date(2026, 10, 12, 9, 5).toISOString())).toBe("12 noyabr 2026, 09:05");
   });
 });
+
+describe("sifariş kodu", () => {
+  it("sifariş nömrəsi varsa onu göstərir", async () => {
+    const { orderCode } = await import("./format");
+    expect(orderCode({ id: "ckabc123xyz", orderNumber: "ES-261113-AB2CD" })).toBe("ES-261113-AB2CD");
+    expect(orderCode({ id: "ckabc123xyz9", orderNumber: null })).toBe("#C123XYZ9");
+  });
+});

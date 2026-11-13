@@ -7,7 +7,7 @@ import StatusBadge from "../components/common/StatusBadge";
 import { useAsync } from "../hooks/useAsync";
 import { getErrorMessage } from "../services/api";
 import { orderService } from "../services/order.service";
-import { formatDate, formatPrice, paymentMethodLabels, paymentStatusLabels, paymentStatusStyles } from "../utils/format";
+import { formatDate, formatPrice, paymentMethodLabels, paymentStatusLabels, paymentStatusStyles, orderCode } from "../utils/format";
 
 export default function Orders() {
   const location = useLocation();
@@ -48,7 +48,7 @@ export default function Orders() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <Link to={`/orders/${order.id}`} className="font-semibold hover:text-brand-600">
-                  #{order.id.slice(-8).toUpperCase()} →
+                  {orderCode(order)} →
                 </Link>
                 <p className="text-xs text-muted">
                   {formatDate(order.createdAt)} · {paymentMethodLabels[order.paymentMethod]} ·{" "}

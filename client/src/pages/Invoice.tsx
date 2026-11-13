@@ -4,20 +4,20 @@ import Alert from "../components/common/Alert";
 import Spinner from "../components/common/Spinner";
 import { useAsync } from "../hooks/useAsync";
 import { orderService } from "../services/order.service";
-import { formatDate, formatPrice, orderStatusLabels, paymentMethodLabels } from "../utils/format";
+import { formatDate, formatPrice, orderStatusLabels, paymentMethodLabels, orderCode } from "../utils/format";
 
 export default function Invoice() {
   const { id = "" } = useParams();
   const { data: order, loading, error } = useAsync(() => orderService.get(id), [id]);
 
   useEffect(() => {
-    if (order) document.title = `Faktura #${order.id.slice(-8).toUpperCase()} · ElectroShop`;
+    if (order) document.title = `Faktura ${orderCode(order)} · ElectroShop`;
   }, [order]);
 
   if (loading) return <Spinner />;
   if (error || !order) return <Alert>{error ?? "Sifariş tapılmadı"}</Alert>;
 
-  const code = order.id.slice(-8).toUpperCase();
+  const code = orderCode(order).replace(/^#/, "");
   const subtotal = Number(order.subtotal ?? 0) || order.items.reduce((sum, item) => sum + Number(item.unitPrice) * item.quantity, 0);
   const address = order.shippingAddress;
 
@@ -120,7 +120,7 @@ export default function Invoice() {
         </div>
 
         <footer className="mt-12 border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
-          Alış-verişiniz üçün təşəkkür edirik! Suallar üçün sifariş nömrəsini (#{code}) qeyd edin.
+          Alış-verişiniz üçün təşəkkür edirik! Suallar üçün sifariş nömrəsini ({code}) qeyd edin.
         </footer>
       </article>
     </div>

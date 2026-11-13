@@ -91,3 +91,6 @@ export const orderStatusStyles: Record<OrderStatus, string> = {
   DELIVERED: "bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300",
   CANCELLED: "bg-chip text-ink/70",
 };
+
+export const orderCode = (order: { id: string; orderNumber?: string | null }) =>
+  order.orderNumber ?? `#${order.id.slice(-8).toUpperCase()}`;

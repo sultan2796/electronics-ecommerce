@@ -91,6 +91,9 @@ export const finalizePayment = async (reference: string, outcome: PaymentOutcome
           ...(payment.order.status === OrderStatus.PENDING && { status: OrderStatus.PAID }),
         },
       });
+      if (payment.order.status === OrderStatus.PENDING) {
+        await tx.orderStatusHistory.create({ data: { orderId: payment.orderId, status: OrderStatus.PAID, note: "Onlayn ödəniş təsdiqləndi" } });
+      }
     } else if (payment.order.paymentStatus !== PaymentStatus.SUCCEEDED) {
       await tx.order.update({ where: { id: payment.orderId }, data: { paymentStatus: PaymentStatus.FAILED } });
     }

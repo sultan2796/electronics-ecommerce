@@ -10,6 +10,7 @@ import { getErrorMessage } from "../../services/api";
 import { adminService } from "../../services/admin.service";
 import { AdminUser, Role } from "../../types";
 import { formatDate } from "../../utils/format";
+import CustomerDrawer from "../../components/admin/CustomerDrawer";
 
 const roles: Role[] = ["ADMIN", "MANAGER", "SUPPORT", "CUSTOMER"];
 
@@ -39,6 +40,7 @@ export default function AdminUsers() {
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  const [detailId, setDetailId] = useState<string | null>(null);
   const users = useAsync(() => adminService.users({ q: q || undefined, role, page }), [q, role, page]);
 
   const setQuery = (next: Record<string, string>) => {
@@ -122,9 +124,9 @@ export default function AdminUsers() {
                   return (
                     <tr key={item.id} className={`border-b border-chip last:border-0 ${item.isBlocked ? "bg-red-50/60 dark:bg-red-500/10" : ""}`}>
                       <td className="px-4 py-3">
-                        <p className="font-medium">
+                        <button className="text-left font-medium hover:text-brand-600" onClick={() => setDetailId(item.id)}>
                           {item.name} {isMe && <span className="text-xs text-muted">(siz)</span>}
-                        </p>
+                        </button>
                         <p className="text-xs text-muted">{item.email}</p>
                       </td>
                       <td className="px-4 py-3">
@@ -171,6 +173,7 @@ export default function AdminUsers() {
           )}
         </>
       )}
+      {detailId && <CustomerDrawer userId={detailId} onClose={() => setDetailId(null)} />}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
 import { importCatalog } from "../services/catalogImport.service";
-import { notifyOrderStatus, orderInclude, restockAndCancel } from "../services/order.service";
+import { notifyOrderStatus, orderInclude, recordOrderStatus, restockAndCancel } from "../services/order.service";
 import { productInclude } from "../services/product.service";
 
 const adminOrderInclude = { ...orderInclude, user: { select: { name: true, email: true } } } satisfies Prisma.OrderInclude;
@@ -131,8 +131,25 @@ export const getAdminProduct = asyncHandler(async (req, res) => {
 });
 
 export const listOrders = asyncHandler(async (req, res) => {
-  const { status, page, limit } = req.query as unknown as { status?: OrderStatus; page: number; limit: number };
-  const where: Prisma.OrderWhereInput = status ? { status } : {};
+  const { status, q, userId, page, limit } = req.query as unknown as {
+    status?: OrderStatus;
+    q?: string;
+    userId?: string;
+    page: number;
+    limit: number;
+  };
+  const where: Prisma.OrderWhereInput = {
+    ...(status && { status }),
+    ...(userId && { userId }),
+    ...(q && {
+      OR: [
+        { orderNumber: { contains: q, mode: "insensitive" } },
+        { id: { endsWith: q.toLowerCase() } },
+        { user: { email: { contains: q, mode: "insensitive" } } },
+        { user: { name: { contains: q, mode: "insensitive" } } },
+      ],
+    }),
+  };
 
   const [items, total] = await prisma.$transaction([
     prisma.order.findMany({
@@ -178,6 +195,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
           ...(marksPaid && existing.paymentStatus !== PaymentStatus.SUCCEEDED && { paymentStatus: PaymentStatus.SUCCEEDED, paidAt: new Date() }),
         },
       });
+      await recordOrderStatus(tx, existing.id, status);
       if (status === OrderStatus.DELIVERED) await awardPoints(tx, existing.id);
     }
     return tx.order.findUniqueOrThrow({ where: { id: existing.id }, include: adminOrderInclude });

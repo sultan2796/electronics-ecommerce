@@ -37,6 +37,21 @@ export interface AdminUser {
   _count: { orders: number };
 }
 
+export interface AdminUserDetail {
+  id: string;
+  email: string;
+  name: string;
+  role: Role;
+  isBlocked: boolean;
+  points: number;
+  createdAt: string;
+  lastLoginAt: string | null;
+  totalSpent: string | number;
+  addresses: { id: string; fullName: string; phone: string; city: string; line1: string }[];
+  _count: { orders: number; reviews: number; wishlist: number };
+  orders: { id: string; orderNumber: string | null; status: OrderStatus; paymentStatus: PaymentStatus; total: string; createdAt: string }[];
+}
+
 export interface AuthResponse {
   user: User;
   accessToken: string;
@@ -194,8 +209,17 @@ export interface CheckoutResult {
   paymentError?: string;
 }
 
+export interface OrderStatusEvent {
+  id: string;
+  status: OrderStatus;
+  note: string | null;
+  createdAt: string;
+}
+
 export interface Order {
   id: string;
+  orderNumber?: string | null;
+  statusHistory?: OrderStatusEvent[];
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod;

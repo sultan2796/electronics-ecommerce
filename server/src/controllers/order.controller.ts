@@ -2,7 +2,7 @@ import { OrderStatus, PaymentMethod, Prisma } from "@prisma/client";
 import { hasPermission } from "../config/permissions";
 import { prisma } from "../config/prisma";
 import { CheckoutInput } from "../models/order.model";
-import { orderInclude, restockAndCancel } from "../services/order.service";
+import { generateOrderNumber, orderInclude, restockAndCancel } from "../services/order.service";
 import { queueEmail } from "../services/email";
 import { orderConfirmationEmail } from "../services/email/templates";
 import { activeProvider, startPayment } from "../services/payment";
@@ -60,6 +60,8 @@ export const checkout = asyncHandler(async (req, res) => {
 
     const created = await tx.order.create({
       data: {
+        orderNumber: generateOrderNumber(),
+        statusHistory: { create: { status: OrderStatus.PENDING } },
         userId,
         total,
         subtotal,

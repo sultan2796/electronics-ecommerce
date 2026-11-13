@@ -10,7 +10,7 @@ import { useAsync } from "../../hooks/useAsync";
 import { getErrorMessage } from "../../services/api";
 import { adminService } from "../../services/admin.service";
 import { Order, OrderStatus } from "../../types";
-import { formatDate, formatPrice, orderStatusLabels, paymentMethodLabels, paymentStatusLabels, paymentStatusStyles } from "../../utils/format";
+import { formatDate, formatPrice, orderCode, orderStatusLabels, paymentMethodLabels, paymentStatusLabels, paymentStatusStyles } from "../../utils/format";
 
 const nextStatuses: Record<OrderStatus, OrderStatus[]> = {
   PENDING: ["PAID", "CANCELLED"],
@@ -34,9 +34,12 @@ export default function AdminOrders() {
   const statusParam = params.get("status") as OrderStatus | null;
   const status = statusParam && statuses.includes(statusParam) ? statusParam : undefined;
   const page = Number(params.get("page")) || 1;
+  const q = params.get("q") ?? "";
+  const userId = params.get("userId") ?? undefined;
+  const [search, setSearch] = useState(q);
   const [error, setError] = useState<string | null>(null);
 
-  const orders = useAsync(() => adminService.orders({ status, page }), [status, page]);
+  const orders = useAsync(() => adminService.orders({ status, page, q: q || undefined, userId }), [status, page, q, userId]);
 
   const changeStatus = async (id: string, next: OrderStatus) => {
     setError(null);
@@ -54,15 +57,49 @@ export default function AdminOrders() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Sifarişlərin izlənməsi</h1>
+        <form
+          className="flex flex-1 justify-end gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const next = new URLSearchParams(params);
+            if (search.trim()) next.set("q", search.trim());
+            else next.delete("q");
+            next.delete("page");
+            setParams(next);
+          }}
+        >
+          <input
+            className="input max-w-xs"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Sifariş nömrəsi, ad və ya e-poçt"
+            aria-label="Sifariş axtarışı"
+          />
+          <button className="btn-outline px-4 text-sm">Axtar</button>
+        </form>
         <Select
           className="w-52"
           ariaLabel="Status filtri"
           value={status ?? ""}
-          onChange={(next) => setParams(next ? { status: next } : {})}
+          onChange={(next) => {
+            const updated = new URLSearchParams(params);
+            if (next) updated.set("status", next);
+            else updated.delete("status");
+            updated.delete("page");
+            setParams(updated);
+          }}
           options={[{ value: "", label: "Bütün statuslar" }, ...statuses.map((value) => ({ value, label: orderStatusLabels[value] }))]}
         />
       </div>
       {error && <Alert>{error}</Alert>}
+      {userId && (
+        <Alert variant="info">
+          Yalnız seçilmiş müştərinin sifarişləri göstərilir.{" "}
+          <button className="font-medium text-brand-600" onClick={() => setParams({})}>
+            Hamısını göstər
+          </button>
+        </Alert>
+      )}
 
       {orders.loading ? (
         <Spinner />
@@ -87,7 +124,7 @@ export default function AdminOrders() {
               <tbody>
                 {orders.data?.items.map((order) => (
                   <tr key={order.id} className="border-t border-line align-top">
-                    <td className="px-4 py-3 font-medium">#{order.id.slice(-8).toUpperCase()}</td>
+                    <td className="px-4 py-3 font-medium whitespace-nowrap">{orderCode(order)}</td>
                     <td className="px-4 py-3">
                       <p>{order.user?.name}</p>
                       <p className="text-xs text-muted">{order.user?.email}</p>

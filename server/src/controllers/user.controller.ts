@@ -70,3 +70,32 @@ export const updateUser = asyncHandler(async (req, res) => {
   res.json(updated);
   audit(req, "user.update", "User", req.params.id ?? null, req.body);
 });
+
+export const getUserDetail = asyncHandler(async (req, res) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isBlocked: true,
+      points: true,
+      createdAt: true,
+      lastLoginAt: true,
+      addresses: { orderBy: { isDefault: "desc" }, take: 5 },
+      _count: { select: { orders: true, reviews: true, wishlist: true } },
+    },
+  });
+  if (!user) throw new AppError(404, "İstifadəçi tapılmadı");
+  const [spent, lastOrders] = await Promise.all([
+    prisma.order.aggregate({ where: { userId: user.id, status: { not: "CANCELLED" } }, _sum: { total: true } }),
+    prisma.order.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: { id: true, orderNumber: true, status: true, paymentStatus: true, total: true, createdAt: true },
+    }),
+  ]);
+  res.json({ ...user, totalSpent: spent._sum.total ?? 0, orders: lastOrders });
+});

@@ -635,6 +635,19 @@ Son {} ədəd|Осталось {} шт.|Only {} left
 WhatsApp ilə yazın|Написать в WhatsApp|Chat on WhatsApp
 Göstər|Показать|Show
 Gizlət|Скрыть|Hide
+Status tarixçəsi|История статусов|Status history
+Onlayn ödəniş təsdiqləndi|Онлайн-оплата подтверждена|Online payment confirmed
+Sifariş nömrəsi, ad və ya e-poçt|Номер заказа, имя или e-mail|Order number, name or email
+Yalnız seçilmiş müştərinin sifarişləri göstərilir.|Показаны заказы только выбранного клиента.|Showing orders of the selected customer only.
+Hamısını göstər|Показать все|Show all
+Müştəri məlumatları|Данные клиента|Customer details
+Hesab bloklanıb|Аккаунт заблокирован|Account blocked
+Ümumi xərc|Всего потрачено|Total spent
+Bonus xal|Бонусные баллы|Bonus points
+Ünvanlar|Адреса|Addresses
+Yadda saxlanmış ünvan yoxdur.|Нет сохранённых адресов.|No saved addresses.
+Hamısı →|Все →|All →
+Son giriş: {}|Последний вход: {}|Last login: {}
 `;
 
 const months = [

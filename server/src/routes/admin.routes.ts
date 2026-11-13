@@ -8,7 +8,9 @@ import {
   updateOrderStatus,
   updateStock,
 } from "../controllers/admin.controller";
-import { listUsers, updateUser } from "../controllers/user.controller";
+import {
+  getUserDetail,
+  listUsers, updateUser } from "../controllers/user.controller";
 import { listAllReviews } from "../controllers/review.controller";
 import { listEmails } from "../controllers/email.controller";
 import { adminReviewQuerySchema } from "../models/review.model";
@@ -46,6 +48,7 @@ adminRouter.patch(
 adminRouter.post("/import", requirePermission("catalog:import"), validate({ body: catalogImportSchema }), importProducts);
 
 adminRouter.get("/users", requirePermission("users:read"), validate({ query: userQuerySchema }), listUsers);
+adminRouter.get("/users/:id", requirePermission("users:read"), validate({ params: idParamSchema }), getUserDetail);
 adminRouter.patch("/users/:id", requirePermission("users:write"), validate({ params: idParamSchema, body: userUpdateSchema }), updateUser);
 adminRouter.get("/reviews", requirePermission("reviews:moderate"), validate({ query: adminReviewQuerySchema }), listAllReviews);
 adminRouter.get(

@@ -32,6 +32,8 @@ export const orderStatusSchema = z.object({ status: z.nativeEnum(OrderStatus) })
 
 export const adminOrdersQuerySchema = z.object({
   status: z.nativeEnum(OrderStatus).optional(),
+  q: z.string().trim().max(120).optional(),
+  userId: z.string().trim().min(1).max(64).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
