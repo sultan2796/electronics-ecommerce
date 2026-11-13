@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#0e0f12" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ElectroShop" />
@@ -24,6 +25,7 @@
           var stored = localStorage.getItem("theme");
           var dark = !stored || stored === "dark" || (stored === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
           if (dark) document.documentElement.classList.add("dark");
+          if (!dark) document.querySelector('meta[name="theme-color"]').setAttribute("content", "#ffffff");
         } catch (error) {
           document.documentElement.classList.add("dark");
         }
