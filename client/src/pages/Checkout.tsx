@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { rememberGuestOrder } from "../utils/guestOrders";
 import { shippingCost, useStoreConfig } from "../hooks/useStoreConfig";
 import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/common/Alert";
@@ -39,7 +40,8 @@ const methodInfo: Record<PaymentMethod, { title: string; description: string }> 
 };
 
 export default function Checkout() {
-  const { cart, refresh } = useCart();
+  const { cart, refresh, isGuest, clearGuest } = useCart();
+  const [guestEmail, setGuestEmail] = useState("");
   const storeConfig = useStoreConfig();
   const { user, reloadUser } = useAuth();
   const [usePoints, setUsePoints] = useState(false);
@@ -57,6 +59,7 @@ export default function Checkout() {
   const [checking, setChecking] = useState(false);
 
   useEffect(() => {
+    if (isGuest) return;
     extraService
       .addresses()
       .then((list) => {
@@ -65,7 +68,7 @@ export default function Checkout() {
         if (preferred) pickAddress(preferred);
       })
       .catch(() => setSaved([]));
-  }, []);
+  }, [isGuest]);
 
   useEffect(() => {
     setCoupon(null);
@@ -104,7 +107,7 @@ export default function Checkout() {
   const finalTotal = Math.max(0, Math.round((baseTotal - pointsDiscount + shipping) * 100) / 100);
   const earnPoints = Math.floor(finalTotal - shipping);
 
-  const methods = config.data?.methods ?? ["CASH_ON_DELIVERY"];
+  const methods: PaymentMethod[] = isGuest ? ["CASH_ON_DELIVERY"] : (config.data?.methods ?? ["CASH_ON_DELIVERY"]);
   const selected: PaymentMethod = method && methods.includes(method) ? method : methods[0];
 
   if (cart && !cart.items.length) {
@@ -126,6 +129,14 @@ export default function Checkout() {
     setError(null);
     try {
       const { line2, ...rest } = address;
+      if (isGuest) {
+        const items = (cart?.items ?? []).map((item) => ({ productId: item.productId, quantity: item.quantity }));
+        const placed = await orderService.guestCheckout({ email: guestEmail.trim(), shippingAddress: line2?.trim() ? address : rest, items });
+        rememberGuestOrder(placed.orderNumber, placed.trackingToken);
+        clearGuest();
+        navigate(`/track/${placed.orderNumber}#token=${placed.trackingToken}`, { replace: true, state: { placed: true } });
+        return;
+      }
       const result = await orderService.checkout(line2?.trim() ? address : rest, selected, {
         couponCode: coupon?.code,
         usePoints: usePoints || undefined,
@@ -153,6 +164,29 @@ export default function Checkout() {
         <section className="card space-y-4 p-6">
           <h1 className="text-2xl font-bold">Çatdırılma məlumatları</h1>
           {error && <Alert>{error}</Alert>}
+          {isGuest && (
+            <div className="space-y-3 rounded-2xl border border-line bg-chip/40 p-4">
+              <p className="text-sm">
+                Qonaq kimi sifariş verirsiniz.{" "}
+                <Link to="/login" state={{ from: "/checkout" }} className="link">
+                  Hesabınız var? Daxil olun
+                </Link>
+              </p>
+              <label className="block space-y-1">
+                <span className="text-sm font-medium">E-poçt *</span>
+                <input
+                  className="input"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={guestEmail}
+                  onChange={(event) => setGuestEmail(event.target.value)}
+                  placeholder="siz@example.com"
+                />
+                <span className="block text-xs text-muted">Sifariş təsdiqi və izləmə linki bu ünvana göndəriləcək.</span>
+              </label>
+            </div>
+          )}
           {saved.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {saved.map((item) => (
@@ -185,10 +219,12 @@ export default function Checkout() {
               </label>
             ))}
           </div>
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <input type="checkbox" className="accent-brand-600" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} />
-            Bu ünvanı növbəti sifarişlər üçün yadda saxla
-          </label>
+          {!isGuest && (
+            <label className="flex items-center gap-2 text-sm text-muted">
+              <input type="checkbox" className="accent-brand-600" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} />
+              Bu ünvanı növbəti sifarişlər üçün yadda saxla
+            </label>
+          )}
         </section>
 
         <section className="card space-y-4 p-6">
@@ -216,8 +252,11 @@ export default function Checkout() {
               </label>
             ))}
           </div>
-          {!methods.includes("CARD") && !config.loading && (
-            <p className="text-xs text-muted">Kartla onlayn ödəniş hazırda aktiv deyil.</p>
+          {isGuest ? (
+            <p className="text-xs text-muted">Qonaq sifarişlərində ödəniş qapıda edilir. Onlayn kart ödənişi, promo kod və bonus ballar üçün hesaba daxil olun.</p>
+          ) : (
+            !methods.includes("CARD") &&
+            !config.loading && <p className="text-xs text-muted">Kartla onlayn ödəniş hazırda aktiv deyil.</p>
           )}
         </section>
       </div>
@@ -232,7 +271,7 @@ export default function Checkout() {
             <span className="shrink-0">{formatPrice(Number(item.product.price) * item.quantity)}</span>
           </div>
         ))}
-        <div className="space-y-2 border-t border-line pt-3">
+        <div className={`space-y-2 border-t border-line pt-3 ${isGuest ? "hidden" : ""}`}>
           <div className="flex gap-2">
             <input
               className="input py-2 text-sm uppercase"
@@ -284,7 +323,7 @@ export default function Checkout() {
           {submitting && <span className="btn-spinner" aria-hidden="true" />}
           {submitting ? "Göndərilir..." : selected === "CARD" ? "Ödənişə keç" : "Sifarişi təsdiqlə"}
         </button>
-        {earnPoints > 0 && <p className="text-center text-xs text-emerald-600 dark:text-emerald-400">Bu sifarişdən {earnPoints} bonus bal qazanacaqsınız</p>}
+        {!isGuest && earnPoints > 0 && <p className="text-center text-xs text-emerald-600 dark:text-emerald-400">Bu sifarişdən {earnPoints} bonus bal qazanacaqsınız</p>}
         <p className="text-center text-[11px] text-muted">Sifarişi təsdiqləməklə satış şərtləri ilə razılaşırsınız.</p>
       </aside>
     </form>

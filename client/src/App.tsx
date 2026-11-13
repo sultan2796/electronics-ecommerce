@@ -5,6 +5,7 @@ import RouteEffects from "./components/common/RouteEffects";
 import Layout from "./components/layout/Layout";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import TrackOrder from "./pages/TrackOrder";
 import Compare from "./pages/Compare";
 import Contact from "./pages/Contact";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -101,10 +102,11 @@ export default function App() {
           <Route path="register" element={<Register />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="track/:orderNumber" element={<TrackOrder />} />
           <Route element={<ProtectedRoute />}>
-            <Route path="cart" element={<Cart />} />
             <Route path="wishlist" element={<Wishlist />} />
-            <Route path="checkout" element={<Checkout />} />
             <Route path="orders" element={<Orders />} />
             <Route path="orders/:id" element={<OrderDetail />} />
             <Route path="orders/:id/invoice" element={<Invoice />} />

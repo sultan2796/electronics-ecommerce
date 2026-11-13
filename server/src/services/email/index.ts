@@ -5,7 +5,7 @@ import { EmailContent } from "./templates";
 
 export interface OutgoingEmail extends EmailContent {
   to: string;
-  userId?: string;
+  userId?: string | null;
 }
 
 const activeEmailProvider = () => (env.EMAIL_PROVIDER === "resend" && env.RESEND_API_KEY ? "resend" : "console");
@@ -48,7 +48,7 @@ export const sendEmail = async (email: OutgoingEmail) => {
       provider,
       html: provider === "console" ? email.html : null,
       error,
-      userId: email.userId,
+      userId: email.userId ?? undefined,
     },
   });
   return status;

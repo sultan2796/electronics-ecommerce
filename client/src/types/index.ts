@@ -228,6 +228,8 @@ export interface OrderStatusEvent {
 export interface Order {
   id: string;
   orderNumber?: string | null;
+  guestEmail?: string | null;
+  guestName?: string | null;
   statusHistory?: OrderStatusEvent[];
   status: OrderStatus;
   paymentStatus: PaymentStatus;

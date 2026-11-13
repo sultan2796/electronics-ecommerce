@@ -1,4 +1,5 @@
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
+import { orderRecipient } from "./orderRecipient";
 import { env } from "../config/env";
 import { prisma } from "../config/prisma";
 import { queueEmail } from "./email";
@@ -68,6 +69,8 @@ export const expireUnpaidOrders = async () => {
 export const notifyOrderStatus = async (orderId: string, status: OrderStatus) => {
   const order = await prisma.order.findUnique({ where: { id: orderId }, include: { items: true, user: { select: { name: true, email: true } } } });
   if (!order) return;
-  const email = orderStatusEmail(order.user, order, status);
-  if (email) queueEmail({ ...email, to: order.user.email, userId: order.userId });
+  const recipient = orderRecipient(order);
+  if (!recipient) return;
+  const email = orderStatusEmail(recipient, order, status);
+  if (email) queueEmail({ ...email, to: recipient.email, userId: order.userId });
 };

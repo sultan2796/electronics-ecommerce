@@ -50,6 +50,12 @@ export const compareProducts = asyncHandler(async (req, res) => {
   res.json({ items: ordered.map((product) => withPricing(product!)) });
 });
 
+export const lookupProducts = asyncHandler(async (req, res) => {
+  const { ids } = req.query as unknown as { ids: string[] };
+  const products = await prisma.product.findMany({ where: { id: { in: ids }, isActive: true }, include: productInclude });
+  res.json({ items: products.map((product) => withPricing(product)) });
+});
+
 export const createProduct = asyncHandler(async (req, res) => {
   const { specs, ...data } = req.body as ProductCreateInput;
   if (!salePriceIsValid(data.price, data.salePrice)) throw new AppError(400, "Endirimli qiymət əsas qiymətdən aşağı olmalıdır");

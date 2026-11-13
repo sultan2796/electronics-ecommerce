@@ -174,8 +174,8 @@ export default function AdminDashboard() {
                 <tr key={order.id} className="border-b border-chip last:border-0">
                   <td className="whitespace-nowrap px-5 py-3 font-medium">{orderCode(order)}</td>
                   <td className="px-5 py-3">
-                    <p>{order.user?.name}</p>
-                    <p className="text-xs text-muted">{order.user?.email}</p>
+                    <p>{order.user?.name ?? order.guestName ?? "Qonaq"}{!order.user && <span className="ml-1.5 rounded-full bg-chip px-1.5 py-0.5 text-[10px] font-medium text-muted">Qonaq</span>}</p>
+                    <p className="text-xs text-muted">{order.user?.email ?? order.guestEmail}</p>
                   </td>
                   <td className="px-5 py-3 text-muted">{`${order.items.reduce((sum, item) => sum + item.quantity, 0)} məhsul`}</td>
                   <td className="px-5 py-3 text-muted">{formatDate(order.createdAt)}</td>

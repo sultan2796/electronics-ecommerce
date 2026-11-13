@@ -44,6 +44,14 @@ export const featuredQuerySchema = z.object({ limit: z.coerce.number().int().min
 
 export const facetsQuerySchema = z.object({ category: z.string().optional() });
 
+export const lookupQuerySchema = z.object({
+  ids: z
+    .string()
+    .max(2000)
+    .transform((value) => [...new Set(value.split(",").map((id) => id.trim()).filter(Boolean))])
+    .pipe(z.array(z.string().max(64)).min(1).max(30)),
+});
+
 export const compareQuerySchema = z.object({
   ids: z
     .string()

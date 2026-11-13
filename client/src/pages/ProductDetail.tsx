@@ -118,7 +118,6 @@ export default function ProductDetail() {
   };
 
   const buyNow = async () => {
-    if (!requireUser()) return;
     try {
       await addItem(product.id);
       navigate("/checkout");
@@ -128,7 +127,6 @@ export default function ProductDetail() {
   };
 
   const addToCart = async () => {
-    if (!requireUser()) return;
     try {
       await addItem(product.id);
       setMessage("Səbətə əlavə edildi");

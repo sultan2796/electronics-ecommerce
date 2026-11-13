@@ -131,8 +131,8 @@ export default function AdminOrders() {
                   <tr key={order.id} className="border-t border-line align-top">
                     <td className="px-4 py-3 font-medium whitespace-nowrap">{orderCode(order)}</td>
                     <td className="px-4 py-3">
-                      <p>{order.user?.name}</p>
-                      <p className="text-xs text-muted">{order.user?.email}</p>
+                      <p>{order.user?.name ?? order.guestName ?? "Qonaq"}{!order.user && <span className="ml-1.5 rounded-full bg-chip px-1.5 py-0.5 text-[10px] font-medium text-muted">Qonaq</span>}</p>
+                      <p className="text-xs text-muted">{order.user?.email ?? order.guestEmail}</p>
                     </td>
                     <td className="px-4 py-3 text-muted">{formatDate(order.createdAt)}</td>
                     <td className="px-4 py-3">

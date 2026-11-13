@@ -1,4 +1,5 @@
 import { recordOrderStatus } from "../order.service";
+import { orderRecipient } from "../orderRecipient";
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 import crypto from "crypto";
 import { env, isProduction } from "../../config/env";
@@ -103,7 +104,8 @@ export const finalizePayment = async (reference: string, outcome: PaymentOutcome
 
   if (outcomeState.paidOrderId) {
     const order = await prisma.order.findUnique({ where: { id: outcomeState.paidOrderId }, include: { items: true, user: { select: { name: true, email: true } } } });
-    if (order) queueEmail({ ...paymentSucceededEmail(order.user, order), to: order.user.email, userId: order.userId });
+    const recipient = order && orderRecipient(order);
+    if (order && recipient) queueEmail({ ...paymentSucceededEmail(recipient, order), to: recipient.email, userId: order.userId });
   }
   return result;
 };

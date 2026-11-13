@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   compareProducts,
+  lookupProducts,
   createProduct,
   deleteProduct,
   featuredProducts,
@@ -16,6 +17,7 @@ import { reviewBodySchema, reviewListQuerySchema } from "../models/review.model"
 import { listReviews, myReviewStatus, upsertReview } from "../controllers/review.controller";
 import {
   compareQuerySchema,
+  lookupQuerySchema,
   facetsQuerySchema,
   featuredQuerySchema,
   productCreateSchema,
@@ -29,6 +31,7 @@ productRouter.get("/", validate({ query: productQuerySchema }), listProducts);
 productRouter.get("/featured", validate({ query: featuredQuerySchema }), featuredProducts);
 productRouter.get("/facets", validate({ query: facetsQuerySchema }), productFacets);
 productRouter.get("/compare", validate({ query: compareQuerySchema }), compareProducts);
+productRouter.get("/lookup", validate({ query: lookupQuerySchema }), lookupProducts);
 productRouter.get("/:id", validate({ params: idParamSchema }), getProduct);
 productRouter.get("/:id/reviews", validate({ params: idParamSchema, query: reviewListQuerySchema }), listReviews);
 productRouter.get("/:id/reviews/me", authenticate, validate({ params: idParamSchema }), myReviewStatus);

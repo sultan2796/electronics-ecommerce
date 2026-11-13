@@ -44,7 +44,6 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   const addToCart = async () => {
-    if (!requireUser()) return;
     try {
       await addItem(product.id);
       setCartPulse((value) => value + 1);

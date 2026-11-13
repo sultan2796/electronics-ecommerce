@@ -14,6 +14,7 @@ interface Recipient {
 
 interface OrderSummary {
   id: string;
+  orderNumber?: string | null;
   total: { toString(): string } | number | string;
   paymentMethod: PaymentMethod;
   items: { productName: string; quantity: number; unitPrice: { toString(): string } | number | string }[];
@@ -27,6 +28,7 @@ export const escapeHtml = (value: string) =>
 const money = (value: { toString(): string } | number | string) => `${Number(value.toString()).toFixed(2)} ₼`;
 
 const orderCode = (id: string) => `#${id.slice(-8).toUpperCase()}`;
+const displayCode = (order: { id: string; orderNumber?: string | null }) => order.orderNumber ?? orderCode(order.id);
 
 const layout = (title: string, body: string, cta?: { label: string; url: string }) => `<!doctype html>
 <html lang="az">
@@ -77,20 +79,20 @@ export const welcomeEmail = (user: Recipient): EmailContent => ({
   text: `Xoş gəldiniz, ${user.name}!\nHesabınız uğurla yaradıldı.\n${clientUrl}/products`,
 });
 
-export const orderConfirmationEmail = (user: Recipient, order: OrderSummary): EmailContent => {
+export const orderConfirmationEmail = (user: Recipient, order: OrderSummary, link = `${clientUrl}/orders/${order.id}`): EmailContent => {
   const payment =
     order.paymentMethod === PaymentMethod.CARD
       ? "Kartla ödənişiniz təsdiqlənəndən sonra sifarişiniz hazırlanmağa başlayacaq."
       : "Ödənişi sifarişi aldıqda kuryerə edəcəksiniz.";
   return {
     template: "order-confirmation",
-    subject: `Sifarişiniz qəbul edildi ${orderCode(order.id)}`,
+    subject: `Sifarişiniz qəbul edildi ${displayCode(order)}`,
     html: layout(
       "Sifarişiniz qəbul edildi",
       paragraph(`Hörmətli ${escapeHtml(user.name)}, sifarişiniz üçün təşəkkür edirik.`) + itemsTable(order) + paragraph(payment),
-      { label: "Sifarişə bax", url: `${clientUrl}/orders/${order.id}` },
+      { label: "Sifarişi izlə", url: link },
     ),
-    text: `Sifarişiniz qəbul edildi ${orderCode(order.id)}\n${itemsText(order)}\n${payment}\n${clientUrl}/orders/${order.id}`,
+    text: `Sifarişiniz qəbul edildi ${displayCode(order)}\n${itemsText(order)}\n${payment}\n${link}`,
   };
 };
 

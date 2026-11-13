@@ -146,6 +146,7 @@ export const listOrders = asyncHandler(async (req, res) => {
         { orderNumber: { contains: q, mode: "insensitive" } },
         { id: { endsWith: q.replace(/^#/, ""), mode: "insensitive" } },
         { user: { email: { contains: q, mode: "insensitive" } } },
+        { guestEmail: { contains: q, mode: "insensitive" } },
         { user: { name: { contains: q, mode: "insensitive" } } },
       ],
     }),

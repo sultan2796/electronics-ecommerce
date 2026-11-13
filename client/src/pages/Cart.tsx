@@ -10,7 +10,7 @@ import { formatPrice } from "../utils/format";
 import { shippingCost, useStoreConfig } from "../hooks/useStoreConfig";
 
 export default function Cart() {
-  const { cart, busy, updateItem, removeItem } = useCart();
+  const { cart, busy, updateItem, removeItem, isGuest } = useCart();
   const storeConfig = useStoreConfig();
   const [error, setError] = useState<string | null>(null);
 
@@ -100,7 +100,11 @@ export default function Cart() {
           <span>Cəmi</span>
           <span>{formatPrice(Number(cart.subtotal) + shippingCost(storeConfig, Number(cart.subtotal)))}</span>
         </div>
-        <p className="text-[11px] text-muted">Endirim kodu və bonus ballar növbəti addımda tətbiq olunur. Əlavə gizli ödəniş yoxdur.</p>
+        <p className="text-[11px] text-muted">
+          {isGuest
+            ? "Promo kod və bonus ballar hesaba daxil olduqda tətbiq olunur. Əlavə gizli ödəniş yoxdur."
+            : "Endirim kodu və bonus ballar növbəti addımda tətbiq olunur. Əlavə gizli ödəniş yoxdur."}
+        </p>
         <Link to="/checkout" className="btn-primary w-full">
           Sifarişi rəsmiləşdir
         </Link>

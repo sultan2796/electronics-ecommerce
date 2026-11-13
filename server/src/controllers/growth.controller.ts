@@ -165,8 +165,8 @@ export const salesCsv = asyncHandler(async (req, res) => {
   const rows = orders.map((order) => [
     order.id.slice(-8).toUpperCase(),
     order.createdAt.toISOString().replace("T", " ").slice(0, 16),
-    order.user.name,
-    order.user.email,
+    order.user?.name ?? order.guestName ?? "Qonaq",
+    order.user?.email ?? order.guestEmail ?? "",
     order.status,
     order.paymentMethod,
     order.items.map((item) => `${item.productName} x${item.quantity}`).join(" | "),

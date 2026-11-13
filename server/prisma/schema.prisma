@@ -195,8 +195,12 @@ model Order {
   id              String        @id @default(cuid())
   orderNumber     String?       @unique
   statusHistory   OrderStatusHistory[]
-  userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  guestEmail      String?
+  guestName       String?
+  guestPhone      String?
+  trackingTokenHash String?     @unique
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
   paymentMethod   PaymentMethod @default(CASH_ON_DELIVERY)

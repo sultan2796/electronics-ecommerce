@@ -779,6 +779,25 @@ Poster şəkli (ixtiyari)|Постер (необязательно)|Poster image
 Video yoxdursa, məhsul səhifəsində video bölməsi göstərilmir. Demo, istifadə qaydası və ya unboxing videosunun birbaşa faylına link verin.|Если видео нет, раздел видео на странице товара не показывается. Укажите прямую ссылку на файл демо, инструкции или распаковки.|If there is no video, the video section is hidden on the product page. Link directly to the demo, how-to or unboxing video file.
 Video linki https:// ilə başlamalı və .mp4 və ya .webm faylı olmalıdır|Ссылка на видео должна начинаться с https:// и вести к файлу .mp4 или .webm|The video link must start with https:// and point to an .mp4 or .webm file
 Poster linki / ilə və ya https:// ilə başlamalıdır|Ссылка на постер должна начинаться с / или https://|The poster link must start with / or https://
+Qonaq|Гость|Guest
+Qonaq kimi sifariş verirsiniz.|Вы оформляете заказ как гость.|You are checking out as a guest.
+Hesabınız var? Daxil olun|Есть аккаунт? Войдите|Have an account? Sign in
+E-poçt *|E-mail *|Email *
+Sifariş təsdiqi və izləmə linki bu ünvana göndəriləcək.|Подтверждение заказа и ссылка для отслеживания будут отправлены на этот адрес.|The order confirmation and tracking link will be sent to this address.
+Qonaq sifarişlərində ödəniş qapıda edilir. Onlayn kart ödənişi, promo kod və bonus ballar üçün hesaba daxil olun.|Гостевые заказы оплачиваются при получении. Для оплаты картой онлайн, промокодов и бонусов войдите в аккаунт.|Guest orders are paid on delivery. Sign in for online card payment, promo codes and bonus points.
+İzləmə linki yanlış və ya köhnədir. Sifariş təsdiqi məktubundakı linkdən istifadə edin və ya bizimlə əlaqə saxlayın.|Ссылка для отслеживания неверна или устарела. Используйте ссылку из письма с подтверждением или свяжитесь с нами.|The tracking link is invalid or outdated. Use the link from your confirmation email or contact us.
+Sifariş izləmə|Отслеживание заказа|Order tracking
+Sifarişiniz qəbul edildi|Ваш заказ принят|Your order has been placed
+Təsdiq və bu izləmə linki e-poçtunuza göndərildi. Linki yadda saxlayın: sifarişinizə yalnız onunla baxmaq olar.|Подтверждение и эта ссылка отправлены на вашу почту. Сохраните ссылку: заказ можно просмотреть только по ней.|The confirmation and this tracking link were sent to your email. Keep the link: it is the only way to view your order.
+Sifariş {}|Заказ {}|Order {}
+Bu sifariş ləğv edilib.|Этот заказ отменён.|This order has been cancelled.
+Sifarişin mərhələləri|Этапы заказа|Order stages
+Növbəti sifarişlərinizi bir yerdə izləmək üçün|Чтобы отслеживать будущие заказы в одном месте,|To track future orders in one place,
+hesab yaradın|создайте аккаунт|create an account
+Səbətdə ən çox 30 fərqli məhsul ola bilər|В корзине может быть не более 30 разных товаров|The cart can hold at most 30 different products
+Promo kod və bonus ballar hesaba daxil olduqda tətbiq olunur. Əlavə gizli ödəniş yoxdur.|Промокоды и бонусные баллы доступны после входа в аккаунт. Скрытых платежей нет.|Promo codes and bonus points apply once you sign in. No hidden fees.
+Qonaq səbətində ən çox 10 fərqli məhsul ola bilər. Daha çox üçün hesaba daxil olun.|В гостевой корзине может быть не более 10 разных товаров. Войдите, чтобы добавить больше.|A guest cart can hold at most 10 different products. Sign in to add more.
+Bu e-poçt üçün çoxlu açıq sifariş var. Hesab yaradın və ya bizimlə əlaqə saxlayın.|Для этого e-mail слишком много открытых заказов. Создайте аккаунт или свяжитесь с нами.|There are too many open orders for this email. Create an account or contact us.
 `;
 
 const months = [

@@ -21,7 +21,6 @@ export default function ProductActions({ product, compact = false }: { product: 
   };
 
   const onAdd = async () => {
-    if (!requireUser()) return;
     try {
       await addItem(product.id);
       setMessage("Səbətə əlavə edildi");
