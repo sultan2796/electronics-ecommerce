@@ -1,5 +1,6 @@
 import { toast } from "../common/Overlays";
 import { MouseEvent, useState } from "react";
+import { useTilt } from "../../hooks/useMotion";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -30,6 +31,10 @@ export default function ProductCard({ product }: { product: Product }) {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [message, setMessage] = useState<string | null>(null);
+  const [heartPulse, setHeartPulse] = useState(0);
+  const [cartPulse, setCartPulse] = useState(0);
+  const tilt = useTilt<HTMLElement>(5);
+  const secondImage = product.images.find((image, position) => position > 0 && image && image !== product.images[0]);
   const inCompare = compare.has(product.id);
   const liked = wishlist.has(product.id);
   const soldOut = product.stock === 0;
@@ -51,6 +56,7 @@ export default function ProductCard({ product }: { product: Product }) {
     if (!requireUser()) return;
     try {
       await addItem(product.id);
+      setCartPulse((value) => value + 1);
       flash(t("card.added"));
       toast(`${product.name} səbətə əlavə edildi`);
     } catch (error) {
@@ -67,6 +73,7 @@ export default function ProductCard({ product }: { product: Product }) {
     if (!requireUser()) return;
     try {
       await wishlist.toggle(product.id);
+      if (!liked) setHeartPulse((value) => value + 1);
       toast(liked ? "İstək siyahısından çıxarıldı" : "İstək siyahısına əlavə edildi", liked ? "info" : "success");
     } catch (error) {
       flash(getErrorMessage(error));
@@ -74,7 +81,13 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface transition duration-300 hover:-translate-y-0.5 hover:border-transparent hover:shadow-[0_16px_40px_-16px_rgba(15,23,42,0.28)]">
+    <article
+      ref={tilt.ref}
+      onPointerMove={tilt.onPointerMove}
+      onPointerLeave={tilt.onPointerLeave}
+      className="tilt group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface hover:border-transparent hover:shadow-[0_22px_48px_-20px_rgba(15,23,42,0.35)]"
+    >
+      <span className="tilt-glare" aria-hidden="true" />
       <div className="absolute left-3 top-3 z-10 flex flex-col items-start gap-1">
         {price.percent > 0 && (
           <span className={`rounded-md px-2 py-0.5 text-[11px] font-semibold text-white ${price.live ? "bg-red-600" : "bg-brand-600"}`}>−{price.percent}%</span>
@@ -89,7 +102,9 @@ export default function ProductCard({ product }: { product: Product }) {
           aria-label={t("card.wishlist")}
           className={`flex size-8 items-center justify-center rounded-full bg-surface shadow-sm ring-1 ring-line transition hover:text-red-500 ${liked ? "text-red-500 sm:opacity-100" : "text-muted"}`}
         >
-          <Icon d={HEART} className={`size-4 ${liked ? "fill-current" : ""}`} />
+          <span key={heartPulse} className={heartPulse ? "heart-pop" : ""}>
+            <Icon d={HEART} className={`size-4 ${liked ? "fill-current" : ""}`} />
+          </span>
         </button>
         <button
           type="button"
@@ -102,14 +117,35 @@ export default function ProductCard({ product }: { product: Product }) {
         </button>
       </div>
 
-      <Link to={`/products/${product.slug}`} onClick={openPreview} className="relative flex aspect-square items-center justify-center bg-[#f6f7f9] p-6 dark:bg-white">
+      <Link
+        to={`/products/${product.slug}`}
+        onClick={openPreview}
+        className="relative flex aspect-square items-center justify-center overflow-hidden bg-[#f6f7f9] p-6 dark:bg-white"
+      >
         <ProductImage
           src={product.images[0]}
           category={product.category?.slug}
           alt={product.name}
-          className={`size-full object-contain transition duration-500 group-hover:scale-105 ${soldOut ? "opacity-50 grayscale" : ""}`}
+          className={`depth-1 size-full object-contain transition duration-500 ease-out group-hover:scale-[1.06] ${secondImage ? "group-hover:opacity-0" : ""} ${soldOut ? "opacity-50 grayscale" : ""}`}
         />
-        {soldOut && <span className="absolute bottom-3 rounded-full bg-ink/80 px-3 py-1 text-[11px] font-medium text-surface">{t("card.soldOut")}</span>}
+        {secondImage && (
+          <img
+            src={secondImage}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+            className={`absolute inset-0 m-auto size-full scale-95 object-contain p-6 opacity-0 transition duration-500 ease-out group-hover:scale-100 group-hover:opacity-100 ${soldOut ? "grayscale" : ""}`}
+          />
+        )}
+        {soldOut ? (
+          <span className="absolute bottom-3 rounded-full bg-ink/80 px-3 py-1 text-[11px] font-medium text-surface">{t("card.soldOut")}</span>
+        ) : (
+          <span className="absolute bottom-3 left-1/2 hidden -translate-x-1/2 translate-y-2 items-center gap-1.5 whitespace-nowrap rounded-full bg-ink/85 px-3.5 py-1.5 text-[11px] font-semibold text-surface opacity-0 shadow-lg backdrop-blur transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:flex">
+            <Icon d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" className="size-3.5" />
+            {t("card.quickView")}
+          </span>
+        )}
       </Link>
 
       <div className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
@@ -127,7 +163,15 @@ export default function ProductCard({ product }: { product: Product }) {
               {rating.fromReviews && <span>({rating.count})</span>}
             </>
           )}
-          {!soldOut && product.stock <= 5 && <span className="ml-auto text-[11px] font-medium text-amber-600">{t("card.lowStock", { count: product.stock })}</span>}
+          {!soldOut &&
+            (product.stock <= 5 ? (
+              <span className="ml-auto text-[11px] font-medium text-amber-600">{t("card.lowStock", { count: product.stock })}</span>
+            ) : (
+              <span className="ml-auto flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                <span className="size-1.5 rounded-full bg-emerald-500" />
+                {t("card.inStock")}
+              </span>
+            ))}
         </div>
 
         <div className="mt-auto pt-2">
@@ -144,7 +188,9 @@ export default function ProductCard({ product }: { product: Product }) {
           type="button"
           onClick={addToCart}
           disabled={busy || soldOut}
-          className="mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-ink text-sm font-semibold text-surface transition hover:bg-brand-600 hover:text-white disabled:cursor-not-allowed disabled:bg-chip disabled:text-muted"
+          className={`mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition hover:bg-brand-600 hover:text-white active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-chip disabled:text-muted ${
+            cartPulse && message ? "cart-bump bg-emerald-600 text-white" : "bg-ink text-surface"
+          }`}
         >
           {message ?? (soldOut ? t("card.soldOut") : t("card.addToCart"))}
         </button>

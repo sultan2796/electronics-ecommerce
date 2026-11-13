@@ -657,6 +657,32 @@ Endirimli qiymət əsas qiymətdən aşağı olmalıdır|Цена со скид�
 Hesabınız yoxdur?|Нет аккаунта?|Don't have an account?
 Sifariş axtarışı|Поиск заказов|Order search
 Cəmi {} rəy · yalnız alış etmiş müştərilər yaza bilər|Всего отзывов: {} · оставлять отзывы могут только покупатели|{} reviews in total · only verified buyers can review
+Slaydlar|Слайды|Slides
+Ana səhifə slaydları|Слайды главной страницы|Homepage slides
+Aktiv slaydlar ana səhifədə sıra ilə göstərilir. Slayd yoxdursa, standart brend slaydı görünür.|Активные слайды показываются на главной по порядку. Если слайдов нет, показывается стандартный слайд бренда.|Active slides are shown on the homepage in order. If there are none, the default brand slide is shown.
+Hələ slayd yoxdur. Sağdakı formadan ilk slaydı əlavə edin.|Слайдов пока нет. Добавьте первый слайд в форме справа.|No slides yet. Add the first one using the form on the right.
+Deaktiv et|Отключить|Deactivate
+Aktiv et|Включить|Activate
+Yuxarı|Вверх|Up
+Aşağı|Вниз|Down
+Slaydı redaktə et|Редактировать слайд|Edit slide
+Yeni slayd|Новый слайд|New slide
+Başlıq *|Заголовок *|Title *
+Başlıq|Заголовок|Title
+Açıqlama|Описание|Description
+Kiçik etiket|Метка|Label
+Yeni kolleksiya|Новая коллекция|New collection
+Şəkil *|Изображение *|Image *
+Kompüterdən şəkil yüklə (maks. 2 MB, tövsiyə 1600×700)|Загрузить изображение (макс. 2 МБ, рекомендуется 1600×700)|Upload image (max 2 MB, 1600×700 recommended)
+Düymə mətni|Текст кнопки|Button text
+Düymə keçidi|Ссылка кнопки|Button link
+Ana səhifədə göstər|Показывать на главной|Show on homepage
+Slayd əlavə et|Добавить слайд|Add slide
+Slayd yeniləndi|Слайд обновлён|Slide updated
+Slayd əlavə edildi|Слайд добавлен|Slide added
+Slayd silindi|Слайд удалён|Slide deleted
+“{}” slaydı silinsin?|Удалить слайд «{}»?|Delete slide “{}”?
+Bu əməliyyat geri qaytarıla bilməz.|Это действие нельзя отменить.|This action cannot be undone.
 `;
 
 const months = [

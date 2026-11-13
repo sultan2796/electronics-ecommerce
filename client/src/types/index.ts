@@ -407,3 +407,22 @@ export interface AuditEntry {
   createdAt: string;
   user: { name: string; email: string; role: Role } | null;
 }
+
+export interface HeroSlide {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  eyebrow: string | null;
+  imageUrl: string;
+  buttonText: string | null;
+  buttonLink: string | null;
+}
+
+export interface AdminSlide extends HeroSlide {
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type SlideInput = Omit<HeroSlide, "id"> & { isActive: boolean };

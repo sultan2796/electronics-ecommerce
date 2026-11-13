@@ -9,6 +9,7 @@ import { productRouter } from "./product.routes";
 import { reviewRouter } from "./review.routes";
 import { extraRouter } from "./extra.routes";
 import { growthRouter } from "./growth.routes";
+import { slideRouter } from "./slide.routes";
 import { wishlistRouter } from "./wishlist.routes";
 
 export const apiRouter = Router();
@@ -18,6 +19,7 @@ apiRouter.get("/health", (_req, res) => {
 });
 apiRouter.use(extraRouter);
 apiRouter.use(growthRouter);
+apiRouter.use(slideRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/products", productRouter);
 apiRouter.use("/reviews", reviewRouter);

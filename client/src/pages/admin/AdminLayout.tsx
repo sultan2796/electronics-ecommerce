@@ -4,7 +4,7 @@ import ThemeToggle from "../../components/common/ThemeToggle";
 import { roleLabels, useAuth } from "../../context/AuthContext";
 import { Permission } from "../../types";
 
-type IconName = "dashboard" | "orders" | "inventory" | "categories" | "users" | "plus" | "reviews" | "emails" | "coupons" | "campaigns" | "reports" | "audit";
+type IconName = "dashboard" | "orders" | "inventory" | "categories" | "users" | "plus" | "reviews" | "emails" | "coupons" | "campaigns" | "reports" | "audit" | "slides";
 
 const iconPaths: Record<IconName, ReactNode> = {
   dashboard: <path d="M4 13h6V4H4zm10 7h6V11h-6zM4 20h6v-4H4zm10-11h6V4h-6z" />,
@@ -16,6 +16,7 @@ const iconPaths: Record<IconName, ReactNode> = {
   reviews: <path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z" />,
   emails: <path d="M3 6h18v12H3zM3 7l9 6 9-6" />,
   campaigns: <path d="M13 2 4 14h7l-1 8 9-12h-7z" />,
+  slides: <path d="M3 5h18v14H3zM3 15l5-5 4 4 3-3 6 6M8.5 9.5h.01" />,
   reports: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
   audit: <path d="M9 3h6l1 2h3v16H5V5h3zM9 12h6M9 16h4" />,
   coupons: <path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4zM9 9l6 6M9.5 14.5h.01M14.5 9.5h.01" />,
@@ -38,6 +39,7 @@ const links: { to: string; label: string; end: boolean; permission: Permission; 
   { to: "/admin/reviews", label: "Rəylər", end: false, permission: "reviews:moderate", icon: "reviews" },
   { to: "/admin/reports", label: "Hesabatlar", end: false, permission: "dashboard:read", icon: "reports" },
   { to: "/admin/campaigns", label: "Kampaniyalar", end: false, permission: "products:write", icon: "campaigns" },
+  { to: "/admin/slides", label: "Slaydlar", end: false, permission: "products:write", icon: "slides" },
   { to: "/admin/coupons", label: "Promo kodlar", end: false, permission: "products:write", icon: "coupons" },
   { to: "/admin/audit", label: "Əməliyyat jurnalı", end: false, permission: "users:read", icon: "audit" },
   { to: "/admin/emails", label: "E-poçtlar", end: false, permission: "emails:read", icon: "emails" },
