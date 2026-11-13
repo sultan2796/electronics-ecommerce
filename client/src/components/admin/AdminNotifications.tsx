@@ -102,7 +102,7 @@ export default function AdminNotifications() {
         )}
       </button>
       {open && (
-        <div role="dialog" aria-label="Bildirişlər" className="animate-pop absolute right-0 top-12 z-50 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-line bg-surface shadow-xl">
+        <div role="dialog" aria-label="Bildirişlər" className="animate-pop fixed inset-x-3 top-[4.5rem] z-50 overflow-hidden rounded-2xl border border-line bg-surface shadow-xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-[360px]">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <p className="text-sm font-semibold">Bildirişlər</p>
             {unread > 0 && (
