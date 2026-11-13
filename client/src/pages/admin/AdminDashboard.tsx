@@ -71,6 +71,30 @@ export default function AdminDashboard() {
         />
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard
+          label="Tamamlanmış sifarişlər"
+          value={stats.ordersByStatus.DELIVERED ?? 0}
+          hint={stats.totalOrders ? `Bütün sifarişlərin ${Math.round(((stats.ordersByStatus.DELIVERED ?? 0) / stats.totalOrders) * 100)}%-i` : "Hələ sifariş yoxdur"}
+          to="/admin/orders?status=DELIVERED"
+          tone="green"
+        />
+        <StatCard
+          label="Ləğv edilmiş sifarişlər"
+          value={stats.ordersByStatus.CANCELLED ?? 0}
+          hint={stats.totalOrders ? `Bütün sifarişlərin ${Math.round(((stats.ordersByStatus.CANCELLED ?? 0) / stats.totalOrders) * 100)}%-i` : "Hələ sifariş yoxdur"}
+          to="/admin/orders?status=CANCELLED"
+          tone="red"
+        />
+        <StatCard
+          label="Stokda olmayan məhsullar"
+          value={stats.outOfStockCount ?? 0}
+          hint={(stats.outOfStockCount ?? 0) > 0 ? "Satışda görünür, amma alına bilməz" : "Bütün aktiv məhsullar stokdadır"}
+          to="/admin/inventory"
+          tone="red"
+        />
+      </div>
+
       <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
         <SalesChart data={stats.salesByDay} />
         <section className="card space-y-4 p-5">

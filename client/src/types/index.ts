@@ -303,6 +303,7 @@ export interface AdminStats {
   productCount: number;
   inactiveCount: number;
   lowStockCount: number;
+  outOfStockCount?: number;
   userCount: number;
   totalOrders: number;
   revenue: number;

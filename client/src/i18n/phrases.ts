@@ -825,6 +825,13 @@ Profil şəkli (istəyə bağlı)|Фото профиля (необязател�
 Şəkli dəyiş|Изменить фото|Change photo
 PNG, JPG və ya WEBP. Şəkil kvadrat kəsilib kiçildilir.|PNG, JPG или WEBP. Фото обрезается до квадрата и уменьшается.|PNG, JPG or WEBP. The photo is cropped to a square and resized.
 Hesab yaradıldı, amma profil şəkli yüklənmədi. Yenidən cəhd edin.|Аккаунт создан, но фото профиля не загрузилось. Попробуйте ещё раз.|Account created, but the profile photo didn't upload. Please try again.
+Tamamlanmış sifarişlər|Завершённые заказы|Completed orders
+Ləğv edilmiş sifarişlər|Отменённые заказы|Cancelled orders
+Stokda olmayan məhsullar|Нет в наличии|Out-of-stock products
+Bütün sifarişlərin {}%-i|{}% всех заказов|{}% of all orders
+Hələ sifariş yoxdur|Заказов пока нет|No orders yet
+Satışda görünür, amma alına bilməz|Показывается в продаже, но купить нельзя|Listed, but can't be bought
+Bütün aktiv məhsullar stokdadır|Все активные товары в наличии|All active products are in stock
 `;
 
 const months = [

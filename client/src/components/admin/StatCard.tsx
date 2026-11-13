@@ -6,7 +6,7 @@ interface StatCardProps {
   value: ReactNode;
   hint?: ReactNode;
   to?: string;
-  tone?: "brand" | "blue" | "green" | "amber";
+  tone?: "brand" | "blue" | "green" | "amber" | "red";
 }
 
 const tones = {
@@ -14,6 +14,7 @@ const tones = {
   blue: "bg-sky-50 dark:bg-sky-500/15 text-sky-600",
   green: "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600",
   amber: "bg-amber-50 dark:bg-amber-500/15 text-amber-600",
+  red: "bg-red-50 dark:bg-red-500/15 text-red-600",
 };
 
 export default function StatCard({ label, value, hint, to, tone = "brand" }: StatCardProps) {
