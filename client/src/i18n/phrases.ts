@@ -633,6 +633,8 @@ stokda {}|в наличии {}|{} in stock
 Son {} ədəd|Осталось {} шт.|Only {} left
 Əlaqə|Контакты|Contact
 WhatsApp ilə yazın|Написать в WhatsApp|Chat on WhatsApp
+Göstər|Показать|Show
+Gizlət|Скрыть|Hide
 `;
 
 const months = [

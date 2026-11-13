@@ -12,6 +12,7 @@ export default function Login() {
   const from = (location.state as { from?: string } | null)?.from ?? "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -22,7 +23,7 @@ export default function Login() {
     setSubmitting(true);
     setError(null);
     try {
-      const loggedIn = await login(email, password);
+      const loggedIn = await login(email.trim(), password.trim());
       navigate(loggedIn.permissions.includes("dashboard:read") && from === "/" ? "/admin" : from, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
@@ -46,7 +47,12 @@ export default function Login() {
             Şifrəni unutmusunuz?
           </Link>
         </span>
-        <input className="input" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        <div className="relative">
+          <input className="input pr-20" type={showPassword ? "text" : "password"} autoComplete="current-password" autoCapitalize="none" autoCorrect="off" spellCheck={false} required value={password} onChange={(e) => setPassword(e.target.value)} />
+          <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute inset-y-0 right-2 my-auto h-8 rounded-md px-2 text-xs font-medium text-slate-500 hover:text-brand-600">
+            {showPassword ? "Gizlət" : "Göstər"}
+          </button>
+        </div>
       </label>
       <button className="btn-primary w-full" disabled={submitting}>
         {submitting ? "Yoxlanılır..." : "Daxil ol"}
