@@ -1,21 +1,16 @@
-import { PointerEvent, WheelEvent, createElement, useEffect, useRef, useState } from "react";
+import { PointerEvent, Suspense, WheelEvent, lazy, useEffect, useRef, useState } from "react";
+import type { CameraView, ModelStageHandle } from "./ModelStage";
 import ProductImage from "./ProductImage";
 
-const MODEL_VIEWER_SRC = "https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js";
-let modelViewerLoader: Promise<void> | null = null;
-const loadModelViewer = () => {
-  if (!modelViewerLoader) {
-    modelViewerLoader = new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.type = "module";
-      script.src = MODEL_VIEWER_SRC;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error("3D"));
-      document.head.appendChild(script);
-    });
-  }
-  return modelViewerLoader;
-};
+const ModelStage = lazy(() => import("./ModelStage"));
+
+const CAMERA_VIEWS: { key: CameraView; label: string }[] = [
+  { key: "front", label: "Ön" },
+  { key: "back", label: "Arxa" },
+  { key: "left", label: "Sol" },
+  { key: "right", label: "Sağ" },
+  { key: "top", label: "Yuxarı" },
+];
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
@@ -44,6 +39,9 @@ export default function ProductViewer({ images, alt, category, model3d }: Produc
   const [autoSpin, setAutoSpin] = useState(false);
   const [modelReady, setModelReady] = useState(false);
   const [modelError, setModelError] = useState(false);
+  const [modelProgress, setModelProgress] = useState(0);
+  const [modelSpin, setModelSpin] = useState(true);
+  const modelRef = useRef<ModelStageHandle>(null);
   const drag = useRef<{ x: number; y: number; index: number; offset: { x: number; y: number } } | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
 
@@ -52,14 +50,15 @@ export default function ProductViewer({ images, alt, category, model3d }: Produc
     setZoom(1);
     setOffset({ x: 0, y: 0 });
     setMode(model3d ? "model" : "photo");
+    setModelReady(false);
+    setModelError(false);
+    setModelProgress(0);
+    setModelSpin(true);
   }, [images, model3d]);
 
   useEffect(() => {
-    if (mode !== "model" || !model3d) return;
-    loadModelViewer()
-      .then(() => setModelReady(true))
-      .catch(() => setModelError(true));
-  }, [mode, model3d]);
+    if (modelError && mode === "model") setMode("photo");
+  }, [modelError, mode]);
 
   useEffect(() => {
     if (!autoSpin || mode !== "spin") return;
@@ -120,7 +119,7 @@ export default function ProductViewer({ images, alt, category, model3d }: Produc
   const tabs: { key: "photo" | "spin" | "model"; label: string; show: boolean }[] = [
     { key: "photo", label: "Şəkillər", show: true },
     { key: "spin", label: "360° fırlatma", show: canSpin },
-    { key: "model", label: "3D model", show: Boolean(model3d) },
+    { key: "model", label: "3D model", show: Boolean(model3d) && !modelError },
   ];
 
   return (
@@ -146,9 +145,38 @@ export default function ProductViewer({ images, alt, category, model3d }: Produc
               </button>
             ))}
         </div>
+        {mode === "model" && modelReady && (
+          <div className="ml-auto flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => {
+                const next = !modelSpin;
+                setModelSpin(next);
+                modelRef.current?.setAutoRotate(next);
+              }}
+              className={`flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium transition ${modelSpin ? "bg-brand-600 text-white" : "bg-chip text-ink/80 hover:text-ink"}`}
+            >
+              <Icon d="M4 12a8 8 0 0 1 14-5.3M20 4v5h-5M20 12a8 8 0 0 1-14 5.3M4 20v-5h5" />
+              {modelSpin ? "Dayandır" : "Avtomatik fırlat"}
+            </button>
+            <button type="button" aria-label="Uzaqlaşdır" onClick={() => modelRef.current?.zoom(1.25)} className="flex size-9 items-center justify-center rounded-lg bg-chip text-ink/80 transition hover:text-ink">
+              <Icon d="M5 12h14" />
+            </button>
+            <button type="button" aria-label="Yaxınlaşdır" onClick={() => modelRef.current?.zoom(0.8)} className="flex size-9 items-center justify-center rounded-lg bg-chip text-ink/80 transition hover:text-ink">
+              <Icon d="M12 5v14M5 12h14" />
+            </button>
+            <button type="button" aria-label="Sıfırla" onClick={() => modelRef.current?.reset()} className="flex size-9 items-center justify-center rounded-lg bg-chip text-ink/80 transition hover:text-ink">
+              <Icon d="M4 4v6h6M4.6 15A8 8 0 1 0 6 6.3L4 10" />
+            </button>
+          </div>
+        )}
         {mode !== "model" && (
           <div className="ml-auto flex items-center gap-1">
-            {mode === "spin" && (
+            {modelError && (
+        <p className="text-[11px] leading-snug text-amber-700 dark:text-amber-400">3D model yüklənmədi, məhsulun şəkilləri göstərilir.</p>
+      )}
+
+      {mode === "spin" && (
               <button
                 type="button"
                 onClick={() => setAutoSpin((value) => !value)}
@@ -185,21 +213,43 @@ export default function ProductViewer({ images, alt, category, model3d }: Produc
         onDoubleClick={() => mode !== "model" && (zoom > 1 ? resetView() : changeZoom(1))}
       >
         {mode === "model" && model3d ? (
-          modelError ? (
-            <p className="p-6 text-center text-sm text-muted">3D model yüklənmədi</p>
-          ) : modelReady ? (
-            createElement("model-viewer", {
-              src: model3d,
-              alt,
-              "camera-controls": true,
-              "auto-rotate": true,
-              "touch-action": "pan-y",
-              "shadow-intensity": "1",
-              style: { width: "100%", height: "100%", background: "transparent" },
-            })
-          ) : (
-            <span className="size-6 animate-spin rounded-full border-2 border-line border-t-brand-600" />
-          )
+          <>
+            <Suspense fallback={null}>
+              <ModelStage
+                ref={modelRef}
+                src={model3d}
+                alt={alt}
+                onProgress={setModelProgress}
+                onLoaded={() => setModelReady(true)}
+                onError={() => setModelError(true)}
+              />
+            </Suspense>
+            {!modelReady && (
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3" role="status">
+                <span className="size-8 animate-spin rounded-full border-2 border-line border-t-brand-600" />
+                <span className="text-xs font-medium text-muted">3D model yüklənir{modelProgress ? ` · ${modelProgress}%` : "..."}</span>
+              </div>
+            )}
+            {modelReady && (
+              <div className="absolute inset-x-0 bottom-3 flex justify-center">
+                <div className="flex gap-1 rounded-full bg-slate-900/75 p-1 backdrop-blur" role="group" aria-label="Kamera bucağı">
+                  {CAMERA_VIEWS.map((view) => (
+                    <button
+                      key={view.key}
+                      type="button"
+                      onClick={() => {
+                        setModelSpin(false);
+                        modelRef.current?.setView(view.key);
+                      }}
+                      className="rounded-full px-2.5 py-1 text-[11px] font-medium text-white/85 transition hover:bg-white/15 hover:text-white"
+                    >
+                      {view.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div
             className="flex size-full items-center justify-center p-8 transition-transform duration-150 ease-out"

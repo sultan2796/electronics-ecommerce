@@ -683,6 +683,17 @@ Slayd əlavə edildi|Слайд добавлен|Slide added
 Slayd silindi|Слайд удалён|Slide deleted
 “{}” slaydı silinsin?|Удалить слайд «{}»?|Delete slide “{}”?
 Bu əməliyyat geri qaytarıla bilməz.|Это действие нельзя отменить.|This action cannot be undone.
+Ön|Спереди|Front
+Arxa|Сзади|Back
+Sol|Слева|Left
+Sağ|Справа|Right
+Kamera bucağı|Ракурс камеры|Camera angle
+3D model yüklənir...|Загрузка 3D-модели...|Loading 3D model...
+3D model yüklənir · {}%|Загрузка 3D-модели · {}%|Loading 3D model · {}%
+3D model yüklənmədi, məhsulun şəkilləri göstərilir.|Не удалось загрузить 3D-модель, показаны фотографии товара.|The 3D model could not be loaded, showing product photos.
+3D model linki (GLB / GLTF)|Ссылка на 3D-модель (GLB / GLTF)|3D model link (GLB / GLTF)
+Real 3D model varsa, linkini yazın. Model məhsul səhifəsində Three.js ilə fırladıla bilən 3D baxış kimi göstəriləcək. Link yoxdursa, yalnız şəkillər göstərilir.|Если есть настоящая 3D-модель, укажите ссылку. Она будет показана на странице товара как вращаемый 3D-просмотр (Three.js). Без ссылки показываются только фото.|If a real 3D model exists, enter its link. It will be shown on the product page as a rotatable 3D view (Three.js). Without a link only photos are shown.
+3D model linki https:// ilə başlamalı və .glb və ya .gltf faylı olmalıdır|Ссылка на 3D-модель должна начинаться с https:// и вести к файлу .glb или .gltf|The 3D model link must start with https:// and point to a .glb or .gltf file
 `;
 
 const months = [

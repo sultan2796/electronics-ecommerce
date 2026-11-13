@@ -53,7 +53,7 @@ export const productSpecGroups = (product: Product, locale: Locale): SpecGroup[]
         ["Yenilənmə tezliyi", specs.refreshRateHz ? `${specs.refreshRateHz} Hz` : null],
         ["Batareya", specs.batteryMah ? `${specs.batteryMah} mAh` : null],
         ["Əməliyyat sistemi", specs.os],
-        ["Bağlantı", specs.connectivity.length ? specs.connectivity.join(", ") : null],
+        ["Bağlantı", specs.connectivity?.length ? specs.connectivity.join(", ") : null],
       ]
     : [];
 

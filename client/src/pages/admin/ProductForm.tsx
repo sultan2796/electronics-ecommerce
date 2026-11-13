@@ -33,6 +33,7 @@ interface FormState {
   description: string;
   price: string;
   salePrice: string;
+  model3dUrl: string;
   stock: string;
   images: string;
   categoryId: string;
@@ -59,6 +60,7 @@ const emptyForm: FormState = {
   description: "",
   price: "",
   salePrice: "",
+  model3dUrl: "",
   stock: "0",
   images: "",
   categoryId: "",
@@ -87,6 +89,7 @@ const fromProduct = (product: Product): FormState => ({
   description: product.description,
   price: String(Number(product.price)),
   salePrice: product.salePrice ? String(Number(product.salePrice)) : "",
+  model3dUrl: product.model3dUrl ?? "",
   stock: String(product.stock),
   images: product.images.join("\n"),
   categoryId: product.categoryId,
@@ -117,6 +120,7 @@ const toPayload = (form: FormState): ProductPayload => ({
   description: form.description.trim(),
   price: Number(form.price),
   salePrice: form.salePrice.trim() ? Number(form.salePrice) : null,
+  model3dUrl: form.model3dUrl.trim() || null,
   stock: Math.round(Number(form.stock)),
   images: form.images.split("\n").map((line) => line.trim()).filter(Boolean),
   categoryId: form.categoryId,
@@ -340,6 +344,18 @@ export default function ProductForm() {
               {uploading ? "Yüklənir..." : "Kompüterdən şəkil yüklə (maks. 2 MB)"}
             </label>
             {uploadError && <p className="text-xs text-red-600">{uploadError}</p>}
+            <Field label="3D model linki (GLB / GLTF)">
+              <input
+                className="input font-mono text-xs"
+                type="url"
+                placeholder="https://.../model.glb"
+                value={form.model3dUrl}
+                onChange={(event) => update("model3dUrl", event.target.value)}
+              />
+            </Field>
+            <p className="text-[11px] leading-snug text-muted">
+              Real 3D model varsa, linkini yazın. Model məhsul səhifəsində Three.js ilə fırladıla bilən 3D baxış kimi göstəriləcək. Link yoxdursa, yalnız şəkillər göstərilir.
+            </p>
             <Field label="Şəkil linkləri (hər sətirdə bir)">
               <textarea
                 className="input min-h-[100px] rounded-xl font-mono text-xs"

@@ -105,6 +105,7 @@ export interface Product {
   description: string;
   price: string;
   salePrice?: string | null;
+  model3dUrl?: string | null;
   stock: number;
   images: string[];
   isActive: boolean;
@@ -280,6 +281,7 @@ export interface ProductPayload {
   description: string;
   price: number;
   salePrice?: number | null;
+  model3dUrl?: string | null;
   stock: number;
   images: string[];
   categoryId: string;

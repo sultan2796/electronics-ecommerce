@@ -74,6 +74,16 @@ export const productCreateSchema = z.object({
   description: z.string().max(5000).default(""),
   price: z.number().positive(),
   salePrice: z.number().positive().nullable().optional(),
+  model3dUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .nullish()
+    .transform((value) => (value ? value : null))
+    .refine(
+      (value) => value === null || (/^https:\/\/[^\s\\]+\.(glb|gltf)(\?[^\s\\]*)?$/i.test(value) && !/[\u0000-\u001f]/.test(value)),
+      "3D model linki https:// ilə başlamalı və .glb və ya .gltf faylı olmalıdır",
+    ),
   stock: z.number().int().min(0),
   images: z.array(z.string().trim().min(1)).default([]),
   categoryId: z.string().min(1),
