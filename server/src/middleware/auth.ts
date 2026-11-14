@@ -36,6 +36,22 @@ export const authenticate: RequestHandler = async (req, _res, next) => {
   }
 };
 
+export const optionalAuth: RequestHandler = async (req, _res, next) => {
+  const header = req.headers.authorization;
+  if (!header?.startsWith("Bearer ")) {
+    next();
+    return;
+  }
+  try {
+    const userId = verifyAccessToken(header.slice(7)).sub;
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, role: true, isBlocked: true } });
+    if (user && !user.isBlocked) req.user = { id: user.id, role: user.role };
+  } catch {
+    req.user = undefined;
+  }
+  next();
+};
+
 export const requirePermission =
   (...required: Permission[]): RequestHandler =>
   (req, _res, next) => {

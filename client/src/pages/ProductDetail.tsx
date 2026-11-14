@@ -11,6 +11,7 @@ import Alert from "../components/common/Alert";
 import FigmaIcon from "../components/common/FigmaIcon";
 import Spinner from "../components/common/Spinner";
 import ReviewSection from "../components/product/ReviewSection";
+import ProductQuestions from "../components/product/ProductQuestions";
 import PurchaseInfo from "../components/product/PurchaseInfo";
 import RecentlyViewed from "../components/home/RecentlyViewed";
 import { useAuth } from "../context/AuthContext";
@@ -42,6 +43,10 @@ export default function ProductDetail() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedVariant = searchParams.get("variant");
   const [ctaEl, setCtaEl] = useState<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    setMessage(null);
+  }, [slug]);
   const [ctaVisible, setCtaVisible] = useState(true);
 
   useEffect(() => {
@@ -137,7 +142,7 @@ export default function ProductDetail() {
   const rating = productRating(product);
   const price = pricing(view);
   const inWishlist = wishlist.has(product.id);
-  const rows = productSpecGroups(product, locale).flatMap((group) => group.rows);
+  const rows = productSpecGroups(view, locale).flatMap((group) => group.rows);
 
   const requireUser = () => {
     if (!user) navigate("/login", { state: { from: `/products/${product.slug}` } });
@@ -319,6 +324,7 @@ export default function ProductDetail() {
         onBuy={buyNow}
       />
       <ReviewSection productId={product.id} productSlug={product.slug} onSummaryChange={syncRating} />
+      <ProductQuestions productId={product.id} productSlug={product.slug} />
       <RelatedProducts productId={product.id} />
       <div className="mt-10">
         <RecentlyViewed key={product.id} excludeId={product.id} title="Bunlara da baxmısınız" />

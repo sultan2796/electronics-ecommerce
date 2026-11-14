@@ -9,6 +9,7 @@ import {
   GalleryHorizontal,
   LayoutDashboard,
   LayoutGrid,
+  MessageCircleQuestion,
   CreditCard,
   Tags,
   LogOut,
@@ -44,6 +45,7 @@ type IconName =
   | "users"
   | "plus"
   | "reviews"
+  | "questions"
   | "emails"
   | "coupons"
   | "campaigns"
@@ -66,6 +68,7 @@ const icons: Record<IconName, LucideIcon> = {
   users: Users,
   plus: Plus,
   reviews: Star,
+  questions: MessageCircleQuestion,
   emails: Mail,
   campaigns: Zap,
   slides: GalleryHorizontal,
@@ -107,6 +110,7 @@ const groups: { title: string; items: NavItem[] }[] = [
       { to: "/admin/payments", label: "Ödənişlər", permission: "orders:read", icon: "payments" },
       { to: "/admin/users", label: "Müştərilər", permission: "users:read", icon: "users" },
       { to: "/admin/reviews", label: "Rəylər", permission: "reviews:moderate", icon: "reviews" },
+      { to: "/admin/questions", label: "Suallar", permission: "reviews:moderate", icon: "questions" },
     ],
   },
   {
@@ -144,6 +148,7 @@ const titles: [string, string][] = [
   ["/admin/brands", "Brendlər"],
   ["/admin/users", "Müştərilər"],
   ["/admin/reviews", "Rəylər"],
+  ["/admin/questions", "Suallar"],
   ["/admin/emails", "E-poçtlar"],
   ["/admin/payments", "Ödənişlər"],
   ["/admin/coupons", "Kuponlar"],

@@ -3,6 +3,7 @@ import { hasPermission } from "../config/permissions";
 import { prisma } from "../config/prisma";
 import { ReviewBody } from "../models/review.model";
 import { displayName, hasPurchased, recalculateRating, resolveProduct, reviewSummary } from "../services/review.service";
+import { deleteReviewPhotos, prepareReviewPhotos, resolveReviewPhotos } from "../services/reviewPhotos.service";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { currentUser } from "../utils/currentUser";
@@ -13,11 +14,12 @@ const orderByFor = (sort: string): Prisma.ReviewOrderByWithRelationInput[] => {
   return [{ createdAt: "desc" }];
 };
 
-const publicReview = (review: { id: string; rating: number; title: string | null; comment: string; createdAt: Date; updatedAt: Date; userId: string; user: { name: string } }) => ({
+const publicReview = (review: { id: string; rating: number; title: string | null; comment: string; images: string[]; createdAt: Date; updatedAt: Date; userId: string; user: { name: string } }) => ({
   id: review.id,
   rating: review.rating,
   title: review.title,
   comment: review.comment,
+  images: review.images,
   createdAt: review.createdAt,
   updatedAt: review.updatedAt,
   userId: review.userId,
@@ -55,17 +57,20 @@ export const myReviewStatus = asyncHandler(async (req, res) => {
 export const upsertReview = asyncHandler(async (req, res) => {
   const user = currentUser(req);
   const product = await resolveProduct(req.params.id);
-  const { rating, title, comment } = req.body as ReviewBody;
+  const { rating, title, comment, images } = req.body as ReviewBody;
 
   if (!(await hasPurchased(user.id, product.id))) {
     throw new AppError(403, "Rəyi yalnız bu məhsulu almış (ödənilmiş sifarişi olan) müştərilər yaza bilər");
   }
 
+  const prepared = await prepareReviewPhotos(images);
   const review = await prisma.$transaction(async (tx) => {
+    const existing = await tx.review.findUnique({ where: { productId_userId: { productId: product.id, userId: user.id } }, select: { images: true } });
+    const photos = await resolveReviewPhotos(tx, prepared, existing?.images ?? []);
     const saved = await tx.review.upsert({
       where: { productId_userId: { productId: product.id, userId: user.id } },
-      update: { rating, title: title || null, comment },
-      create: { productId: product.id, userId: user.id, rating, title: title || null, comment },
+      update: { rating, title: title || null, comment, images: photos.images },
+      create: { productId: product.id, userId: user.id, rating, title: title || null, comment, images: photos.images },
       include: { user: { select: { name: true } } },
     });
     await recalculateRating(product.id, tx);
@@ -84,6 +89,7 @@ export const deleteReview = asyncHandler(async (req, res) => {
   }
   await prisma.$transaction(async (tx) => {
     await tx.review.delete({ where: { id: review.id } });
+    await deleteReviewPhotos(tx, review.images);
     await recalculateRating(review.productId, tx);
   });
   res.status(204).end();

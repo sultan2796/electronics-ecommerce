@@ -200,6 +200,18 @@ export const adminNotifications = asyncHandler(async (req, res) => {
     }
   }
 
+  if (hasPermission(role, "reviews:moderate")) {
+    const questions = await prisma.productQuestion.findMany({
+      where: { answer: null },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, question: true, createdAt: true, product: { select: { name: true } } },
+    });
+    for (const item of questions) {
+      notices.push({ id: `question-${item.id}`, kind: "review", title: `Yeni sual · ${item.product.name}`, detail: item.question.slice(0, 80), to: "/admin/questions", createdAt: item.createdAt });
+    }
+  }
+
   if (hasPermission(role, "emails:read")) {
     const where = { status: EmailStatus.FAILED, createdAt: { gte: week } };
     const [failed, latest] = await Promise.all([

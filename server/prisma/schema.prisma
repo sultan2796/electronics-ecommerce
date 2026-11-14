@@ -69,6 +69,8 @@ model User {
   updatedAt     DateTime       @updatedAt
   points        Int       @default(0)
   googleId      String?   @unique
+  questions     ProductQuestion[] @relation("QuestionAuthor")
+  answers       ProductQuestion[] @relation("QuestionAnswerer")
   avatarId      String?   @unique
   avatar        Upload?   @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: SetNull)
   auditLogs     AuditLog[]
@@ -109,6 +111,7 @@ model Product {
   description  String
   price        Decimal            @db.Decimal(10, 2)
   salePrice    Decimal?           @db.Decimal(10, 2)
+  effectivePrice Decimal?         @db.Decimal(10, 2)
   videoUrl       String?
   videoPoster    String?
   model3dUrl     String?
@@ -123,6 +126,7 @@ model Product {
   category     Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   specs        TechSpecification?
   variants     ProductVariant[]
+  questions    ProductQuestion[]
   cartItems    CartItem[]
   orderItems   OrderItem[]
   wishlistedBy WishlistItem[]
@@ -297,6 +301,7 @@ model Review {
   rating    Int
   title     String?
   comment   String
+  images    String[] @default([])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -457,4 +462,23 @@ model ProductVariant {
   updatedAt DateTime   @updatedAt
 
   @@index([productId, sortOrder])
+}
+
+model ProductQuestion {
+  id          String    @id @default(cuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation("QuestionAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  question    String
+  answer      String?
+  answeredById String?
+  answeredBy  User?     @relation("QuestionAnswerer", fields: [answeredById], references: [id], onDelete: SetNull)
+  answeredAt  DateTime?
+  isPublished Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([productId, answeredAt])
+  @@index([answeredAt, createdAt])
 }

@@ -9,7 +9,7 @@ export default function ProtectedRoute({ permission }: { permission?: Permission
   const location = useLocation();
 
   if (initializing) return <Spinner />;
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (!user) return <Navigate to="/login" replace state={{ from: `${location.pathname}${location.search}${location.hash}` }} />;
   if (permission && !can(permission)) {
     return <EmptyState title="Bu bölməyə giriş icazəniz yoxdur." />;
   }

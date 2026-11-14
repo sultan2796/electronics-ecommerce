@@ -25,12 +25,18 @@ import { userQuerySchema, userUpdateSchema } from "../models/user.model";
 
 import { adminPaymentsQuerySchema, adminSearch, adminSearchQuerySchema, adminNotifications, listPayments, markPaymentRefunded, optimizeImagesSchema, optimizeStoredImages } from "../controllers/adminExtra.controller";
 
+import { adminDeleteQuestion, adminListQuestions, adminUpdateQuestion } from "../controllers/question.controller";
+import { adminQuestionQuerySchema, answerBodySchema } from "../models/review.model";
+
 export const adminRouter = Router();
 
 adminRouter.use(authenticate, requirePermission("dashboard:read"));
 
 adminRouter.get("/stats", getStats);
 adminRouter.get("/notifications", adminNotifications);
+adminRouter.get("/questions", requirePermission("reviews:moderate"), validate({ query: adminQuestionQuerySchema }), adminListQuestions);
+adminRouter.patch("/questions/:id", requirePermission("reviews:moderate"), validate({ params: idParamSchema, body: answerBodySchema }), adminUpdateQuestion);
+adminRouter.delete("/questions/:id", requirePermission("reviews:moderate"), validate({ params: idParamSchema }), adminDeleteQuestion);
 adminRouter.post("/uploads/optimize", requirePermission("settings:write"), validate({ body: optimizeImagesSchema }), optimizeStoredImages);
 adminRouter.get("/search", validate({ query: adminSearchQuerySchema }), adminSearch);
 adminRouter.get("/payments", requirePermission("orders:read"), validate({ query: adminPaymentsQuerySchema }), listPayments);

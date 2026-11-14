@@ -64,7 +64,7 @@ export default function Cart() {
               <span className="w-8 text-center">{item.quantity}</span>
               <button
                 className="btn-outline px-3"
-                disabled={busy || item.quantity >= item.product.stock}
+                disabled={busy || item.quantity >= Math.min(item.product.stock, isGuest ? 5 : 20)}
                 onClick={() => safely(() => updateItem(item.id, item.quantity + 1))}
               >
                 +

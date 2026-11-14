@@ -1,6 +1,6 @@
 import { toast } from "../common/Overlays";
 import { Eye, Heart, Scale } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -17,7 +17,9 @@ import { openQuickView } from "./QuickView";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { user } = useAuth();
-  const { addItem, busy } = useCart();
+  const { addItem } = useCart();
+  const [adding, setAdding] = useState(false);
+  const flashTimer = useRef<number | undefined>(undefined);
   const compare = useCompare();
   const wishlist = useWishlist();
   const { t } = useI18n();
@@ -31,10 +33,13 @@ export default function ProductCard({ product }: { product: Product }) {
   const rating = productRating(product);
   const price = pricing(product);
 
+  useEffect(() => () => window.clearTimeout(flashTimer.current), []);
+
   const flash = (text: string | null) => {
     if (!text) return;
+    window.clearTimeout(flashTimer.current);
     setMessage(text);
-    window.setTimeout(() => setMessage(null), 2200);
+    flashTimer.current = window.setTimeout(() => setMessage(null), 2200);
   };
 
   const requireUser = () => {
@@ -47,13 +52,17 @@ export default function ProductCard({ product }: { product: Product }) {
       navigate(`/products/${product.slug}`);
       return;
     }
+    if (adding) return;
+    setAdding(true);
     try {
       await addItem(product.id);
       setCartPulse((value) => value + 1);
       flash(t("card.added"));
       toast(`${product.name} səbətə əlavə edildi`);
     } catch (error) {
-      flash(getErrorMessage(error));
+      toast(getErrorMessage(error), "error");
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -68,7 +77,7 @@ export default function ProductCard({ product }: { product: Product }) {
       if (!liked) setHeartPulse((value) => value + 1);
       toast(liked ? "İstək siyahısından çıxarıldı" : "İstək siyahısına əlavə edildi", liked ? "info" : "success");
     } catch (error) {
-      flash(getErrorMessage(error));
+      toast(getErrorMessage(error), "error");
     }
   };
 
@@ -99,7 +108,10 @@ export default function ProductCard({ product }: { product: Product }) {
           </button>
           <button
             type="button"
-            onClick={() => flash(compare.toggle(product))}
+            onClick={() => {
+              const text = compare.toggle(product);
+              if (text) toast(text, "info");
+            }}
             aria-pressed={inCompare}
             aria-label={t("card.compare")}
             className={`${iconButton} product-card-reveal ${inCompare ? "text-brand-600 opacity-100" : "text-muted"}`}
@@ -149,7 +161,8 @@ export default function ProductCard({ product }: { product: Product }) {
           <button
             type="button"
             onClick={addToCart}
-            disabled={busy || soldOut}
+            disabled={adding || soldOut}
+            aria-busy={adding}
             className={`flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-[13px] font-semibold transition duration-200 ease-out hover:bg-cta-hover active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:bg-chip disabled:text-muted sm:text-sm ${
               cartPulse && message ? "cart-bump bg-success text-white dark:text-canvas" : "bg-cta text-white"
             }`}

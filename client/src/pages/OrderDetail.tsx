@@ -25,19 +25,25 @@ export default function OrderDetail() {
 
   useEffect(() => {
     if (!order || finished) return;
+    let alive = true;
     const timer = window.setInterval(() => {
       if (document.visibilityState !== "visible") return;
       orderService
         .get(id)
-        .then((fresh) => setData(fresh))
+        .then((fresh) => {
+          if (alive && fresh.id === id) setData(fresh);
+        })
         .catch(() => undefined);
     }, 30000);
-    return () => window.clearInterval(timer);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+    };
   }, [id, order?.id, finished, setData]);
 
   const state = (location.state as { placed?: boolean; paymentError?: string | null } | null) ?? null;
 
-  if (loading && !order) return <Spinner />;
+  if ((loading && !order) || (order && order.id !== id && loading)) return <Spinner />;
   if (error || !order) return <Alert>{error ?? "Sifariş tapılmadı"}</Alert>;
 
   const cancelled = order.status === "CANCELLED";

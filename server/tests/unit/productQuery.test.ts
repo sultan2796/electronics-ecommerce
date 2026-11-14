@@ -13,7 +13,7 @@ describe("məhsul filtrləri", () => {
     const where = buildProductWhere(parse({ category: "laptops", brand: "Apple,Dell", minPrice: "500", maxPrice: "2000" }));
     expect(where.category).toEqual({ slug: "laptops" });
     expect(where.brand).toEqual({ in: ["Apple", "Dell"], mode: "insensitive" });
-    expect(where.price).toEqual({ gte: 500, lte: 2000 });
+    expect(where.effectivePrice).toEqual({ gte: 500, lte: 2000 });
   });
 
   it("stokda olanlar filtri", () => {
@@ -36,8 +36,8 @@ describe("məhsul filtrləri", () => {
   });
 
   it("çeşidləmə parametrləri", () => {
-    expect(buildProductOrderBy("price_asc")).toEqual({ price: "asc" });
-    expect(buildProductOrderBy("price_desc")).toEqual({ price: "desc" });
+    expect(buildProductOrderBy("price_asc")).toEqual({ effectivePrice: "asc" });
+    expect(buildProductOrderBy("price_desc")).toEqual({ effectivePrice: "desc" });
   });
 
   it("limit 60-dan böyük ola bilməz", () => {

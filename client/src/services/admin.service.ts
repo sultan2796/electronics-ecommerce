@@ -13,6 +13,19 @@ export interface AdminPayment {
   order: { id: string; orderNumber: string | null; guestEmail: string | null; guestName: string | null; user: { name: string; email: string } | null };
 }
 
+export interface AdminQuestion {
+  id: string;
+  question: string;
+  answer: string | null;
+  answeredAt: string | null;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+  user: { name: string; email: string };
+  product: { id: string; name: string; slug: string };
+  answeredBy: { name: string } | null;
+}
+
 export interface AdminNotice {
   id: string;
   kind: "order" | "stock" | "review" | "refund" | "email";
@@ -65,6 +78,10 @@ export const adminService = {
     api
       .get<Paginated<AdminPayment> & { summary: Partial<Record<PaymentStatus, { count: number; amount: number }>> }>("/admin/payments", { params })
       .then((r) => r.data),
+  questions: (params: { status: "open" | "answered" | "all"; page: number }) =>
+    api.get<Paginated<AdminQuestion> & { openCount: number }>("/admin/questions", { params }).then((r) => r.data),
+  updateQuestion: (id: string, body: { answer?: string; isPublished?: boolean }) => api.patch(`/admin/questions/${id}`, body).then((r) => r.data),
+  deleteQuestion: (id: string) => api.delete(`/admin/questions/${id}`),
   notifications: () => api.get<{ items: AdminNotice[] }>("/admin/notifications").then((r) => r.data),
   optimizeImages: (cursor?: string) =>
     api

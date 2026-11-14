@@ -23,7 +23,7 @@ export default function Login() {
     setSubmitting(true);
     setError(null);
     try {
-      const loggedIn = await login(email.trim(), password.trim());
+      const loggedIn = await login(email.trim(), password);
       navigate(loggedIn.permissions.includes("dashboard:read") && from === "/" ? "/admin" : from, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));

@@ -17,7 +17,7 @@ export const loginSchema = z.object({
     .max(120)
     .transform(loginIdentifierToEmail)
     .pipe(z.string().email("E-poçt və ya istifadəçi adı yanlışdır")),
-  password: z.string().trim().min(1),
+  password: z.string().min(1).max(200),
 });
 
 export const updateProfileSchema = z.object({

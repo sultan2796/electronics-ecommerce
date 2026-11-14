@@ -70,6 +70,9 @@ export default function QuickView() {
 
   if (!product) return null;
 
+  const hasVariants = Boolean(product.variants?.length);
+  const variantPrices = (product.variants ?? []).map((variant) => Number(variant.price ?? product.price)).filter((value) => Number.isFinite(value));
+  const fromPrice = hasVariants && variantPrices.length ? Math.min(...variantPrices) : null;
   const price = pricing(product);
   const rating = productRating(product);
   const soldOut = product.stock === 0;
@@ -157,7 +160,9 @@ export default function QuickView() {
 
             <div className="rounded-2xl bg-chip/60 p-4">
               <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-                <span className={`text-3xl font-bold ${price.percent > 0 ? "text-red-600" : "text-ink"}`}>{formatPrice(price.price)}</span>
+                <span className={`text-3xl font-bold ${price.percent > 0 && fromPrice === null ? "text-red-600" : "text-ink"}`}>
+                  {fromPrice !== null ? `${formatPrice(fromPrice)}-dan` : formatPrice(price.price)}
+                </span>
                 {price.was && <span className="pb-1 text-sm text-muted line-through">{formatPrice(price.was.toFixed(2))}</span>}
                 {price.percent > 0 && <span className="mb-1 rounded-md bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">−{price.percent}%</span>}
               </div>
@@ -177,12 +182,12 @@ export default function QuickView() {
                 </p>
               )}
               <p className={`mt-2 text-xs font-medium ${soldOut ? "text-red-600" : product.stock <= 5 ? "text-amber-600" : "text-emerald-600"}`}>
-                {soldOut ? "Stokda yoxdur" : `Stokda ${product.stock} ədəd var`}
+                {soldOut ? "Stokda yoxdur" : hasVariants ? `${product.variants?.length ?? 0} variant mövcuddur` : `Stokda ${product.stock} ədəd var`}
               </p>
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {!soldOut && (
+              {!soldOut && !hasVariants && (
                 <div className="flex h-12 items-center rounded-xl border border-line">
                   <button type="button" aria-label="Azalt" onClick={() => setQuantity((value) => Math.max(1, value - 1))} className="h-full px-3 text-lg text-ink/70 hover:text-ink">
                     −
@@ -198,8 +203,8 @@ export default function QuickView() {
                   </button>
                 </div>
               )}
-              <button type="button" onClick={addToCart} disabled={busy || soldOut} className="btn-primary h-12 flex-1 text-base">
-                {soldOut ? "Stokda yoxdur" : "Səbətə at"}
+              <button type="button" onClick={addToCart} disabled={(busy && !hasVariants) || soldOut} className="btn-primary h-12 flex-1 text-base">
+                {soldOut ? "Stokda yoxdur" : hasVariants ? "Variant seç" : "Səbətə at"}
               </button>
               <button
                 type="button"

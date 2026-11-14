@@ -67,7 +67,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     include: productInclude,
   });
   res.status(201).json(product);
-  audit(req, "product.create", "Product", req.params.id ?? null, req.body);
+  audit(req, "product.create", "Product", product.id, req.body);
 });
 
 export const updateProduct = asyncHandler(async (req, res) => {

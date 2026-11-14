@@ -18,6 +18,12 @@ export default function ResetPassword() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!done) return;
+    const timer = window.setTimeout(() => navigate("/login", { replace: true }), 2500);
+    return () => window.clearTimeout(timer);
+  }, [done, navigate]);
+
+  useEffect(() => {
     if (token.length < 32) {
       setValid(false);
       return;
@@ -44,7 +50,7 @@ export default function ResetPassword() {
     try {
       const result = await authService.resetPassword(token, password);
       setDone(result.message);
-      setTimeout(() => navigate("/login", { replace: true }), 2500);
+
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

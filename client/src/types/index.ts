@@ -357,8 +357,19 @@ export interface Review {
   rating: number;
   title: string | null;
   comment: string;
+  images?: string[];
   createdAt: string;
   updatedAt: string;
+  userId: string;
+  author: string;
+}
+
+export interface ProductQuestion {
+  id: string;
+  question: string;
+  answer: string | null;
+  answeredAt: string | null;
+  createdAt: string;
   userId: string;
   author: string;
 }

@@ -178,7 +178,11 @@ export default function AdminOrders() {
             <Pagination
               page={orders.data.page}
               totalPages={orders.data.totalPages}
-              onChange={(next) => setParams({ ...(status && { status }), page: String(next) })}
+              onChange={(next) => {
+                const nextParams = new URLSearchParams(params);
+                nextParams.set("page", String(next));
+                setParams(nextParams);
+              }}
             />
           )}
         </>

@@ -1,14 +1,13 @@
 import BulkBar from "../../components/admin/BulkBar";
 import { productService } from "../../services/product.service";
 import { FormEvent, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Alert from "../../components/common/Alert";
 import Pagination from "../../components/common/Pagination";
 import Spinner from "../../components/common/Spinner";
 import { useAsync } from "../../hooks/useAsync";
 import { getErrorMessage } from "../../services/api";
 import { adminService } from "../../services/admin.service";
-import { Link } from "react-router-dom";
 import ProductImage from "../../components/product/ProductImage";
 import { Product } from "../../types";
 import { formatPrice } from "../../utils/format";
@@ -16,23 +15,37 @@ import { formatPrice } from "../../utils/format";
 function StockEditor({ product, onSaved }: { product: Product; onSaved: (product: Product) => void }) {
   const [value, setValue] = useState(String(product.stock));
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const dirty = Number(value) !== product.stock;
+  const hasVariants = Boolean(product.variants?.some((variant) => variant.isActive));
 
   const save = async () => {
     setSaving(true);
+    setError(null);
     try {
       onSaved(await adminService.updateStock(product.id, Number(value)));
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setSaving(false);
     }
   };
 
+  if (hasVariants) {
+    return (
+      <Link to={`/admin/products/${product.id}`} className="text-xs text-brand-600 hover:underline">
+        {`${product.stock} · variantlarda dəyiş`}
+      </Link>
+    );
+  }
+
   return (
     <div className="flex items-center gap-2">
       <input className="input w-20" type="number" min="0" value={value} onChange={(e) => setValue(e.target.value)} />
-      <button className="btn-outline px-3" disabled={!dirty || saving || value === ""} onClick={save}>
+      <button type="button" className="btn-outline px-3" disabled={!dirty || saving || value === ""} onClick={save}>
         Saxla
       </button>
+      {error && <span className="max-w-[160px] text-xs text-red-600">{error}</span>}
     </div>
   );
 }

@@ -10,12 +10,14 @@ import {
   productFacets,
   updateProduct,
 } from "../controllers/product.controller";
-import { authenticate, requirePermission } from "../middleware/auth";
+import { authenticate, optionalAuth, requirePermission } from "../middleware/auth";
+import { askQuestion, listQuestions } from "../controllers/question.controller";
+import { contentLimiter } from "../middleware/rateLimit";
 import { replaceVariants } from "../controllers/variant.controller";
 import { variantListSchema } from "../models/variant.model";
 import { validate } from "../middleware/validate";
 import { idParamSchema } from "../models/common.model";
-import { reviewBodySchema, reviewListQuerySchema } from "../models/review.model";
+import { reviewBodySchema, reviewListQuerySchema, questionBodySchema } from "../models/review.model";
 import { listReviews, myReviewStatus, upsertReview } from "../controllers/review.controller";
 import {
   compareQuerySchema,
@@ -37,7 +39,9 @@ productRouter.get("/lookup", validate({ query: lookupQuerySchema }), lookupProdu
 productRouter.get("/:id", validate({ params: idParamSchema }), getProduct);
 productRouter.get("/:id/reviews", validate({ params: idParamSchema, query: reviewListQuerySchema }), listReviews);
 productRouter.get("/:id/reviews/me", authenticate, validate({ params: idParamSchema }), myReviewStatus);
-productRouter.post("/:id/reviews", authenticate, validate({ params: idParamSchema, body: reviewBodySchema }), upsertReview);
+productRouter.get("/:id/questions", optionalAuth, validate({ params: idParamSchema }), listQuestions);
+productRouter.post("/:id/questions", authenticate, contentLimiter, validate({ params: idParamSchema, body: questionBodySchema }), askQuestion);
+productRouter.post("/:id/reviews", authenticate, contentLimiter, validate({ params: idParamSchema, body: reviewBodySchema }), upsertReview);
 
 productRouter.post("/", authenticate, requirePermission("products:write"), validate({ body: productCreateSchema }), createProduct);
 productRouter.patch(

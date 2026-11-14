@@ -142,7 +142,7 @@ export default function Checkout() {
         usePoints: usePoints || undefined,
         saveAddress: saveAddress || undefined,
       });
-      await Promise.all([refresh(), reloadUser()]);
+      void Promise.all([refresh(), reloadUser()]).catch(() => undefined);
       if (result.payment?.redirectUrl) {
         goToPayment(result.payment.redirectUrl, navigate);
         return;
@@ -293,7 +293,7 @@ export default function Checkout() {
           {coupon && (
             <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
               <span>
-                Endirim ({coupon.code}){" "}
+                {`Endirim (${coupon.code}) `}
                 <button type="button" className="text-xs text-muted hover:text-red-600" onClick={() => setCoupon(null)}>
                   sil
                 </button>
@@ -323,7 +323,7 @@ export default function Checkout() {
           {submitting && <span className="btn-spinner" aria-hidden="true" />}
           {submitting ? "Göndərilir..." : selected === "CARD" ? "Ödənişə keç" : "Sifarişi təsdiqlə"}
         </button>
-        {!isGuest && earnPoints > 0 && <p className="text-center text-xs text-emerald-600 dark:text-emerald-400">Bu sifarişdən {earnPoints} bonus bal qazanacaqsınız</p>}
+        {!isGuest && earnPoints > 0 && <p className="text-center text-xs text-emerald-600 dark:text-emerald-400">{`Bu sifarişdən ${earnPoints} bonus bal qazanacaqsınız`}</p>}
         <p className="text-center text-[11px] text-muted">Sifarişi təsdiqləməklə satış şərtləri ilə razılaşırsınız.</p>
       </aside>
     </form>

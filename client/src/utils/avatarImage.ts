@@ -19,6 +19,24 @@ const loadImage = (file: File) =>
     image.src = url;
   });
 
+export const preparePhoto = async (file: File, maxEdge = 1280) => {
+  if (!ACCEPTED.includes(file.type)) throw new Error("Yalnız PNG, JPG və ya WEBP şəkil seçin");
+  if (file.size > MAX_SOURCE_BYTES) throw new Error("Şəkil 10 MB-dan böyük olmamalıdır");
+  const image = await loadImage(file);
+  const scale = Math.min(1, maxEdge / Math.max(image.naturalWidth, image.naturalHeight));
+  const width = Math.max(1, Math.round(image.naturalWidth * scale));
+  const height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Brauzer şəkli emal edə bilmədi");
+  context.imageSmoothingQuality = "high";
+  context.drawImage(image, 0, 0, width, height);
+  const webp = canvas.toDataURL("image/webp", 0.82);
+  return webp.startsWith("data:image/webp") ? webp : canvas.toDataURL("image/jpeg", 0.85);
+};
+
 export const prepareAvatar = async (file: File) => {
   if (!ACCEPTED.includes(file.type)) throw new Error("Yalnız PNG, JPG və ya WEBP şəkil seçin");
   if (file.size > MAX_SOURCE_BYTES) throw new Error("Şəkil 10 MB-dan böyük olmamalıdır");

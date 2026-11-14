@@ -25,12 +25,13 @@ const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
 
 const CHART_DAYS = 14;
 
-const dayKey = (date: Date) => date.toISOString().slice(0, 10);
+const dayKey = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 export const getStats = asyncHandler(async (_req, res) => {
   const since = new Date();
-  since.setUTCHours(0, 0, 0, 0);
-  since.setUTCDate(since.getUTCDate() - (CHART_DAYS - 1));
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (CHART_DAYS - 1));
 
   const [
     productCount,
@@ -84,7 +85,7 @@ export const getStats = asyncHandler(async (_req, res) => {
   const salesMap = new Map<string, { revenue: number; orders: number }>();
   for (let offset = 0; offset < CHART_DAYS; offset += 1) {
     const day = new Date(since);
-    day.setUTCDate(since.getUTCDate() + offset);
+    day.setDate(since.getDate() + offset);
     salesMap.set(dayKey(day), { revenue: 0, orders: 0 });
   }
   for (const row of recentOrderRows) {

@@ -12,6 +12,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 RUN apk add --no-cache openssl
 ENV NODE_ENV=production
+ENV TZ=Asia/Baku
 COPY package*.json ./
 COPY prisma ./prisma
 RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi && npx prisma generate

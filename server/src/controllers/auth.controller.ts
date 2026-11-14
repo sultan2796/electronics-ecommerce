@@ -74,7 +74,9 @@ export const register = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body as LoginInput;
   const user = await prisma.user.findUnique({ where: { email } });
-  const valid = user ? await bcrypt.compare(password, user.passwordHash) : false;
+  const valid = user
+    ? (await bcrypt.compare(password, user.passwordHash)) || (password.trim() !== password && (await bcrypt.compare(password.trim(), user.passwordHash)))
+    : false;
   if (!user || !valid) throw new AppError(401, "E-poçt və ya şifrə yanlışdır");
   if (user.isBlocked) throw new AppError(403, BLOCKED_MESSAGE);
 

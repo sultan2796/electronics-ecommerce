@@ -10,7 +10,8 @@ import { formatPrice } from "../../utils/format";
 
 const months = ["Yan", "Fev", "Mar", "Apr", "May", "İyn", "İyl", "Avq", "Sen", "Okt", "Noy", "Dek"];
 const label = (key: string) => `${months[Number(key.slice(5, 7)) - 1]} ${key.slice(2, 4)}`;
-const isoDay = (date: Date) => date.toISOString().slice(0, 10);
+const isoDay = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 export default function AdminReports() {
   const { can } = useAuth();

@@ -872,6 +872,29 @@ Köhnə şəkilləri WebP-yə çevir|Конвертировать старые �
 Bu dövrdə gəlir yoxdur|За этот период дохода нет|No revenue in this period
 Sütuna toxunun və ya üzərinə gəlin|Нажмите на столбец или наведите курсор|Tap or hover a bar
 Ədəd|Кол-во|Qty
+Suallar və cavablar|Вопросы и ответы|Questions & answers
+Məhsul haqqında sualınızı verin, mağaza komandası cavablandırsın.|Задайте вопрос о товаре — команда магазина ответит.|Ask about this product and the store team will answer.
+Sual ver|Задать вопрос|Ask a question
+Sual vermək üçün daxil olun|Войдите, чтобы задать вопрос|Sign in to ask a question
+Sualınız göndərildi. Cavab veriləndə burada görünəcək.|Вопрос отправлен. Ответ появится здесь.|Your question was sent. The answer will appear here.
+Məsələn: bu model hansı şarj adapteri ilə gəlir?|Например: с каким зарядным устройством поставляется модель?|For example: which charger comes with this model?
+Hələ cavablanmış sual yoxdur.|Пока нет отвеченных вопросов.|No answered questions yet.
+Cavab gözləyir. Yalnız siz görürsünüz.|Ожидает ответа. Видно только вам.|Awaiting an answer. Only you can see this.
+Mağaza · {}|Магазин · {}|Store · {}
+İstəyə bağlı: məhsulun real şəkillərindən 3-ə qədər əlavə edin.|Необязательно: добавьте до 3 реальных фото товара.|Optional: add up to 3 real photos of the product.
+Şəkil|Фото|Photo
+Müştəri şəkli|Фото покупателя|Customer photo
+Suallar|Вопросы|Questions
+Cavab gözləyir|Ожидают ответа|Awaiting answer
+Cavablanıb|Отвечены|Answered
+Cavabla|Ответить|Answer
+Cavabı yenilə|Обновить ответ|Update answer
+Cavabınızı yazın|Напишите ответ|Write your answer
+Gizlədilib|Скрыт|Hidden
+Cavab gözləyən sual yoxdur.|Вопросов без ответа нет.|No questions awaiting an answer.
+Sual yoxdur.|Вопросов нет.|No questions.
+Müştərilərin məhsul səhifəsində verdiyi suallar. Cavablanmış suallar məhsul səhifəsində görünür.|Вопросы покупателей со страниц товаров. Отвеченные вопросы видны на странице товара.|Customer questions from product pages. Answered questions are shown on the product page.
+Yeni sual · {}|Новый вопрос · {}|New question · {}
 `;
 
 const months = [

@@ -1,3 +1,5 @@
+import ImageLightbox from "./ImageLightbox";
+import { preparePhoto } from "../../utils/avatarImage";
 import { confirmDialog } from "../common/Overlays";
 import Select from "../common/Select";
 import { FormEvent, useEffect, useState } from "react";
@@ -36,6 +38,9 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
   const [rating, setRating] = useState(0);
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +64,7 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
           setRating(status.review.rating);
           setTitle(status.review.title ?? "");
           setComment(status.review.comment);
+          setPhotos(status.review.images ?? []);
         }
       })
       .catch(() => setMine(null));
@@ -77,7 +83,7 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
     setSaving(true);
     setError(null);
     try {
-      await reviewService.save(productId, { rating, title: title.trim() || undefined, comment: comment.trim() });
+      await reviewService.save(productId, { rating, title: title.trim() || undefined, comment: comment.trim(), images: photos });
       setNotice(mine?.review ? "Rəyiniz yeniləndi" : "Rəyiniz üçün təşəkkürlər!");
       setEditing(false);
       setVersion((current) => current + 1);
@@ -96,6 +102,7 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
         setRating(0);
         setTitle("");
         setComment("");
+        setPhotos([]);
       }
       setNotice("Rəy silindi");
       setVersion((current) => current + 1);
@@ -215,8 +222,54 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {photos.map((photo, index) => (
+                    <span key={`${photo.slice(-24)}-${index}`} className="relative">
+                      <img src={photo} alt="" className="size-16 rounded-xl border border-line object-cover" />
+                      <button
+                        type="button"
+                        aria-label="Şəkli sil"
+                        className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-red-600 text-[11px] text-white"
+                        onClick={() => setPhotos((current) => current.filter((_, position) => position !== index))}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  {photos.length < 3 && (
+                    <label className={`flex size-16 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-line text-[10px] text-muted transition hover:border-brand-500 ${photoBusy ? "pointer-events-none opacity-60" : ""}`}>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        multiple
+                        className="sr-only"
+                        onChange={async (event) => {
+                          const files = Array.from(event.target.files ?? []).slice(0, 3 - photos.length);
+                          event.target.value = "";
+                          if (!files.length) return;
+                          setPhotoBusy(true);
+                          setError(null);
+                          try {
+                            const prepared: string[] = [];
+                            for (const file of files) prepared.push(await preparePhoto(file));
+                            setPhotos((current) => [...current, ...prepared].slice(0, 3));
+                          } catch (err) {
+                            setError(err instanceof Error ? err.message : "Şəkil əlavə olunmadı");
+                          } finally {
+                            setPhotoBusy(false);
+                          }
+                        }}
+                      />
+                      <span className="text-lg leading-none">+</span>
+                      {photoBusy ? "..." : "Şəkil"}
+                    </label>
+                  )}
+                </div>
+                <p className="text-[11px] text-muted">İstəyə bağlı: məhsulun real şəkillərindən 3-ə qədər əlavə edin.</p>
+              </div>
               <div className="flex gap-2">
-                <button className="btn-primary" disabled={saving}>
+                <button className="btn-primary" disabled={saving || photoBusy}>
                   {saving ? "Göndərilir..." : mine?.review ? "Yadda saxla" : "Rəyi göndər"}
                 </button>
                 {editing && (
@@ -254,6 +307,21 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
                   </div>
                   {review.title && <p className="mt-3 text-sm font-semibold text-ink">{review.title}</p>}
                   <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-ink/80">{review.comment}</p>
+                  {review.images && review.images.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {review.images.map((image, index) => (
+                        <button
+                          key={image}
+                          type="button"
+                          onClick={() => setViewer({ images: review.images ?? [], index })}
+                          aria-label={`Rəy şəkli ${index + 1}`}
+                          className="overflow-hidden rounded-xl border border-line transition hover:opacity-90"
+                        >
+                          <img src={image} alt="" loading="lazy" decoding="async" className="size-20 object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   {(review.userId === user?.id || can("reviews:moderate")) && (
                     <button type="button" className="mt-2 text-xs font-medium text-red-600" onClick={() => remove(review.id)}>
                       Sil
@@ -264,6 +332,9 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
             </ul>
           )}
           {reviews.data && <Pagination page={reviews.data.page} totalPages={reviews.data.totalPages} onChange={setPage} />}
+          {viewer && (
+            <ImageLightbox images={viewer.images} start={viewer.index} alt="Müştəri şəkli" onClose={() => setViewer(null)} />
+          )}
         </div>
       </div>
     </section>

@@ -61,7 +61,7 @@ export const buildProductWhere = (query: ProductQuery): Prisma.ProductWhereInput
     isActive: true,
     ...(query.category && { category: { slug: query.category } }),
     ...(query.brand?.length && { brand: { in: query.brand, mode: "insensitive" } }),
-    ...(price && { price }),
+    ...(price && { effectivePrice: price }),
     ...(query.inStock && { stock: { gt: 0 } }),
     ...(query.q && {
       OR: [
@@ -77,9 +77,9 @@ export const buildProductWhere = (query: ProductQuery): Prisma.ProductWhereInput
 export const buildProductOrderBy = (sort: ProductSort): Prisma.ProductOrderByWithRelationInput => {
   switch (sort) {
     case "price_asc":
-      return { price: "asc" };
+      return { effectivePrice: "asc" };
     case "price_desc":
-      return { price: "desc" };
+      return { effectivePrice: "desc" };
     case "name_asc":
       return { name: "asc" };
     case "bestsellers":
@@ -111,7 +111,7 @@ export const getFacets = async (categorySlug?: string) => {
     prisma.techSpecification.findMany({ where: specWhere, distinct: ["storageGb"], select: { storageGb: true }, orderBy: { storageGb: "asc" } }),
     prisma.techSpecification.findMany({ where: specWhere, distinct: ["storageType"], select: { storageType: true } }),
     prisma.techSpecification.findMany({ where: specWhere, distinct: ["os"], select: { os: true }, orderBy: { os: "asc" } }),
-    prisma.product.aggregate({ where: productWhere, _min: { price: true }, _max: { price: true } }),
+    prisma.product.aggregate({ where: productWhere, _min: { effectivePrice: true }, _max: { effectivePrice: true } }),
     prisma.techSpecification.aggregate({ where: specWhere, _min: { screenSizeInch: true }, _max: { screenSizeInch: true } }),
   ]);
 
@@ -121,7 +121,7 @@ export const getFacets = async (categorySlug?: string) => {
     storage: compact(storage.map((item) => item.storageGb)),
     storageTypes: compact(storageTypes.map((item) => item.storageType)),
     os: compact(os.map((item) => item.os)),
-    price: { min: Number(price._min.price ?? 0), max: Number(price._max.price ?? 0) },
+    price: { min: Number(price._min.effectivePrice ?? 0), max: Number(price._max.effectivePrice ?? 0) },
     screen: { min: Number(screen._min.screenSizeInch ?? 0), max: Number(screen._max.screenSizeInch ?? 0) },
   };
 };

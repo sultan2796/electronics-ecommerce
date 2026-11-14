@@ -21,16 +21,20 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user, initializing: loading } = useAuth();
   const [cart, setCart] = useState<Cart | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [pending, setPending] = useState(0);
+  const busy = pending > 0;
   const isGuest = !user;
   const merging = useRef(false);
+  const sequence = useRef(0);
 
   const run = useCallback(async (action: () => Promise<Cart>) => {
-    setBusy(true);
+    const ticket = ++sequence.current;
+    setPending((value) => value + 1);
     try {
-      setCart(await action());
+      const next = await action();
+      if (ticket === sequence.current) setCart(next);
     } finally {
-      setBusy(false);
+      setPending((value) => Math.max(0, value - 1));
     }
   }, []);
 
