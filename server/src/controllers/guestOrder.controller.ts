@@ -5,7 +5,7 @@ import { z } from "zod";
 import { clientUrl } from "../config/env";
 import { prisma } from "../config/prisma";
 import { shippingAddressSchema } from "../models/order.model";
-import { effectivePrice } from "../services/campaign.service";
+import { priceLine } from "../services/campaign.service";
 import { queueEmail } from "../services/email";
 import { orderConfirmationEmail } from "../services/email/templates";
 import { alertLowStock } from "../services/jobs.service";
@@ -86,7 +86,7 @@ export const guestCheckout = asyncHandler(async (req, res) => {
       if (!product.isActive) throw new AppError(409, `${product.name} artıq satışda deyil`);
       const variant = await resolveVariant(tx, product, line.variantId);
       await reserveStock(tx, product, variant, line.quantity);
-      priced.push({ product, variant, quantity: line.quantity, unitPrice: effectivePrice(pricedSource(product, variant)) });
+      priced.push({ product, variant, quantity: line.quantity, ...priceLine(pricedSource(product, variant)) });
     }
 
     const subtotal = priced.reduce((sum, item) => sum.add(item.unitPrice.mul(item.quantity)), new Prisma.Decimal(0));
@@ -112,6 +112,8 @@ export const guestCheckout = asyncHandler(async (req, res) => {
             variantId: item.variant?.id ?? null,
             variantName: item.variant?.name ?? null,
             unitPrice: item.unitPrice,
+            originalPrice: item.originalPrice,
+            campaignId: item.campaignId,
             quantity: item.quantity,
           })),
         },

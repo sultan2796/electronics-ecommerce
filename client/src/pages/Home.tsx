@@ -1,12 +1,13 @@
 import CategoryTile from "../components/home/CategoryTile";
 import ProductSkeletonGrid from "../components/product/ProductSkeleton";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import Alert from "../components/common/Alert";
 import Benefits from "../components/home/Benefits";
-import Countdown from "../components/home/Countdown";
+import CampaignShowcase from "../components/home/CampaignShowcase";
+import PromoCard, { PromoContent } from "../components/home/PromoCard";
 import HeroSlider from "../components/home/HeroSlider";
-import { Reveal, TiltLink } from "../components/motion/Tilt";
+import { Reveal } from "../components/motion/Tilt";
+import { promotionService } from "../services/promotion.service";
 import { slideService } from "../services/slide.service";
 import ProductGrid from "../components/home/ProductGrid";
 import RecentlyViewed from "../components/home/RecentlyViewed";
@@ -16,7 +17,7 @@ import { useAsync } from "../hooks/useAsync";
 import { useSeo } from "../hooks/useSeo";
 import { extraService } from "../services/extra.service";
 import { productService } from "../services/product.service";
-import { Category } from "../types";
+import { Category, Promotion } from "../types";
 import { emptyFilters } from "../utils/filters";
 import { fallbackImage } from "../components/product/ProductImage";
 
@@ -28,6 +29,8 @@ const sortCategories = (categories: Category[]) =>
     const bi = categoryOrder.indexOf(b.slug);
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi) || a.name.localeCompare(b.name);
   });
+
+const campaignBadge = (promo: Promotion) => (promo.campaign?.live && promo.campaign.discountPercent ? `−${promo.campaign.discountPercent}%` : null);
 
 export default function Home() {
   const { t } = useI18n();
@@ -43,12 +46,25 @@ export default function Home() {
     () => sortCategories((categoriesState.data ?? []).filter((category) => (category._count?.products ?? 0) > 0)),
     [categoriesState.data],
   );
-  const campaign = campaigns.data?.[0] ?? null;
+  const friday = useAsync(() => extraService.fridayCampaign().catch(() => null), []);
+  const general = campaigns.data?.find((campaign) => !campaign.fridayOnly) ?? null;
+  const generalShowcase = useAsync(() => (general ? extraService.campaign(general.id).catch(() => null) : Promise.resolve(null)), [general?.id]);
+  const sidePromos = useAsync(() => promotionService.live("HERO_SIDE").catch(() => []), []);
+  const bannerPromos = useAsync(() => promotionService.live("HOME_BANNER").catch(() => []), []);
+  const fridayPromos = useAsync(() => promotionService.live("FRIDAY").catch(() => []), []);
 
-  const deals = useAsync(
-    () => productService.list({ ...emptyFilters, category: campaign?.category?.slug ?? "", inStock: true, sort: "price_desc" }, 10),
-    [campaign?.id],
-  );
+  const sideCards: (PromoContent & { tracked: boolean })[] = sidePromos.data?.length
+    ? sidePromos.data.map((promo) => ({
+        ...promo,
+        badge: campaignBadge(promo),
+        tracked: true,
+      }))
+    : sidePromos.loading
+      ? []
+      : [
+          { eyebrow: "Noutbuklar", title: "İş və oyun üçün güclü seçim", imageUrl: fallbackImage("laptops"), ctaText: "Bax", link: "/products?category=laptops", tracked: false },
+          { eyebrow: "Aksesuarlar", title: "Hər gün üçün vacib detallar", imageUrl: fallbackImage("earphones"), ctaText: "Bax", link: "/products?category=mobile-accessories", tracked: false },
+        ];
 
   useEffect(() => {
     if (!active && categories.length) setActive(categories[0].slug);
@@ -63,19 +79,14 @@ export default function Home() {
     <div className="-mx-4 -mt-8 space-y-12 sm:mx-0 sm:mt-0 sm:space-y-14">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
         <HeroSlider products={featured.data ?? []} slides={slides.data ?? []} />
-        <div className="hidden grid-rows-2 gap-4 lg:grid">
-          <TiltLink to="/products?category=laptops" degrees={3} className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-slate-700 p-6 text-white">
-            <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Noutbuklar</p>
-            <p className="mt-1 text-xl font-bold leading-tight">İş və oyun üçün güclü seçim</p>
-            <span className="mt-3 inline-block text-sm font-semibold text-brand-500">Bax →</span>
-            <img src={fallbackImage("laptops")} alt="" className="absolute -bottom-4 -right-6 w-40 opacity-90 transition duration-500 group-hover:scale-105" />
-          </TiltLink>
-          <TiltLink to="/products?category=mobile-accessories" degrees={3} className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#e2611f] to-[#a8380c] p-6 text-white dark:from-[#5a4326] dark:to-[#2a2117] dark:ring-1 dark:ring-white/10">
-            <p className="text-xs font-semibold uppercase tracking-wider text-white/70">Aksesuarlar</p>
-            <p className="mt-1 text-xl font-bold leading-tight">Hər gün üçün vacib detallar</p>
-            <span className="mt-3 inline-block text-sm font-semibold">Bax →</span>
-            <img src={fallbackImage("earphones")} alt="" className="absolute -bottom-4 -right-4 w-36 opacity-90 transition duration-500 group-hover:scale-105" />
-          </TiltLink>
+        <div className="no-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-1 lg:grid-rows-2">
+          {sideCards.length === 0
+            ? [0, 1].map((key) => <div key={key} className="min-h-[168px] w-[86%] shrink-0 animate-pulse rounded-3xl bg-[#111317] sm:w-auto" />)
+            : sideCards.slice(0, 2).map((promo, index) => (
+                <div key={promo.id ?? index} className="w-[86%] shrink-0 snap-start sm:w-auto">
+                  <PromoCard promo={promo} tracked={promo.tracked} />
+                </div>
+              ))}
         </div>
       </div>
 
@@ -93,21 +104,19 @@ export default function Home() {
           </Reveal>
         )}
 
-        {campaign && deals.data && deals.data.items.length > 0 && (
-          <Reveal as="section" className="overflow-hidden rounded-3xl bg-gradient-to-r from-red-600 to-brand-600 p-4 sm:p-6">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-white">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/75">{t("home.deals")}</p>
-                <h2 className="text-xl font-bold sm:text-2xl">
-                  {campaign.name} · −{campaign.discountPercent}%
-                </h2>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-white/80">{t("home.dealsEnds")}</span>
-                <Countdown until={campaign.endsAt} />
-              </div>
-            </div>
-            <ProductGrid products={deals.data.items} scroll />
+        {friday.data && <CampaignShowcase data={friday.data} friday promotions={fridayPromos.data ?? []} onExpire={() => void friday.reload()} />}
+
+        {generalShowcase.data && <CampaignShowcase data={generalShowcase.data} onExpire={() => void campaigns.reload()} />}
+
+        {bannerPromos.data && bannerPromos.data.length > 0 && (
+          <Reveal as="section" className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {bannerPromos.data.slice(0, 4).map((promo) => (
+              <PromoCard
+                key={promo.id}
+                promo={{ ...promo, badge: campaignBadge(promo) }}
+                size="wide"
+              />
+            ))}
           </Reveal>
         )}
 

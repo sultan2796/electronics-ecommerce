@@ -934,6 +934,28 @@ Loqo, favicon, şəkil optimallaşdırması (yalnız admin verə bilər)|Лог�
 Barmağı sürüşdürərək şəkilləri dəyişin|Ведите пальцем, чтобы листать фото|Slide your finger to switch photos
 Fon videosu (istəyə bağlı)|Фоновое видео (необязательно)|Background video (optional)
 .mp4 və ya .webm faylının birbaşa https linki. Video səssiz və təkrarlanan oynayır, şəkil isə yüklənənə qədər və qənaət rejimində göstərilir. Tövsiyə: 10–15 saniyə, 5 MB-dan kiçik.|Прямая https-ссылка на файл .mp4 или .webm. Видео играет без звука по кругу, изображение показывается до загрузки и в режиме экономии. Рекомендуется 10–15 секунд и до 5 МБ.|A direct https link to an .mp4 or .webm file. The video plays muted on loop; the image shows while it loads and in data-saver mode. Recommended: 10–15 seconds, under 5 MB.
+Friday Deals · Cümə Endirimləri|Friday Deals · Пятничные скидки|Friday Deals
+Tezliklə|Скоро|Coming soon
+Növbəti cümə endirimləri başlayana qədər|До начала следующих пятничных скидок|Until the next Friday deals start
+Kampaniya başlayana qədər|До начала акции|Until the campaign starts
+Kampaniya|Акция|Campaign
+Bitməsinə|До конца|Ends in
+Hamısına bax|Смотреть все|See all
+Bax|Смотреть|View
+Bu kampaniya bitib və ya hazırda aktiv deyil.|Эта акция завершилась или сейчас неактивна.|This campaign has ended or is not active right now.
+Reklamlar|Реклама|Promotions
+Slayder|Слайдер|Slider
+Yalnız cümə günləri|Только по пятницам|Fridays only
+Nəticələr|Результаты|Results
+Göstərilmə yeri|Место показа|Placement
+Slayderin yanı|Рядом со слайдером|Next to slider
+Ana səhifə bannerləri|Баннеры главной страницы|Home page banners
+Friday Deals bölməsi|Раздел Friday Deals|Friday Deals section
+Əlaqəli məhsul|Связанный товар|Linked product
+Xüsusi qiymət|Особая цена|Special price
+Müştəri qənaəti|Экономия клиентов|Customer savings
+Reklam göstərilməsi|Показы рекламы|Ad impressions
+Satılan ədəd|Продано штук|Units sold
 `;
 
 const months = [

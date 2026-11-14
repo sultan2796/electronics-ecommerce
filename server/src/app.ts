@@ -13,7 +13,11 @@ export const createApp = () => {
   app.set("trust proxy", 1);
   app.disable("x-powered-by");
   app.use(helmet());
-  app.use(cors({ origin: corsOrigins, credentials: true }));
+  app.use(cors({ origin: corsOrigins, credentials: true, exposedHeaders: ["X-Server-Time"] }));
+  app.use((_req, res, next) => {
+    res.setHeader("X-Server-Time", String(Date.now()));
+    next();
+  });
   app.use(localeMiddleware);
   app.use(express.json({ limit: "3mb" }));
   app.use(express.urlencoded({ extended: false, limit: "1mb" }));

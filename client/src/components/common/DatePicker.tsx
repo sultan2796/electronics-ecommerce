@@ -134,12 +134,7 @@ export default function DatePicker({
   };
 
   const display = selected
-    ? new Intl.DateTimeFormat(INTL_LOCALE[locale], {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-        ...(withTime && { hour: "2-digit", minute: "2-digit", hour12: false }),
-      }).format(withTime ? new Date(`${selectedKey}T${time}`) : selected)
+    ? `${selected.getDate()} ${MONTHS[locale][selected.getMonth()].toLocaleLowerCase(INTL_LOCALE[locale])} ${selected.getFullYear()}${withTime ? `, ${time}` : ""}`
     : "";
 
   return (

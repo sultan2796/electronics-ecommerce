@@ -1,4 +1,4 @@
-import { AuditEntry, Campaign, Coupon, CouponCheck, Paginated, Product, SalesReport, SavedAddress, ShippingAddress } from "../types";
+import { AdminCampaign, AuditEntry, Campaign, CampaignShowcase, CampaignStats, Coupon, CouponCheck, Paginated, Product, SalesReport, SavedAddress, ShippingAddress } from "../types";
 import { api } from "./api";
 
 export type AddressInput = ShippingAddress & { label: string; isDefault?: boolean };
@@ -9,7 +9,18 @@ export type CouponInput = Pick<Coupon, "code" | "type" | "isActive"> & {
   expiresAt: string | null;
 };
 
-export type CampaignInput = { name: string; discountPercent: number; categoryId: string | null; startsAt: string; endsAt: string; isActive: boolean };
+export type CampaignInput = {
+  name: string;
+  description: string | null;
+  bannerUrl: string | null;
+  fridayOnly: boolean;
+  discountPercent: number;
+  categoryId: string | null;
+  products: { productId: string; specialPrice: number | null }[];
+  startsAt: string;
+  endsAt: string;
+  isActive: boolean;
+};
 export type BulkAction = "setStock" | "adjustStock" | "adjustPrice" | "activate" | "deactivate" | "setCategory";
 
 export const extraService = {
@@ -25,7 +36,10 @@ export const extraService = {
   deleteCoupon: (id: string) => api.delete(`/admin/coupons/${id}`),
   activeCampaigns: () => api.get<Campaign[]>("/campaigns/active").then((r) => r.data),
   related: (productId: string) => api.get<{ boughtTogether: boolean; items: Product[] }>(`/products/${productId}/related`).then((r) => r.data),
-  campaigns: () => api.get<Campaign[]>("/admin/campaigns").then((r) => r.data),
+  campaigns: () => api.get<AdminCampaign[]>("/admin/campaigns").then((r) => r.data),
+  campaignStats: (id: string) => api.get<CampaignStats>(`/admin/campaigns/${id}/stats`).then((r) => r.data),
+  fridayCampaign: () => api.get<CampaignShowcase>("/campaigns/friday").then((r) => r.data),
+  campaign: (id: string) => api.get<CampaignShowcase>(`/campaigns/${id}`).then((r) => r.data),
   createCampaign: (body: CampaignInput) => api.post<Campaign>("/admin/campaigns", body).then((r) => r.data),
   updateCampaign: (id: string, body: Partial<CampaignInput>) => api.patch<Campaign>(`/admin/campaigns/${id}`, body).then((r) => r.data),
   deleteCampaign: (id: string) => api.delete(`/admin/campaigns/${id}`),

@@ -28,7 +28,9 @@ describe("slaydlar", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(1);
     const query = db.slide.findMany.mock.calls[0][0];
-    expect(query.where).toEqual({ isActive: true });
+    expect(query.where.isActive).toBe(true);
+    expect(JSON.stringify(query.where.AND)).toContain("startsAt");
+    expect(JSON.stringify(query.where.AND)).toContain("endsAt");
     expect(query.orderBy[0]).toEqual({ sortOrder: "asc" });
   });
 

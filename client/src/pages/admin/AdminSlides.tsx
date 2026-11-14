@@ -7,8 +7,13 @@ import { getErrorMessage } from "../../services/api";
 import { extraService, fileToDataUrl } from "../../services/extra.service";
 import { slideService } from "../../services/slide.service";
 import { AdminSlide, SlideInput } from "../../types";
+import ProductPicker from "../../components/admin/ProductPicker";
+import DatePicker from "../../components/common/DatePicker";
+import { formatBaku, fromBakuInput, toBakuInput } from "../../utils/bakuTime";
 
-const empty: SlideInput = { title: "", subtitle: "", eyebrow: "", imageUrl: "", videoUrl: "", buttonText: "", buttonLink: "/products", isActive: true };
+type LinkedProduct = { id: string; name: string } | null;
+
+const empty: SlideInput = { title: "", subtitle: "", eyebrow: "", imageUrl: "", videoUrl: "", buttonText: "", buttonLink: "/products", isActive: true, productId: null, startsAt: "", endsAt: "" };
 
 const toForm = (slide: AdminSlide): SlideInput => ({
   title: slide.title,
@@ -19,6 +24,9 @@ const toForm = (slide: AdminSlide): SlideInput => ({
   buttonText: slide.buttonText ?? "",
   buttonLink: slide.buttonLink ?? "",
   isActive: slide.isActive,
+  productId: slide.productId,
+  startsAt: toBakuInput(slide.startsAt),
+  endsAt: toBakuInput(slide.endsAt),
 });
 
 const clean = (form: SlideInput): SlideInput => ({
@@ -30,7 +38,16 @@ const clean = (form: SlideInput): SlideInput => ({
   videoUrl: form.videoUrl?.trim() || null,
   buttonText: form.buttonText?.trim() || null,
   buttonLink: form.buttonLink?.trim() || null,
+  startsAt: fromBakuInput(form.startsAt ?? ""),
+  endsAt: fromBakuInput(form.endsAt ?? ""),
 });
+
+const scheduleOf = (slide: AdminSlide) => {
+  const now = Date.now();
+  if (slide.endsAt && new Date(slide.endsAt).getTime() <= now) return { label: "Vaxtı bitib", style: "bg-chip text-muted" };
+  if (slide.startsAt && new Date(slide.startsAt).getTime() > now) return { label: `${formatBaku(slide.startsAt)}-dən`, style: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300" };
+  return null;
+};
 
 function SlidePreview({ form }: { form: SlideInput }) {
   return (
@@ -50,6 +67,12 @@ function SlidePreview({ form }: { form: SlideInput }) {
   );
 }
 
+function ScheduleBadge({ slide }: { slide: AdminSlide }) {
+  const schedule = scheduleOf(slide);
+  if (!schedule) return null;
+  return <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${schedule.style}`}>{schedule.label}</span>;
+}
+
 export default function AdminSlides() {
   const slides = useAsync(() => slideService.list(), []);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -58,12 +81,14 @@ export default function AdminSlides() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [linked, setLinked] = useState<LinkedProduct>(null);
 
   const set = <K extends keyof SlideInput>(key: K, value: SlideInput[K]) => setForm((current) => ({ ...current, [key]: value }));
 
   const reset = () => {
     setEditingId(null);
     setForm(empty);
+    setLinked(null);
     setError(null);
   };
 
@@ -151,7 +176,7 @@ export default function AdminSlides() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Ana səhifə slaydları</h1>
-        <p className="text-sm text-muted">Aktiv slaydlar ana səhifədə sıra ilə göstərilir. Slayd yoxdursa, standart brend slaydı görünür.</p>
+        <p className="text-sm text-muted">Aktiv slaydlar ana səhifədə sıra ilə göstərilir. Tarix verilibsə, slayd yalnız o aralıqda görünür. Slayd yoxdursa, standart brend slaydı görünür.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
@@ -174,9 +199,14 @@ export default function AdminSlides() {
                   <div className="min-w-0 flex-1 basis-40">
                     <p className="truncate font-medium">{slide.title}</p>
                     <p className="truncate text-xs text-muted">{slide.subtitle ?? "—"}</p>
-                    <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${slide.isActive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-chip text-muted"}`}>
-                      {slide.isActive ? "Aktiv" : "Deaktiv"}
-                    </span>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${slide.isActive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-chip text-muted"}`}>
+                        {slide.isActive ? "Aktiv" : "Deaktiv"}
+                      </span>
+                      <ScheduleBadge slide={slide} />
+                      {slide.videoUrl && <span className="inline-block rounded-full bg-chip px-2 py-0.5 text-[11px] font-medium text-muted">Video</span>}
+                      {slide.product && <span className="inline-block max-w-[180px] truncate rounded-full bg-chip px-2 py-0.5 text-[11px] font-medium text-muted">{slide.product.name}</span>}
+                    </div>
                   </div>
                   <div className="flex w-full flex-wrap items-center gap-1.5 2xl:w-auto">
                     <button type="button" className="btn-outline size-9 p-0" aria-label="Yuxarı" disabled={position === 0} onClick={() => void move(position, -1)}>
@@ -194,6 +224,7 @@ export default function AdminSlides() {
                       onClick={() => {
                         setEditingId(slide.id);
                         setForm(toForm(slide));
+                        setLinked(slide.product ? { id: slide.product.id, name: slide.product.name } : null);
                         setError(null);
                       }}
                     >
@@ -262,6 +293,42 @@ export default function AdminSlides() {
               <span className="text-sm font-medium">Düymə keçidi</span>
               <input className="input" maxLength={300} placeholder="/products?category=laptops" value={form.buttonLink ?? ""} onChange={(e) => set("buttonLink", e.target.value)} />
             </label>
+          </div>
+          <div className="space-y-2">
+            <span className="text-sm font-medium">Əlaqəli məhsul</span>
+            {linked ? (
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-line px-3 py-2">
+                <span className="truncate text-sm">{linked.name}</span>
+                <button
+                  type="button"
+                  className="shrink-0 text-xs font-medium text-red-600"
+                  onClick={() => {
+                    setLinked(null);
+                    set("productId", null);
+                  }}
+                >
+                  Ayır
+                </button>
+              </div>
+            ) : (
+              <ProductPicker
+                onPick={(product) => {
+                  setLinked({ id: product.id, name: product.name });
+                  set("productId", product.id);
+                }}
+              />
+            )}
+            <span className="block text-xs text-muted">Slaydda məhsulun real qiyməti göstərilir. Düymə keçidi boşdursa, məhsul səhifəsinə aparır.</span>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <span className="text-sm font-medium">Başlayır (Bakı vaxtı)</span>
+              <DatePicker withTime ariaLabel="Başlayır" value={form.startsAt ?? ""} onChange={(next) => set("startsAt", next)} />
+            </div>
+            <div className="space-y-1">
+              <span className="text-sm font-medium">Bitir (Bakı vaxtı)</span>
+              <DatePicker withTime ariaLabel="Bitir" min={form.startsAt?.slice(0, 10) || undefined} value={form.endsAt ?? ""} onChange={(next) => set("endsAt", next)} />
+            </div>
           </div>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={form.isActive} onChange={(e) => set("isActive", e.target.checked)} />

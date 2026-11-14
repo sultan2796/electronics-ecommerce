@@ -11,7 +11,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { getErrorText } from "../utils/errorText";
 import { currentUser } from "../utils/currentUser";
 import { redeemCoupon } from "../services/coupon.service";
-import { effectivePrice } from "../services/campaign.service";
+import { priceLine } from "../services/campaign.service";
 import { lineName, pricedSource, reserveStock, resolveVariant } from "../services/variant.service";
 import { shippingFor } from "../services/shipping.service";
 import { alertLowStock } from "../services/jobs.service";
@@ -38,7 +38,7 @@ export const checkout = asyncHandler(async (req, res) => {
       await reserveStock(tx, item.product, variant, item.quantity);
     }
 
-    const priced = cart.items.map((item) => ({ ...item, unitPrice: effectivePrice(pricedSource(item.product, item.variant)) }));
+    const priced = cart.items.map((item) => ({ ...item, ...priceLine(pricedSource(item.product, item.variant)) }));
     const subtotal = priced.reduce((sum, item) => sum.add(item.unitPrice.mul(item.quantity)), new Prisma.Decimal(0));
     const coupon = couponCode ? await redeemCoupon(tx, couponCode, subtotal) : null;
     const couponDiscount = coupon?.discount ?? new Prisma.Decimal(0);
@@ -78,6 +78,8 @@ export const checkout = asyncHandler(async (req, res) => {
             variantId: item.variantId,
             variantName: item.variant?.name ?? null,
             unitPrice: item.unitPrice,
+            originalPrice: item.originalPrice,
+            campaignId: item.campaignId,
             quantity: item.quantity,
           })),
         },

@@ -92,9 +92,11 @@ function ImageSlide({
   text,
   buttonText,
   buttonLink,
+  product,
   active,
   priority,
 }: {
+  product?: HeroSlide["product"];
   image: string;
   video?: string | null;
   eyebrow?: string | null;
@@ -130,6 +132,13 @@ function ImageSlide({
         )}
         <h2 className="text-2xl font-bold leading-tight sm:text-[44px] sm:leading-[1.08]">{title}</h2>
         {text && <p className="max-w-md text-sm text-white/75 sm:text-base">{text}</p>}
+        {product && (
+          <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <span className="text-xl font-bold tabular-nums sm:text-2xl">{formatPrice(product.price)}</span>
+            {product.compareAtPrice && <span className="text-sm tabular-nums text-white/50 line-through">{formatPrice(product.compareAtPrice)}</span>}
+            {!product.inStock && <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80 ring-1 ring-inset ring-white/15">Stokda yoxdur</span>}
+          </div>
+        )}
         {buttonText && buttonLink && (
           <SlideLink href={buttonLink} active={active}>
             {buttonText}
@@ -401,6 +410,7 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
                   text={slide.slide.subtitle}
                   buttonText={slide.slide.buttonText}
                   buttonLink={slide.slide.buttonLink}
+                  product={slide.slide.product}
                   active={active}
                   priority={position === 0}
                 />

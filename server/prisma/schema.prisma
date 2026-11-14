@@ -131,6 +131,8 @@ model Product {
   questions    ProductQuestion[]
   cartItems    CartItem[]
   orderItems   OrderItem[]
+  campaigns    CampaignProduct[]
+  slides       Slide[]
   wishlistedBy WishlistItem[]
   reviews       Review[]
   ratingAverage Float?
@@ -260,9 +262,13 @@ model OrderItem {
   variantId   String?
   variantName String?
   unitPrice   Decimal @db.Decimal(10, 2)
+  originalPrice Decimal? @db.Decimal(10, 2)
+  campaignId  String?
+  campaign    Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   quantity    Int
 
   @@index([orderId])
+  @@index([campaignId])
 }
 
 model Payment {
@@ -384,17 +390,64 @@ model Upload {
 }
 
 model Campaign {
-  id              String    @id @default(cuid())
+  id              String            @id @default(cuid())
   name            String
+  description     String?
+  bannerUrl       String?
+  fridayOnly      Boolean           @default(false)
   discountPercent Int
   categoryId      String?
-  category        Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category        Category?         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  products        CampaignProduct[]
+  promotions      Promotion[]
+  orderItems      OrderItem[]
   startsAt        DateTime
   endsAt          DateTime
-  isActive        Boolean   @default(true)
-  createdAt       DateTime  @default(now())
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now()) @updatedAt
 
   @@index([startsAt, endsAt])
+}
+
+model CampaignProduct {
+  campaignId   String
+  campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  specialPrice Decimal? @db.Decimal(10, 2)
+
+  @@id([campaignId, productId])
+  @@index([productId])
+}
+
+enum PromotionPlacement {
+  HERO_SIDE
+  HOME_BANNER
+  FRIDAY
+}
+
+model Promotion {
+  id          String             @id @default(cuid())
+  title       String
+  description String?
+  eyebrow     String?
+  imageUrl    String
+  ctaText     String?
+  link        String?
+  placement   PromotionPlacement @default(HOME_BANNER)
+  campaignId  String?
+  campaign    Campaign?          @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  isActive    Boolean            @default(true)
+  sortOrder   Int                @default(0)
+  impressions Int                @default(0)
+  clicks      Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([placement, isActive, sortOrder])
 }
 
 model AuditLog {
@@ -424,6 +477,10 @@ model Slide {
   eyebrow    String?
   imageUrl   String
   videoUrl   String?
+  productId  String?
+  product    Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  startsAt   DateTime?
+  endsAt     DateTime?
   buttonText String?
   buttonLink String?
   sortOrder  Int      @default(0)

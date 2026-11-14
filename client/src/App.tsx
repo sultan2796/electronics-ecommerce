@@ -7,6 +7,7 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import TrackOrder from "./pages/TrackOrder";
 import Compare from "./pages/Compare";
+import CampaignPage from "./pages/CampaignPage";
 import Contact from "./pages/Contact";
 import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
@@ -36,6 +37,7 @@ const AdminAudit = lazy(() => import("./pages/admin/AdminAudit"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const AdminCampaigns = lazy(() => import("./pages/admin/AdminCampaigns"));
 const AdminSlides = lazy(() => import("./pages/admin/AdminSlides"));
+const AdminPromotions = lazy(() => import("./pages/admin/AdminPromotions"));
 const AdminModels = lazy(() => import("./pages/admin/AdminModels"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
@@ -78,6 +80,7 @@ export default function App() {
             <Route element={<ProtectedRoute permission="products:write" />}>
               <Route path="campaigns" element={<AdminCampaigns />} />
               <Route path="slides" element={<AdminSlides />} />
+              <Route path="promotions" element={<AdminPromotions />} />
               <Route path="models" element={<AdminModels />} />
             </Route>
             <Route element={<ProtectedRoute permission="settings:write" />}>
@@ -103,6 +106,7 @@ export default function App() {
           <Route path="products" element={<Products />} />
           <Route path="products/:slug" element={<ProductDetail />} />
           <Route path="compare" element={<Compare />} />
+          <Route path="campaigns/:id" element={<CampaignPage />} />
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />

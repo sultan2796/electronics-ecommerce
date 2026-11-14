@@ -136,7 +136,7 @@ export interface Product {
   specs: TechSpecification | null;
   ratingAverage?: number | null;
   compareAtPrice?: string | null;
-  campaign?: { name: string; discountPercent: number; endsAt: string } | null;
+  campaign?: { id?: string; name: string; discountPercent: number; fridayOnly?: boolean; endsAt: string } | null;
   reviewCount?: number;
   variants?: ProductVariant[];
 }
@@ -450,13 +450,92 @@ export interface CouponCheck {
 export interface Campaign {
   id: string;
   name: string;
+  description?: string | null;
+  bannerUrl?: string | null;
+  fridayOnly?: boolean;
   discountPercent: number;
   categoryId: string | null;
   category?: { id: string; name: string; slug?: string } | null;
   startsAt: string;
   endsAt: string;
   isActive: boolean;
+  productCount?: number;
 }
+
+export type CampaignStatus = "live" | "scheduled" | "paused" | "ended";
+
+export interface AdminCampaign extends Campaign {
+  status: CampaignStatus;
+  currentEndsAt: string | null;
+  nextStartsAt: string | null;
+  products: { productId: string; specialPrice: string | null; product: { id: string; name: string; price: string; salePrice: string | null; images: string[]; stock: number; isActive: boolean } }[];
+  _count?: { promotions: number };
+}
+
+export interface CampaignStats {
+  orders: number;
+  units: number;
+  revenue: string;
+  savings: string;
+  impressions: number;
+  clicks: number;
+  topProducts: { productId: string; name: string; units: number; revenue: string }[];
+}
+
+export interface CampaignShowcase {
+  serverTime: string;
+  status: "live" | "upcoming" | "none";
+  campaign: {
+    id: string;
+    name: string;
+    description: string | null;
+    bannerUrl: string | null;
+    fridayOnly: boolean;
+    discountPercent: number;
+    endsAt: string | null;
+    startsAt: string | null;
+  } | null;
+  products: Product[];
+}
+
+export type PromotionPlacement = "HERO_SIDE" | "HOME_BANNER" | "FRIDAY";
+
+export interface Promotion {
+  id: string;
+  title: string;
+  description: string | null;
+  eyebrow: string | null;
+  imageUrl: string;
+  ctaText: string | null;
+  link: string | null;
+  placement: PromotionPlacement;
+  campaign?: { id: string; name: string; discountPercent?: number; live?: boolean } | null;
+}
+
+export interface AdminPromotion extends Promotion {
+  campaignId: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  isActive: boolean;
+  sortOrder: number;
+  impressions: number;
+  clicks: number;
+  createdAt: string;
+}
+
+export type PromotionInput = {
+  title: string;
+  description: string | null;
+  eyebrow: string | null;
+  imageUrl: string;
+  ctaText: string | null;
+  link: string | null;
+  placement: PromotionPlacement;
+  campaignId: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  isActive: boolean;
+};
 
 export interface SalesReport {
   totals: { revenue: number; orders: number; averageOrderValue: number };
@@ -483,13 +562,18 @@ export interface HeroSlide {
   videoUrl?: string | null;
   buttonText: string | null;
   buttonLink: string | null;
+  product?: { id: string; name: string; slug: string; price: string; compareAtPrice: string | null; inStock: boolean } | null;
 }
 
-export interface AdminSlide extends HeroSlide {
+export interface AdminSlide extends Omit<HeroSlide, "product"> {
+  productId: string | null;
+  product: { id: string; name: string; slug: string; images: string[] } | null;
+  startsAt: string | null;
+  endsAt: string | null;
   sortOrder: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export type SlideInput = Omit<HeroSlide, "id"> & { isActive: boolean };
+export type SlideInput = Omit<HeroSlide, "id" | "product"> & { isActive: boolean; productId: string | null; startsAt: string | null; endsAt: string | null };

@@ -26,6 +26,7 @@ import {
   TicketPercent,
   Users,
   Zap,
+  Megaphone,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -52,6 +53,7 @@ type IconName =
   | "reports"
   | "audit"
   | "slides"
+  | "promotions"
   | "cube"
   | "settings"
   | "collapse"
@@ -72,6 +74,7 @@ const icons: Record<IconName, LucideIcon> = {
   emails: Mail,
   campaigns: Zap,
   slides: GalleryHorizontal,
+  promotions: Megaphone,
   reports: ChartColumn,
   audit: ClipboardList,
   coupons: TicketPercent,
@@ -126,7 +129,8 @@ const groups: { title: string; items: NavItem[] }[] = [
   {
     title: "Marketinq",
     items: [
-      { to: "/admin/slides", label: "Slayder və bannerlər", permission: "products:write", icon: "slides" },
+      { to: "/admin/slides", label: "Slayder", permission: "products:write", icon: "slides" },
+      { to: "/admin/promotions", label: "Reklamlar", permission: "products:write", icon: "promotions" },
       { to: "/admin/campaigns", label: "Kampaniyalar", permission: "products:write", icon: "campaigns" },
       { to: "/admin/coupons", label: "Kuponlar", permission: "products:write", icon: "coupons" },
     ],
@@ -153,7 +157,8 @@ const titles: [string, string][] = [
   ["/admin/payments", "Ödənişlər"],
   ["/admin/coupons", "Kuponlar"],
   ["/admin/campaigns", "Kampaniyalar"],
-  ["/admin/slides", "Slayder və bannerlər"],
+  ["/admin/slides", "Slayder"],
+  ["/admin/promotions", "Reklamlar"],
   ["/admin/models", "3D modellər"],
   ["/admin/reports", "Analitika"],
   ["/admin/audit", "Əməliyyat jurnalı"],

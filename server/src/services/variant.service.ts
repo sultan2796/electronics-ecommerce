@@ -9,7 +9,7 @@ export const variantKeyOf = (variantId?: string | null) => variantId ?? "";
 
 export const pricedSource = <P extends BaseProduct>(product: P, variant?: VariantLike | null) =>
   variant && variant.price !== null
-    ? { ...product, price: variant.price, salePrice: variant.salePrice }
+    ? { ...product, price: variant.price, salePrice: variant.salePrice, listPrice: product.price }
     : product;
 
 export const lineName = (product: { name: string }, variant?: { name: string } | null) =>

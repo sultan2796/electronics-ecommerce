@@ -11,6 +11,8 @@ import { productRouter } from "./product.routes";
 import { reviewRouter } from "./review.routes";
 import { extraRouter } from "./extra.routes";
 import { growthRouter } from "./growth.routes";
+import { campaignRouter } from "./campaign.routes";
+import { promotionRouter } from "./promotion.routes";
 import { slideRouter } from "./slide.routes";
 import { settingsRouter } from "./settings.routes";
 import { wishlistRouter } from "./wishlist.routes";
@@ -22,6 +24,8 @@ apiRouter.get("/health", (_req, res) => {
 });
 apiRouter.use(extraRouter);
 apiRouter.use(growthRouter);
+apiRouter.use(campaignRouter);
+apiRouter.use(promotionRouter);
 apiRouter.use(slideRouter);
 apiRouter.use(settingsRouter);
 apiRouter.use("/auth", authRouter);

@@ -2,20 +2,8 @@ import { OrderStatus, Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { audit } from "../services/audit.service";
-import { refreshCampaigns } from "../services/campaign.service";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
-
-export const campaignSchema = z
-  .object({
-    name: z.string().trim().min(2).max(80),
-    discountPercent: z.number().int().min(1).max(90),
-    categoryId: z.string().min(1).nullable().optional(),
-    startsAt: z.coerce.date(),
-    endsAt: z.coerce.date(),
-    isActive: z.boolean().default(true),
-  })
-  .refine((value) => value.endsAt > value.startsAt, { message: "Bitmə vaxtı başlanğıcdan sonra olmalıdır", path: ["endsAt"] });
 
 export const bulkSchema = z.object({
   ids: z.array(z.string().min(1)).min(1).max(200),
@@ -32,37 +20,6 @@ export const auditQuerySchema = z.object({
   entity: z.string().optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(30),
-});
-
-export const activeCampaigns = asyncHandler(async (_req, res) => {
-  const campaigns = await refreshCampaigns();
-  const categories = await prisma.category.findMany({ where: { id: { in: campaigns.map((c) => c.categoryId).filter((id): id is string => Boolean(id)) } }, select: { id: true, name: true, slug: true } });
-  res.json(campaigns.map((campaign) => ({ ...campaign, category: categories.find((c) => c.id === campaign.categoryId) ?? null })));
-});
-
-export const listCampaigns = asyncHandler(async (_req, res) => {
-  res.json(await prisma.campaign.findMany({ include: { category: { select: { id: true, name: true } } }, orderBy: { startsAt: "desc" } }));
-});
-
-export const createCampaign = asyncHandler(async (req, res) => {
-  const campaign = await prisma.campaign.create({ data: req.body });
-  await refreshCampaigns();
-  audit(req, "campaign.create", "Campaign", campaign.id, req.body);
-  res.status(201).json(campaign);
-});
-
-export const updateCampaign = asyncHandler(async (req, res) => {
-  const campaign = await prisma.campaign.update({ where: { id: req.params.id }, data: req.body });
-  await refreshCampaigns();
-  audit(req, "campaign.update", "Campaign", campaign.id, req.body);
-  res.json(campaign);
-});
-
-export const deleteCampaign = asyncHandler(async (req, res) => {
-  await prisma.campaign.delete({ where: { id: req.params.id } });
-  await refreshCampaigns();
-  audit(req, "campaign.delete", "Campaign", req.params.id);
-  res.status(204).end();
 });
 
 export const bulkProducts = asyncHandler(async (req, res) => {

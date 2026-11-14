@@ -1,3 +1,4 @@
+import { syncServerClock } from "../utils/serverClock";
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { AuthResponse } from "../types";
 
@@ -52,6 +53,7 @@ const looksLikeHtml = (response: { headers: unknown; data: unknown }) => {
 
 api.interceptors.response.use((response) => {
   if (looksLikeHtml(response)) throw new ApiUnavailableError();
+  syncServerClock(response.headers?.["x-server-time"]);
   return response;
 });
 
