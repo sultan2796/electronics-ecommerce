@@ -209,29 +209,29 @@ export default function ImageLightbox({ images, start, alt, category, onClose }:
         onPointerCancel={finish}
         onWheel={onWheel}
       >
-        <div
-          key={index}
-          className="lightbox-slide absolute inset-0 flex items-center justify-center p-6 sm:p-12"
-          style={{
-            ["--slide-from" as string]: `${direction * 8}%`,
-            transform: `translate3d(${swipe}px,0,0)`,
-            transition: dragging ? "none" : "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
-        >
+        <div key={index} className="lightbox-slide absolute inset-0" style={{ ["--slide-from" as string]: `${direction * 8}%` }}>
           <div
-            className="flex size-full items-center justify-center bg-[#f5f5f7] will-change-transform"
+            className="absolute inset-0 flex items-center justify-center p-6 sm:p-12"
             style={{
-              transform: `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.scale})`,
+              transform: `translate3d(${swipe}px,0,0)`,
               transition: dragging ? "none" : "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
           >
-            <ProductImage
-              src={images[index]}
-              category={category}
-              alt={`${alt} — ${index + 1}`}
-              blend
-              className="pointer-events-none max-h-full max-w-full rounded-none"
-            />
+            <div
+              className="flex size-full items-center justify-center bg-[#f5f5f7] will-change-transform"
+              style={{
+                transform: `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.scale})`,
+                transition: dragging ? "none" : "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+            >
+              <ProductImage
+                src={images[index]}
+                category={category}
+                alt={`${alt} — ${index + 1}`}
+                blend
+                className="pointer-events-none max-h-full max-w-full rounded-none"
+              />
+            </div>
           </div>
         </div>
 

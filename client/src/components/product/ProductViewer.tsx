@@ -1,4 +1,4 @@
-import { PointerEvent, Suspense, WheelEvent, lazy, useEffect, useRef, useState } from "react";
+import { PointerEvent, ReactNode, Suspense, WheelEvent, lazy, useEffect, useRef, useState } from "react";
 import type { CameraView, ModelStageHandle } from "./ModelStage";
 import ProductImage from "./ProductImage";
 import ImageLightbox from "./ImageLightbox";
@@ -29,9 +29,10 @@ interface ProductViewerProps {
   category?: string;
   model3d?: string | null;
   modelCredit?: string | null;
+  overlay?: ReactNode;
 }
 
-export default function ProductViewer({ images, alt, category, model3d, modelCredit }: ProductViewerProps) {
+export default function ProductViewer({ images, alt, category, model3d, modelCredit, overlay }: ProductViewerProps) {
   const frames = images.length ? images : [""];
   const canSpin = frames.length > 1;
   const [mode, setMode] = useState<"photo" | "spin" | "model">(model3d ? "model" : "photo");
@@ -285,13 +286,15 @@ export default function ProductViewer({ images, alt, category, model3d, modelCre
         ) : (
           <div
             key={mode === "photo" ? index : "frame"}
-            className={`flex size-full items-center justify-center bg-[#f6f7f9] p-8 ease-out dark:bg-white ${swipeX ? "" : "transition-transform duration-150"} ${mode === "photo" && !swipeX ? "viewer-slide" : ""}`}
-            style={{
-              transform: `translate3d(${swipeX}px,0,0) scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
-              ["--slide-from" as string]: `${slideDir * 6}%`,
-            }}
+            className={`size-full bg-[#f6f7f9] dark:bg-white ${mode === "photo" ? "viewer-slide" : ""}`}
+            style={{ ["--slide-from" as string]: `${slideDir * 6}%` }}
           >
-            <ProductImage src={frames[index]} category={category} alt={alt} className="pointer-events-none max-h-full max-w-full object-contain mix-blend-multiply dark:rounded-none dark:bg-transparent" />
+            <div
+              className={`flex size-full items-center justify-center bg-[#f6f7f9] p-8 ease-out dark:bg-white ${swipeX ? "" : "transition-transform duration-150"}`}
+              style={{ transform: `translate3d(${swipeX}px,0,0) scale(${zoom}) translate(${offset.x}px, ${offset.y}px)` }}
+            >
+              <ProductImage src={frames[index]} category={category} alt={alt} className="pointer-events-none max-h-full max-w-full object-contain mix-blend-multiply dark:rounded-none dark:bg-transparent" />
+            </div>
           </div>
         )}
 
@@ -301,6 +304,11 @@ export default function ProductViewer({ images, alt, category, model3d, modelCre
               <Icon d="M7 8 3 12l4 4M17 8l4 4-4 4M3 12h18" />
               Fırlatmaq üçün sağa-sola sürüşdürün · {index + 1}/{frames.length}
             </span>
+          </div>
+        )}
+        {overlay && (
+          <div className="absolute right-3 top-3 z-10" onPointerDown={(event) => event.stopPropagation()} onDoubleClick={(event) => event.stopPropagation()}>
+            {overlay}
           </div>
         )}
         {mode === "photo" && zoom === 1 && (

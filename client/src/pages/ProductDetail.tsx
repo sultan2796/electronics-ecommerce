@@ -181,16 +181,19 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 overflow-hidden bg-surface sm:rounded-phone sm:shadow-tile lg:grid-cols-2">
         <div className="relative p-5 pt-[34px] lg:p-8">
           <ProductViewer key={selected?.id ?? "base"} images={view.images} alt={product.name} category={product.category?.slug} model3d={product.model3dActive === false ? null : (product.model3dUrl ?? product.specs?.extra?.model3d)}
-            modelCredit={[product.model3dSource, product.model3dLicense].filter(Boolean).join(" · ") || null} />
-          <button
-            type="button"
-            onClick={toggleWishlist}
-            aria-pressed={inWishlist}
-            aria-label="İstək siyahısı"
-            className={`absolute right-[34px] top-[40px] z-10 rounded-full transition lg:right-10 lg:top-10 ${inWishlist ? "text-red-500" : "text-ink/50 hover:text-red-500"}`}
-          >
-            <FigmaIcon name="heart-detail" className={`size-[22.5px] ${inWishlist ? "fill-current" : ""}`} />
-          </button>
+            modelCredit={[product.model3dSource, product.model3dLicense].filter(Boolean).join(" · ") || null}
+            overlay={
+              <button
+                type="button"
+                onClick={toggleWishlist}
+                aria-pressed={inWishlist}
+                aria-label="İstək siyahısı"
+                className={`flex size-10 items-center justify-center rounded-full bg-white/80 shadow-sm ring-1 ring-black/5 backdrop-blur transition active:scale-90 ${inWishlist ? "text-red-500" : "text-slate-500 hover:text-red-500"}`}
+              >
+                <FigmaIcon name="heart-detail" className={`size-5 ${inWishlist ? "fill-current" : ""}`} />
+              </button>
+            }
+          />
         </div>
 
         <div className="flex flex-col px-[27px] pb-[38px] pt-[37px] lg:px-12 lg:pt-12">
