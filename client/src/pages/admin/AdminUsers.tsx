@@ -1,3 +1,4 @@
+import { ShieldCheck } from "lucide-react";
 import PermissionsDialog from "../../components/admin/PermissionsDialog";
 import Avatar from "../../components/user/Avatar";
 import Select from "../../components/common/Select";
@@ -29,6 +30,23 @@ const roleDescriptions: Record<Role, string> = {
   SUPPORT: "Sifarişlərin statusunu idarə edir, istifadəçilərə baxır",
   CUSTOMER: "Yalnız alış-veriş, admin panelə girişi yoxdur",
 };
+
+function PermissionsButton({ item, onOpen, className = "" }: { item: AdminUser; onOpen: () => void; className?: string }) {
+  const changes = (item.extraPermissions?.length ?? 0) + (item.revokedPermissions?.length ?? 0);
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-line px-3 text-xs font-medium text-ink/80 transition hover:border-brand-500/50 hover:bg-chip hover:text-ink active:scale-[0.98] ${className}`}
+    >
+      <ShieldCheck className="size-4 text-brand-600" strokeWidth={1.8} aria-hidden="true" />
+      İcazələr
+      {changes > 0 && (
+        <span className="rounded-full bg-amber-50 px-1.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">{`+${changes}`}</span>
+      )}
+    </button>
+  );
+}
 
 export default function AdminUsers() {
   const { user: me, can } = useAuth();
@@ -108,7 +126,74 @@ export default function AdminUsers() {
         <Alert>{users.error}</Alert>
       ) : (
         <>
-          <div className="card overflow-x-auto">
+          <ul className="space-y-3 md:hidden">
+            {users.data?.items.map((item) => {
+              const isMe = item.id === me?.id;
+              const disabled = !canEdit || isMe || busyId === item.id;
+              return (
+                <li key={item.id} className={`card space-y-4 p-4 ${item.isBlocked ? "ring-1 ring-red-500/30" : ""}`}>
+                  <div className="flex items-center gap-3">
+                    <Avatar name={item.name} src={item.avatarUrl} className="size-11 text-sm" />
+                    <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setDetailId(item.id)}>
+                      <span className="block truncate font-semibold">
+                        {item.name} {isMe && <span className="text-xs font-normal text-muted">(siz)</span>}
+                      </span>
+                      <span className="block truncate text-xs text-muted">{item.email}</span>
+                    </button>
+                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${item.isBlocked ? "bg-red-50 text-red-700 dark:bg-red-400/10 dark:text-red-300" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"}`}>
+                      {item.isBlocked ? "Bloklanıb" : "Aktiv"}
+                    </span>
+                  </div>
+
+                  <dl className="grid grid-cols-3 gap-2 rounded-xl bg-chip/60 p-3 text-center">
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-wide text-muted">Sifariş</dt>
+                      <dd className="mt-0.5 text-sm font-semibold tabular-nums">{item._count.orders}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-wide text-muted">Qeydiyyat</dt>
+                      <dd className="mt-0.5 text-xs font-medium">{formatDate(item.createdAt)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-wide text-muted">Son giriş</dt>
+                      <dd className="mt-0.5 text-xs font-medium">{item.lastLoginAt ? formatDate(item.lastLoginAt) : "—"}</dd>
+                    </div>
+                  </dl>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    {disabled ? (
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${roleStyles[item.role]}`}>{roleLabels[item.role]}</span>
+                    ) : (
+                      <Select
+                        className="min-w-[9rem] flex-1"
+                        size="sm"
+                        ariaLabel="Rol"
+                        value={item.role}
+                        onChange={(role) => change(item, { role: role as Role })}
+                        options={roles.map((value) => ({ value, label: roleLabels[value], hint: roleDescriptions[value] }))}
+                      />
+                    )}
+                    {canEdit && !isMe && <PermissionsButton item={item} onOpen={() => setPermissionsFor(item)} className="flex-1" />}
+                  </div>
+
+                  {!disabled && (
+                    <button
+                      type="button"
+                      onClick={() => change(item, { isBlocked: !item.isBlocked })}
+                      className={`w-full rounded-xl border py-2 text-xs font-medium transition ${
+                        item.isBlocked ? "border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10" : "border-red-500/25 text-red-600 hover:bg-red-500/10"
+                      }`}
+                    >
+                      {item.isBlocked ? "Bloku aç" : "Blokla"}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+            {!users.data?.items.length && <li className="card px-5 py-6 text-sm text-muted">İstifadəçi tapılmadı.</li>}
+          </ul>
+
+          <div className="card hidden overflow-x-auto md:block">
             <table className="w-full min-w-[820px] text-sm">
               <thead className="bg-surface text-left text-muted">
                 <tr className="border-b border-chip">
@@ -150,13 +235,7 @@ export default function AdminUsers() {
                             options={roles.map((value) => ({ value, label: roleLabels[value], hint: roleDescriptions[value] }))}
                           />
                         )}
-                        {canEdit && !isMe && (
-                          <button type="button" className="mt-1.5 block text-xs font-medium text-brand-600 hover:underline" onClick={() => setPermissionsFor(item)}>
-                            {item.extraPermissions?.length || item.revokedPermissions?.length
-                              ? `İcazələr (${(item.extraPermissions?.length ?? 0) + (item.revokedPermissions?.length ?? 0)} dəyişiklik)`
-                              : "İcazələr"}
-                          </button>
-                        )}
+                        {canEdit && !isMe && <PermissionsButton item={item} onOpen={() => setPermissionsFor(item)} className="mt-2" />}
                       </td>
                       <td className="px-4 py-3">{item._count.orders}</td>
                       <td className="px-4 py-3 text-muted">{formatDate(item.createdAt)}</td>
