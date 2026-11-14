@@ -264,13 +264,21 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
+  const current = slides[index];
+  const hasVideo = current?.kind === "custom" ? Boolean(current.slide.videoUrl) : current?.kind === "product" ? Boolean(current.product.videoUrl) : false;
+  const duration = hasVideo ? VIDEO_MS : AUTOPLAY_MS;
+  const remaining = useRef({ index: -1, ms: duration });
+
   useEffect(() => {
+    if (remaining.current.index !== index) remaining.current = { index, ms: duration };
     if (paused || count < 2 || reducedMotion) return;
-    const current = slides[index];
-    const hasVideo = current?.kind === "custom" ? Boolean(current.slide.videoUrl) : current?.kind === "product" ? Boolean(current.product.videoUrl) : false;
-    const timer = window.setTimeout(() => go(index + 1, 1), hasVideo ? VIDEO_MS : AUTOPLAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [paused, count, index, reducedMotion, go]);
+    const startedAt = Date.now();
+    const timer = window.setTimeout(() => go(index + 1, 1), remaining.current.ms);
+    return () => {
+      window.clearTimeout(timer);
+      remaining.current.ms = Math.max(0, remaining.current.ms - (Date.now() - startedAt));
+    };
+  }, [paused, count, index, reducedMotion, go, duration]);
 
   useEffect(
     () => () => {
@@ -413,28 +421,35 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
               </span>
               <span className={`text-xs tabular-nums ${darkSlide ? "text-white/50" : "text-slate-900/40 dark:text-white/40"}`}>{`/ ${String(count).padStart(2, "0")}`}</span>
             </div>
-            <div className="pointer-events-auto flex items-center gap-2">
-              {[
-                { label: t("hero.prev"), delta: -1, path: "M15 18l-6-6 6-6" },
-                { label: t("hero.next"), delta: 1, path: "M9 6l6 6-6 6" },
-              ].map((control) => (
-                <button
-                  key={control.delta}
-                  type="button"
-                  onClick={() => go(index + control.delta, control.delta as 1 | -1)}
-                  aria-label={control.label}
-                  className={`flex size-9 items-center justify-center rounded-full backdrop-blur-md transition duration-300 active:scale-90 sm:size-11 ${
-                    darkSlide
-                      ? "bg-white/10 text-white ring-1 ring-inset ring-white/20 hover:bg-white/20"
-                      : "bg-white/60 text-slate-900 ring-1 ring-inset ring-black/5 hover:bg-white dark:bg-white/10 dark:text-white dark:ring-white/15 dark:hover:bg-white/20"
-                  }`}
-                >
-                  <svg viewBox="0 0 24 24" className="size-4 sm:size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d={control.path} />
-                  </svg>
-                </button>
-              ))}
-            </div>
+            <button
+              type="button"
+              onClick={() => go(index + 1, 1)}
+              aria-label={t("hero.next")}
+              className={`hero-ring pointer-events-auto relative flex size-10 items-center justify-center rounded-full backdrop-blur-md transition duration-300 active:scale-90 sm:size-12 ${
+                darkSlide ? "bg-white/[0.06] text-white" : "bg-white/50 text-slate-900 dark:bg-white/[0.06] dark:text-white"
+              }`}
+            >
+              <svg viewBox="0 0 48 48" className="absolute inset-0 size-full -rotate-90" aria-hidden="true">
+                <circle cx="24" cy="24" r="22" fill="none" strokeWidth="1.5" className={darkSlide ? "stroke-white/15" : "stroke-slate-900/10 dark:stroke-white/15"} />
+                {!reducedMotion && (
+                  <circle
+                    key={index}
+                    cx="24"
+                    cy="24"
+                    r="22"
+                    fill="none"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    pathLength={1}
+                    className={`hero-ring-fill ${darkSlide ? "stroke-white" : "stroke-brand-500 dark:stroke-white"}`}
+                    style={{ animationDuration: `${duration}ms`, animationPlayState: paused ? "paused" : "running" }}
+                  />
+                )}
+              </svg>
+              <svg viewBox="0 0 24 24" className="relative size-3.5 opacity-70 transition group-hover/hero:opacity-100 sm:size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
           </div>
         </>
       )}

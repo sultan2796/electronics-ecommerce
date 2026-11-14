@@ -47,9 +47,9 @@ describe("HeroSlider", () => {
     expect(screen.getByRole("link", { name: "Al" })).toHaveAttribute("href", "/products");
   });
 
-  it("oxlar və klaviatura ilə irəli-geri keçir, sayğac yenilənir, əvvəlki slayd çıxış animasiyası alır", () => {
+  it("əvvəlki ox yoxdur, halqa düyməsi və klaviatura ilə keçir, sayğac yenilənir, əvvəlki slayd çıxış animasiyası alır", () => {
     renderSlider();
-    expect(screen.queryByRole("progressbar")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Əvvəlki slayd" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Növbəti slayd" }));
     expect(activeTitle()).toBe("Noutbuk həftəsi");
     expect(screen.getByLabelText("2 / 3")).toBeInTheDocument();
@@ -71,6 +71,16 @@ describe("HeroSlider", () => {
     expect(activeTitle()).toBe("Aksesuarlar");
   });
 
+  it("fasilədən sonra qalan vaxtdan davam edir", () => {
+    renderSlider();
+    act(() => vi.advanceTimersByTime(4000));
+    fireEvent.mouseEnter(screen.getByRole("region"));
+    act(() => vi.advanceTimersByTime(10000));
+    fireEvent.mouseLeave(screen.getByRole("region"));
+    act(() => vi.advanceTimersByTime(2600));
+    expect(activeTitle()).toBe("Noutbuk həftəsi");
+  });
+
   it("toxunma ilə sürüşdürmə slaydı dəyişir", () => {
     renderSlider();
     const region = screen.getByRole("region");
@@ -79,12 +89,12 @@ describe("HeroSlider", () => {
     expect(activeTitle()).toBe("Noutbuk həftəsi");
   });
 
-  it("klaviatura və əvvəlki ox işləyir", () => {
+  it("klaviatura ilə geri keçid və fasilədən sonra qalan vaxtla davam edir", () => {
     renderSlider();
     fireEvent.keyDown(screen.getByRole("region"), { key: "ArrowRight" });
     expect(activeTitle()).toBe("Noutbuk həftəsi");
-    fireEvent.click(screen.getByRole("button", { name: "Əvvəlki slayd" }));
-    fireEvent.click(screen.getByRole("button", { name: "Əvvəlki slayd" }));
+    fireEvent.keyDown(screen.getByRole("region"), { key: "ArrowLeft" });
+    fireEvent.keyDown(screen.getByRole("region"), { key: "ArrowLeft" });
     expect(activeTitle()).toBe("Aksesuarlar");
     expect(screen.getByRole("link", { name: "Bax" })).toHaveAttribute("rel", "noopener noreferrer");
   });
