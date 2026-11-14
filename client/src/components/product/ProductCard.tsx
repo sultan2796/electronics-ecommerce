@@ -87,7 +87,15 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <article className="product-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface">
       <div className="relative">
-        <CardGallery images={product.images} alt={product.name} category={product.category?.slug} soldOut={soldOut} soldOutLabel={t("card.soldOut")} />
+        <CardGallery
+          images={product.images}
+          alt={product.name}
+          category={product.category?.slug}
+          soldOut={soldOut}
+          soldOutLabel={t("card.soldOut")}
+          title={product.name}
+          price={formatPrice(price.price)}
+        />
         <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col items-start gap-1">
           {price.percent > 0 && (
             <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold text-white ${price.live ? "bg-red-600" : "bg-brand-600"}`}>−{price.percent}%</span>

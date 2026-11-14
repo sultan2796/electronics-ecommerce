@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Expand } from "lucide-react";
-import { PointerEvent, useRef, useState } from "react";
+import { PointerEvent, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import ImageLightbox from "./ImageLightbox";
 import ProductImage from "./ProductImage";
 
@@ -9,11 +10,42 @@ interface Props {
   category?: string;
   soldOut?: boolean;
   soldOutLabel: string;
+  title?: string;
+  price?: string;
 }
 
 const SWIPE = 40;
+const HOLD_MS = 380;
 
-export default function CardGallery({ images, alt, category, soldOut = false, soldOutLabel }: Props) {
+function CardPeek({ image, alt, category, index, count, title, price }: { image: string; alt: string; category?: string; index: number; count: number; title?: string; price?: string }) {
+  return createPortal(
+    <div className="card-peek pointer-events-none fixed inset-0 z-[95] flex items-center justify-center p-6" aria-hidden="true">
+      <div className="card-peek-backdrop absolute inset-0 bg-black/45 backdrop-blur-xl" />
+      <div className="card-peek-panel relative w-full max-w-[420px] overflow-hidden rounded-[28px] bg-[#f5f5f7] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.55)] ring-1 ring-white/20">
+        <div className="relative flex aspect-square items-center justify-center p-[8%]">
+          <ProductImage key={image} src={image || undefined} category={category} alt={alt} blend className="card-peek-image size-full object-contain" />
+          {count > 1 && (
+            <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1">
+              {Array.from({ length: count }, (_, position) => (
+                <span key={position} className={`h-[3px] rounded-full transition-all duration-300 ${position === index ? "w-6 bg-[#1d1d1f]/75" : "w-3 bg-[#1d1d1f]/15"}`} />
+              ))}
+            </div>
+          )}
+        </div>
+        {(title || price) && (
+          <div className="flex items-center justify-between gap-3 border-t border-black/5 bg-white/70 px-5 py-3.5 backdrop-blur">
+            {title && <p className="line-clamp-1 text-sm font-semibold text-[#1d1d1f]">{title}</p>}
+            {price && <p className="shrink-0 text-sm font-bold text-[#1d1d1f]">{price}</p>}
+          </div>
+        )}
+      </div>
+      {count > 1 && <p className="card-peek-hint absolute bottom-[max(2rem,env(safe-area-inset-bottom))] text-xs font-medium text-white/80">Barmağı sürüşdürərək şəkilləri dəyişin</p>}
+    </div>,
+    document.body,
+  );
+}
+
+export default function CardGallery({ images, alt, category, soldOut = false, soldOutLabel, title, price }: Props) {
   const slides = images.filter(Boolean).length ? images.filter(Boolean) : [""];
   const count = slides.length;
   const [index, setIndex] = useState(0);
@@ -22,6 +54,10 @@ export default function CardGallery({ images, alt, category, soldOut = false, so
   const [lightbox, setLightbox] = useState(false);
   const drag = useRef<{ x: number; y: number; axis: "x" | "y" | null; time: number } | null>(null);
   const width = useRef(1);
+  const [peek, setPeek] = useState(false);
+  const holdTimer = useRef<number | undefined>(undefined);
+  const peekStart = useRef(0);
+  const peekBase = useRef(0);
 
   const show = (next: number) => {
     const target = (next + count) % count;
@@ -29,18 +65,50 @@ export default function CardGallery({ images, alt, category, soldOut = false, so
     setIndex(target);
   };
 
+  const cancelHold = () => {
+    window.clearTimeout(holdTimer.current);
+    holdTimer.current = undefined;
+  };
+
+  useEffect(() => cancelHold, []);
+
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
     width.current = event.currentTarget.clientWidth || 1;
     drag.current = { x: event.clientX, y: event.clientY, axis: null, time: Date.now() };
     if (count > 1) setLoaded((current) => new Set(current).add((index + 1) % count).add((index - 1 + count) % count));
+    const target = event.currentTarget;
+    const pointerId = event.pointerId;
+    cancelHold();
+    holdTimer.current = window.setTimeout(() => {
+      if (!drag.current || drag.current.axis) return;
+      try {
+        target.setPointerCapture(pointerId);
+      } catch {
+        return;
+      }
+      peekStart.current = drag.current.x;
+      peekBase.current = index;
+      setPeek(true);
+      navigator.vibrate?.(8);
+    }, HOLD_MS);
   };
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const state = drag.current;
-    if (!state || count < 2) return;
+    if (!state) return;
+    if (peek) {
+      if (count > 1) {
+        const step = Math.round((event.clientX - peekStart.current) / 70);
+        const target = (((peekBase.current + step) % count) + count) % count;
+        if (target !== index) show(target);
+      }
+      return;
+    }
     const dx = event.clientX - state.x;
     const dy = event.clientY - state.y;
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) cancelHold();
+    if (count < 2) return;
     if (!state.axis && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
       state.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
       if (state.axis === "x") event.currentTarget.setPointerCapture(event.pointerId);
@@ -52,6 +120,11 @@ export default function CardGallery({ images, alt, category, soldOut = false, so
     const state = drag.current;
     drag.current = null;
     setDragX(0);
+    cancelHold();
+    if (peek) {
+      setPeek(false);
+      return;
+    }
     if (!state) return;
     const dx = event.clientX - state.x;
     const dy = event.clientY - state.y;
@@ -76,7 +149,11 @@ export default function CardGallery({ images, alt, category, soldOut = false, so
         onPointerCancel={() => {
           drag.current = null;
           setDragX(0);
+          cancelHold();
+          setPeek(false);
         }}
+        onContextMenu={(event) => event.preventDefault()}
+        style={{ WebkitTouchCallout: "none" }}
         role="button"
         tabIndex={0}
         aria-label={`${alt} şəklini böyüt`}
@@ -168,6 +245,7 @@ export default function CardGallery({ images, alt, category, soldOut = false, so
           </>
         )}
       </div>
+      {peek && <CardPeek image={slides[index]} alt={alt} category={category} index={index} count={count} title={title} price={price} />}
       {lightbox && (
         <ImageLightbox
           images={slides}

@@ -931,6 +931,7 @@ E-poçt jurnalı|Журнал писем|Email log
 Göndərilən məktubların jurnalı|Журнал отправленных писем|Log of sent emails
 Sayt parametrləri|Настройки сайта|Site settings
 Loqo, favicon, şəkil optimallaşdırması (yalnız admin verə bilər)|Логотип, фавикон, оптимизация изображений (выдаёт только админ)|Logo, favicon, image optimization (admin-only grant)
+Barmağı sürüşdürərək şəkilləri dəyişin|Ведите пальцем, чтобы листать фото|Slide your finger to switch photos
 `;
 
 const months = [

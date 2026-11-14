@@ -340,32 +340,52 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
       {count > 1 && (
         <>
 
-          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/15 px-2.5 backdrop-blur-sm sm:bottom-5">
-            {slides.map((slide, position) => {
-              const current = position === index;
-              return (
-                <button
-                  key={slide.id}
-                  type="button"
-                  onClick={() => go(position)}
-                  aria-label={t("hero.goTo", { n: position + 1 })}
-                  aria-current={current}
-                  className="py-2"
-                >
-                  <span
-                    className={`relative block h-1.5 overflow-hidden rounded-full transition-[width,background-color] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${current ? "w-10" : "w-1.5 hover:w-3"} ${darkSlide ? "bg-white/35" : "bg-slate-900/15 dark:bg-white/30"}`}
+          <div
+            className={`absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 rounded-full px-3.5 py-1.5 backdrop-blur-md sm:bottom-5 ${
+              darkSlide ? "bg-black/25 ring-1 ring-white/10" : "bg-white/55 ring-1 ring-black/5 dark:bg-black/30 dark:ring-white/10"
+            }`}
+          >
+            <span className={`text-[11px] font-semibold tabular-nums tracking-wider ${darkSlide ? "text-white" : "text-slate-900 dark:text-white"}`}>
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <div className="flex items-center gap-1.5">
+              {slides.map((slide, position) => {
+                const current = position === index;
+                const done = position < index;
+                return (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    onClick={() => go(position)}
+                    aria-label={t("hero.goTo", { n: position + 1 })}
+                    aria-current={current}
+                    className="group py-2.5"
                   >
-                    {current && (
+                    <span
+                      className={`relative block h-[2px] overflow-hidden rounded-full transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${current ? "w-9 sm:w-12" : "w-4 group-hover:w-6"} ${
+                        darkSlide ? "bg-white/25" : "bg-slate-900/15 dark:bg-white/25"
+                      }`}
+                    >
                       <span
-                        key={`${index}-${paused}-${reducedMotion}`}
-                        className={`absolute inset-y-0 left-0 rounded-full ${darkSlide ? "bg-white" : "bg-slate-900 dark:bg-white"} ${paused || reducedMotion ? "w-full" : "animate-[slide-progress_linear_forwards]"}`}
-                        style={paused || reducedMotion ? undefined : { animationDuration: `${AUTOPLAY_MS}ms` }}
+                        key={current ? `active-${index}-${reducedMotion}` : `idle-${position}`}
+                        className={`hero-progress-fill absolute inset-0 origin-left rounded-full ${darkSlide ? "bg-white" : "bg-slate-900 dark:bg-white"} ${
+                          current && !reducedMotion ? "is-running" : ""
+                        }`}
+                        style={{
+                          transform: current ? undefined : `scaleX(${done ? 1 : 0})`,
+                          opacity: done ? 0.55 : 1,
+                          animationDuration: `${AUTOPLAY_MS}ms`,
+                          animationPlayState: paused ? "paused" : "running",
+                        }}
                       />
-                    )}
-                  </span>
-                </button>
-              );
-            })}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <span className={`text-[11px] font-medium tabular-nums tracking-wider ${darkSlide ? "text-white/55" : "text-slate-900/45 dark:text-white/45"}`}>
+              {String(count).padStart(2, "0")}
+            </span>
           </div>
         </>
       )}

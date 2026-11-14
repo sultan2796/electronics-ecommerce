@@ -411,6 +411,61 @@
       transform: translate3d(calc(var(--dir, 1) * -1.5%), 0, 0) scale(1.02);
     }
   }
+  .card-peek-backdrop {
+    animation: peek-fade 0.25s ease both;
+  }
+  .card-peek-panel {
+    animation: peek-pop 0.42s cubic-bezier(0.2, 1.3, 0.35, 1) both;
+  }
+  .card-peek-hint {
+    animation: peek-fade 0.4s ease 0.25s both;
+  }
+  .card-peek-image {
+    animation: peek-image 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes peek-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes peek-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.82) translate3d(0, 12px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes peek-image {
+    from {
+      opacity: 0.4;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .hero-progress-fill {
+    transform: scaleX(1);
+  }
+  .hero-progress-fill.is-running {
+    animation: hero-progress-fill linear forwards;
+    will-change: transform;
+  }
+  @keyframes hero-progress-fill {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
   .viewer-slide {
     animation: viewer-slide 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
@@ -558,6 +613,10 @@
     .product-card-img,
     .product-card-alt,
     .viewer-slide,
+    .card-peek-backdrop,
+    .card-peek-panel,
+    .card-peek-image,
+    .hero-progress-fill.is-running,
     .lightbox,
     .lightbox-slide,
     .stagger > *,
