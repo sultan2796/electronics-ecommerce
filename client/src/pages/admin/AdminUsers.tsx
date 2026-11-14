@@ -80,7 +80,7 @@ export default function AdminUsers() {
         </form>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {roles.map((value) => (
           <button
             key={value}

@@ -80,7 +80,7 @@ export default function AdminCoupons() {
         <p className="text-sm text-muted">Müştərilər ödəniş səhifəsində kodu daxil edib endirim alır</p>
       </div>
 
-      <form onSubmit={submit} className="card grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+      <form onSubmit={submit} className="card grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
         <label className="space-y-1">
           <span className="text-sm font-medium">Kod</span>
           <input className="input uppercase" required minLength={3} placeholder="YAY10" value={form.code} onChange={(e) => set("code", e.target.value)} />

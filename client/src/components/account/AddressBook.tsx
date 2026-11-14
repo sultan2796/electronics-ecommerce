@@ -67,7 +67,7 @@ export default function AddressBook() {
       {error && <Alert>{error}</Alert>}
 
       {form ? (
-        <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
+        <form onSubmit={submit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {fields.map((field) => (
             <label key={field.name} className={`space-y-1 ${field.wide ? "sm:col-span-2" : ""}`}>
               <span className="text-sm font-medium">{field.label}</span>
@@ -95,7 +95,7 @@ export default function AddressBook() {
       ) : list.data && list.data.length === 0 ? (
         <p className="text-sm text-muted">Hələ saxlanmış ünvan yoxdur. Sifariş zamanı “yadda saxla” seçsəniz, burada görünəcək.</p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {list.data?.map((address) => (
             <article key={address.id} className={`rounded-2xl border p-4 text-sm ${address.isDefault ? "border-brand-500" : "border-line"}`}>
               <div className="flex items-center justify-between">

@@ -147,7 +147,7 @@ export default function VariantEditor({ product, onSaved }: { product: Product; 
               </button>
             </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <label className="space-y-1 text-xs">
               <span className="font-medium">Ad</span>
               <input className="input rounded-xl" value={row.name} placeholder={composeName(row) || "Qara / 256GB"} onChange={(event) => patch(row.key, { name: event.target.value })} />

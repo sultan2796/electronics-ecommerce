@@ -94,7 +94,7 @@ export default function AdminReviews() {
         <div className="card p-10 text-center text-sm text-muted">Rəy tapılmadı</div>
       ) : (
         <>
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {reviews.data?.items.map((review) => (
               <article key={review.id} className="card flex flex-col gap-3 p-5">
                 <div className="flex items-start justify-between gap-3">

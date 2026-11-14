@@ -75,7 +75,7 @@ export default function AdminCampaigns() {
         <p className="text-sm text-muted">Taymerli endirimlər bütün sayta və ya seçilmiş kateqoriyaya avtomatik tətbiq olunur və ana səhifədə geri sayımla göstərilir</p>
       </div>
 
-      <form onSubmit={submit} className="card grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
+      <form onSubmit={submit} className="card grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
         <label className="space-y-1">
           <span className="text-sm font-medium">Ad</span>
           <input className="input" required minLength={2} placeholder="Black Friday" value={form.name} onChange={(e) => set("name", e.target.value)} />
@@ -113,7 +113,7 @@ export default function AdminCampaigns() {
       {campaigns.loading && !campaigns.data ? (
         <Spinner />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {campaigns.data?.length === 0 && <p className="card p-8 text-center text-sm text-muted md:col-span-2">Hələ kampaniya yoxdur</p>}
           {campaigns.data?.map((campaign) => {
             const state = stateOf(campaign);

@@ -38,7 +38,7 @@ export default function Footer() {
   const { t } = useI18n();
   return (
     <footer className="hidden bg-[#0f172a] text-slate-300 md:block">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
+      <div className="mx-auto grid grid-cols-1 max-w-7xl gap-10 px-4 py-14 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
         <div className="space-y-4">
           <Logo tone="inverse" />
           <p className="max-w-xs text-sm leading-relaxed text-slate-400">{t("footer.tagline")}</p>

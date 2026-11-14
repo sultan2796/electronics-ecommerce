@@ -52,7 +52,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Gəlir" value={formatPrice(stats.revenue)} hint="Ödənilmiş və daha irəli statuslu sifarişlər" tone="green" />
         <StatCard
           label="Sifarişlər"
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
         />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label="Tamamlanmış sifarişlər"
           value={stats.ordersByStatus.DELIVERED ?? 0}
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[2fr_1fr]">
         <SalesChart data={stats.salesByDay} />
         <section className="card space-y-4 p-5">
           <h2 className="font-semibold">Sifariş statusları</h2>
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
         </section>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <section className="card p-5">
           <h2 className="mb-4 font-semibold">Ən çox satılanlar</h2>
           {stats.topProducts.length ? (

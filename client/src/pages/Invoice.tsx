@@ -50,7 +50,7 @@ export default function Invoice() {
           </div>
         </header>
 
-        <section className="grid gap-6 py-6 text-sm sm:grid-cols-2">
+        <section className="grid grid-cols-1 gap-6 py-6 text-sm sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Alıcı</p>
             <p className="mt-2 font-medium">{address.fullName}</p>

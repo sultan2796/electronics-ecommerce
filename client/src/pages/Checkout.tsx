@@ -159,7 +159,7 @@ export default function Checkout() {
   };
 
   return (
-    <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_340px]">
+    <form onSubmit={submit} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
       <div className="space-y-6">
         <section className="card space-y-4 p-6">
           <h1 className="text-2xl font-bold">Çatdırılma məlumatları</h1>
@@ -204,7 +204,7 @@ export default function Checkout() {
               ))}
             </div>
           )}
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {fields.map((field) => (
               <label key={field.name} className={`space-y-1 ${field.name.startsWith("line") ? "sm:col-span-2" : ""}`}>
                 <span className="text-sm font-medium">{field.label}</span>
@@ -236,7 +236,7 @@ export default function Checkout() {
               </span>
             )}
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {methods.map((value) => (
               <label
                 key={value}

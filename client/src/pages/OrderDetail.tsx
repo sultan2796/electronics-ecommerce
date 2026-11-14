@@ -137,7 +137,7 @@ export default function OrderDetail() {
         )}
       </section>
 
-      <div className="grid gap-6 md:grid-cols-[2fr_1fr]">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr]">
         <section className="card p-6">
           <h2 className="mb-4 font-semibold">Məhsullar</h2>
           <ul className="divide-y divide-chip">

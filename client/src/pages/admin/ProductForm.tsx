@@ -295,9 +295,9 @@ export default function ProductForm() {
       {error && <Alert>{error}</Alert>}
       {saved && <Alert variant="success">Dəyişikliklər yadda saxlanıldı.</Alert>}
 
-      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-6">
-          <section className="card grid gap-4 p-5 sm:grid-cols-2">
+          <section className="card grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
             <h2 className="font-semibold sm:col-span-2">Əsas məlumatlar</h2>
             <Field label="Ad *" wide>
               {input("name", { required: true })}
@@ -414,7 +414,7 @@ export default function ProductForm() {
             onChange={(next) => setForm((current) => ({ ...current, ...next }))}
           />
 
-          <section className="card grid gap-4 p-5 sm:grid-cols-2">
+          <section className="card grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
             <h2 className="font-semibold sm:col-span-2">Texniki göstəricilər</h2>
             <Field label="Prosessor (CPU)">{input("cpu")}</Field>
             <Field label="Qrafik (GPU)">{input("gpu")}</Field>

@@ -149,7 +149,7 @@ export default function AdminSlides() {
         <p className="text-sm text-muted">Aktiv slaydlar ana səhifədə sıra ilə göstərilir. Slayd yoxdursa, standart brend slaydı görünür.</p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
         <section className="card space-y-3 p-5">
           <h2 className="font-semibold">Slaydlar</h2>
           {slides.loading ? (
@@ -235,7 +235,7 @@ export default function AdminSlides() {
             </label>
             <input className="input" required placeholder="https://... və ya /figma/hero.jpg" value={form.imageUrl} onChange={(e) => set("imageUrl", e.target.value)} />
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="block space-y-1">
               <span className="text-sm font-medium">Düymə mətni</span>
               <input className="input" maxLength={40} placeholder="İndi al" value={form.buttonText ?? ""} onChange={(e) => set("buttonText", e.target.value)} />

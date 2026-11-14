@@ -63,8 +63,8 @@ export default function AdminEmails() {
           <h1 className="text-2xl font-bold">E-poçt bildirişləri</h1>
           <p className="text-sm text-muted">Sistemin göndərdiyi bütün məktubların jurnalı</p>
         </div>
-        <form onSubmit={onSearch} className="flex gap-2">
-          <input className="input w-64" placeholder="Alıcı və ya mövzu" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <form onSubmit={onSearch} className="flex w-full gap-2 sm:w-auto">
+          <input className="input min-w-0 flex-1 sm:w-64 sm:flex-none" placeholder="Alıcı və ya mövzu" value={search} onChange={(e) => setSearch(e.target.value)} />
           <button className="btn-outline">Axtar</button>
         </form>
       </div>
@@ -101,7 +101,7 @@ export default function AdminEmails() {
       ) : emails.error ? (
         <Alert>{emails.error}</Alert>
       ) : (
-        <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
           <div className="card overflow-x-auto">
             <table className="w-full min-w-[640px] table-fixed text-sm">
               <colgroup>

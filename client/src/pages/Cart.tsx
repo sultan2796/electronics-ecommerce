@@ -38,7 +38,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
       <section className="space-y-4">
         <h1 className="text-2xl font-bold">Səbət</h1>
         {error && <Alert>{error}</Alert>}

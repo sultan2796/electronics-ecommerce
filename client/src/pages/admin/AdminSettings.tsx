@@ -84,7 +84,7 @@ export default function AdminSettings() {
         <SettingsPreview draft={draft} />
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {assets.map((asset) => {
           const value = draft[asset.key];
           return (
@@ -133,16 +133,16 @@ export default function AdminSettings() {
 function SettingsPreview({ draft }: { draft: SiteSettings }) {
   return (
     <SiteSettingsPreview value={draft}>
-      <div className="grid gap-3 md:grid-cols-3">
-        <div className="flex h-20 items-center rounded-2xl border border-line bg-white px-5">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="flex h-20 min-w-0 items-center overflow-hidden rounded-2xl border border-line bg-white px-5">
           <Logo />
         </div>
-        <div className="flex h-20 items-center rounded-2xl bg-[#0f172a] px-5">
+        <div className="flex h-20 min-w-0 items-center overflow-hidden rounded-2xl bg-[#0f172a] px-5">
           <Logo tone="inverse" />
         </div>
-        <div className="flex h-20 items-center gap-3 rounded-2xl border border-line bg-surface px-5">
+        <div className="flex h-20 min-w-0 items-center gap-3 overflow-hidden rounded-2xl border border-line bg-surface px-5">
           <Logo size="sm" />
-          <span className="ml-auto flex items-center gap-2 rounded-lg bg-chip px-2 py-1 text-xs text-muted">
+          <span className="ml-auto hidden items-center gap-2 rounded-lg bg-chip px-2 py-1 text-xs text-muted min-[400px]:flex">
             {draft.faviconUrl ? <img src={draft.faviconUrl} alt="" className="size-4 object-contain" /> : <BrandMark className="size-4" />}
             ElectroShop
           </span>

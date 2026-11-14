@@ -173,7 +173,7 @@ export default function ProductDetail() {
 
   return (
     <div className="-mx-4 -mt-8 pb-20 sm:mx-0 sm:mt-0 md:pb-0">
-      <div className="grid overflow-hidden bg-surface sm:rounded-phone sm:shadow-tile lg:grid-cols-2">
+      <div className="grid grid-cols-1 overflow-hidden bg-surface sm:rounded-phone sm:shadow-tile lg:grid-cols-2">
         <div className="relative p-5 pt-[34px] lg:p-8">
           <ProductViewer key={selected?.id ?? "base"} images={view.images} alt={product.name} category={product.category?.slug} model3d={product.model3dActive === false ? null : (product.model3dUrl ?? product.specs?.extra?.model3d)}
             modelCredit={[product.model3dSource, product.model3dLicense].filter(Boolean).join(" · ") || null} />

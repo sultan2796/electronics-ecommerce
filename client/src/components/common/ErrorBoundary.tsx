@@ -21,7 +21,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
     if (!this.state.error) return this.props.children;
     return (
       <div className="flex min-h-screen items-center justify-center bg-canvas p-6 text-ink">
-        <div className="card max-w-md space-y-4 p-8 text-center">
+        <div className="card w-full max-w-md space-y-4 p-6 text-center sm:p-8">
           <h1 className="text-xl font-bold">Gözlənilməz xəta baş verdi</h1>
           <p className="text-sm text-muted">Səhifəni yeniləyin. Problem təkrarlanarsa, bizimlə əlaqə saxlayın.</p>
           <details className="rounded-lg bg-chip p-3 text-left text-xs text-muted">

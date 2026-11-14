@@ -60,7 +60,7 @@ export default function Home() {
 
   return (
     <div className="-mx-4 -mt-8 space-y-12 sm:mx-0 sm:mt-0 sm:space-y-14">
-      <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
         <HeroSlider products={featured.data ?? []} slides={slides.data ?? []} />
         <div className="hidden grid-rows-2 gap-4 lg:grid">
           <TiltLink to="/products?category=laptops" degrees={3} className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-slate-700 p-6 text-white">

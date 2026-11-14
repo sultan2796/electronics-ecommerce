@@ -35,7 +35,7 @@ export default function Products() {
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
       <SpecFilters
         facets={facets.data}
         categories={(categories.data ?? []).filter((category) => (category._count?.products ?? 0) > 0 || category.slug === filters.category)}

@@ -21,7 +21,7 @@ export default function Contact() {
         <h1 className="text-3xl font-bold tracking-tight text-ink">Bizimlə əlaqə</h1>
         <p className="mt-2 text-muted">Sifariş, çatdırılma və məhsullarla bağlı suallarınız üçün bizə zəng edin və ya WhatsApp-da yazın.</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <a href={`tel:${CONTACT_PHONE_TEL}`} className="card group flex flex-col items-center gap-3 p-8 text-center transition hover:-translate-y-0.5 hover:shadow-lg">
           <span className="flex size-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 transition group-hover:bg-brand-600 group-hover:text-white dark:bg-brand-500/15">
             <PhoneIcon />

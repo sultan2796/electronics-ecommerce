@@ -126,7 +126,7 @@ export default function ReviewSection({ productId, productSlug, onSummaryChange 
         )}
       </div>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[280px_1fr]">
+      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
         <div className="space-y-5">
           <div className="flex items-center gap-4">
             <p className="text-4xl font-bold text-ink">{summary?.average?.toFixed(1) ?? "—"}</p>

@@ -51,7 +51,7 @@ export default function AdminPayments() {
       )}
       {actionError && <Alert>{actionError}</Alert>}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Ödənilib" value={formatPrice(summary.SUCCEEDED?.amount ?? 0)} hint={`${summary.SUCCEEDED?.count ?? 0} əməliyyat`} tone="green" />
         <StatCard label="Gözləyir" value={formatPrice(summary.PENDING?.amount ?? 0)} hint={`${summary.PENDING?.count ?? 0} əməliyyat`} tone="amber" />
         <StatCard label="Uğursuz" value={summary.FAILED?.count ?? 0} hint="Kartla ödəniş alınmayıb" tone="red" />
