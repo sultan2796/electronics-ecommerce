@@ -480,6 +480,7 @@ export interface HeroSlide {
   subtitle: string | null;
   eyebrow: string | null;
   imageUrl: string;
+  videoUrl?: string | null;
   buttonText: string | null;
   buttonLink: string | null;
 }

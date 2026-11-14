@@ -1,4 +1,4 @@
-import { KeyboardEvent, PointerEvent, useCallback, useEffect, useRef, useState } from "react";
+import { KeyboardEvent, PointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../../context/I18nContext";
 import { canHover, useReducedMotion } from "../../hooks/useMotion";
@@ -19,6 +19,7 @@ const themes = [
 ];
 
 const AUTOPLAY_MS = 6500;
+const VIDEO_MS = 12000;
 const SWIPE_THRESHOLD = 45;
 
 const isExternal = (href: string) => /^https:\/\//.test(href);
@@ -39,8 +40,53 @@ function SlideLink({ href, active, children }: { href: string; active: boolean; 
   );
 }
 
+const prefersLiteMedia = () => {
+  if (typeof window === "undefined") return true;
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  return Boolean(connection?.saveData) || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+};
+
+function HeroVideo({ src, poster, active, className }: { src: string; poster?: string; active: boolean; className: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [failed, setFailed] = useState(false);
+  const [ready, setReady] = useState(false);
+  const lite = useMemo(prefersLiteMedia, []);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video || lite || failed) return;
+    if (active) {
+      video.currentTime = 0;
+      void video.play().catch(() => undefined);
+    } else {
+      video.pause();
+    }
+  }, [active, lite, failed]);
+
+  if (lite || failed) return poster ? <img src={poster} alt="" className={className} loading="lazy" decoding="async" /> : null;
+  return (
+    <>
+      {poster && !ready && <img src={poster} alt="" className={className} loading="lazy" decoding="async" />}
+      <video
+        ref={ref}
+        src={src}
+        poster={poster}
+        muted
+        loop
+        playsInline
+        preload={active ? "auto" : "metadata"}
+        aria-hidden="true"
+        onLoadedData={() => setReady(true)}
+        onError={() => setFailed(true)}
+        className={`${className} transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}
+      />
+    </>
+  );
+}
+
 function ImageSlide({
   image,
+  video,
   eyebrow,
   title,
   text,
@@ -50,6 +96,7 @@ function ImageSlide({
   priority,
 }: {
   image: string;
+  video?: string | null;
   eyebrow?: string | null;
   title: string;
   text?: string | null;
@@ -61,14 +108,18 @@ function ImageSlide({
   return (
     <div className="relative h-full overflow-hidden bg-[#0f172a]">
       <div className="hero-media absolute inset-0">
-        <img
-          src={image}
-          alt=""
-          loading={priority ? "eager" : "lazy"}
-          fetchPriority={priority ? "high" : "auto"}
-          decoding="async"
-          className="hero-kenburns h-full w-full object-cover object-[center_35%] opacity-90"
-        />
+        {video ? (
+          <HeroVideo src={video} poster={image} active={active} className="absolute inset-0 h-full w-full object-cover object-[center_35%] opacity-90" />
+        ) : (
+          <img
+            src={image}
+            alt=""
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
+            decoding="async"
+            className="hero-kenburns h-full w-full object-cover object-[center_35%] opacity-90"
+          />
+        )}
       </div>
       <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/60 to-transparent" />
       <div className="hero-reveal relative flex h-full max-w-xl flex-col justify-center gap-4 px-6 pb-12 text-white sm:px-14 sm:pb-14">
@@ -138,6 +189,17 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
             )}
           </div>
         </div>
+        {product.videoUrl ? (
+          <div className="flex h-full items-center justify-center py-6">
+            <div className="hero-float relative aspect-[4/5] w-[130px] overflow-hidden rounded-3xl bg-black shadow-[0_30px_60px_-25px_rgba(0,0,0,0.55)] ring-1 ring-black/10 sm:aspect-square sm:w-[340px] dark:ring-white/10">
+              <HeroVideo src={product.videoUrl} poster={product.videoPoster ?? product.images[0]} active={active} className="absolute inset-0 h-full w-full object-cover" />
+              <span className="absolute left-2.5 top-2.5 flex items-center gap-1.5 rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur sm:left-4 sm:top-4 sm:text-xs">
+                <span className="size-1.5 animate-pulse rounded-full bg-red-500" aria-hidden="true" />
+                Video
+              </span>
+            </div>
+          </div>
+        ) : (
         <div className="flex h-full items-center justify-center py-6 [perspective:1000px]">
           <div className="hero-float relative flex aspect-square w-[130px] items-center justify-center mix-blend-multiply dark:mix-blend-normal sm:w-[340px]">
             <div className="absolute inset-[6%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.95)_0%,rgba(255,255,255,0.6)_38%,transparent_70%)] dark:inset-[-12%] dark:bg-[radial-gradient(circle,rgba(226,226,230,1)_0%,rgba(226,226,230,0.92)_30%,rgba(226,226,230,0.4)_50%,rgba(226,226,230,0.08)_64%,transparent_72%)]" />
@@ -151,6 +213,7 @@ function ProductSlide({ product, index, active }: { product: Product; index: num
             />
           </div>
         </div>
+        )}
       </div>
     </div>
   );
@@ -203,7 +266,9 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
 
   useEffect(() => {
     if (paused || count < 2 || reducedMotion) return;
-    const timer = window.setTimeout(() => go(index + 1, 1), AUTOPLAY_MS);
+    const current = slides[index];
+    const hasVideo = current?.kind === "custom" ? Boolean(current.slide.videoUrl) : current?.kind === "product" ? Boolean(current.product.videoUrl) : false;
+    const timer = window.setTimeout(() => go(index + 1, 1), hasVideo ? VIDEO_MS : AUTOPLAY_MS);
     return () => window.clearTimeout(timer);
   }, [paused, count, index, reducedMotion, go]);
 
@@ -322,6 +387,7 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
               {slide.kind === "custom" && (
                 <ImageSlide
                   image={slide.slide.imageUrl}
+                  video={slide.slide.videoUrl}
                   eyebrow={slide.slide.eyebrow}
                   title={slide.slide.title}
                   text={slide.slide.subtitle}
@@ -340,52 +406,35 @@ export default function HeroSlider({ products, slides: managed = [] }: { product
       {count > 1 && (
         <>
 
-          <div
-            className={`absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 rounded-full px-3.5 py-1.5 backdrop-blur-md sm:bottom-5 ${
-              darkSlide ? "bg-black/25 ring-1 ring-white/10" : "bg-white/55 ring-1 ring-black/5 dark:bg-black/30 dark:ring-white/10"
-            }`}
-          >
-            <span className={`text-[11px] font-semibold tabular-nums tracking-wider ${darkSlide ? "text-white" : "text-slate-900 dark:text-white"}`}>
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <div className="flex items-center gap-1.5">
-              {slides.map((slide, position) => {
-                const current = position === index;
-                const done = position < index;
-                return (
-                  <button
-                    key={slide.id}
-                    type="button"
-                    onClick={() => go(position)}
-                    aria-label={t("hero.goTo", { n: position + 1 })}
-                    aria-current={current}
-                    className="group py-2.5"
-                  >
-                    <span
-                      className={`relative block h-[2px] overflow-hidden rounded-full transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${current ? "w-9 sm:w-12" : "w-4 group-hover:w-6"} ${
-                        darkSlide ? "bg-white/25" : "bg-slate-900/15 dark:bg-white/25"
-                      }`}
-                    >
-                      <span
-                        key={current ? `active-${index}-${reducedMotion}` : `idle-${position}`}
-                        className={`hero-progress-fill absolute inset-0 origin-left rounded-full ${darkSlide ? "bg-white" : "bg-slate-900 dark:bg-white"} ${
-                          current && !reducedMotion ? "is-running" : ""
-                        }`}
-                        style={{
-                          transform: current ? undefined : `scaleX(${done ? 1 : 0})`,
-                          opacity: done ? 0.55 : 1,
-                          animationDuration: `${AUTOPLAY_MS}ms`,
-                          animationPlayState: paused ? "paused" : "running",
-                        }}
-                      />
-                    </span>
-                  </button>
-                );
-              })}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-3 px-6 pb-4 sm:px-14 sm:pb-6">
+            <div className="pointer-events-auto flex items-baseline gap-1.5" aria-live="polite">
+              <span key={index} className={`hero-count text-lg font-semibold tabular-nums sm:text-xl ${darkSlide ? "text-white" : "text-slate-900 dark:text-white"}`}>
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span className={`text-xs tabular-nums ${darkSlide ? "text-white/50" : "text-slate-900/40 dark:text-white/40"}`}>{`/ ${String(count).padStart(2, "0")}`}</span>
             </div>
-            <span className={`text-[11px] font-medium tabular-nums tracking-wider ${darkSlide ? "text-white/55" : "text-slate-900/45 dark:text-white/45"}`}>
-              {String(count).padStart(2, "0")}
-            </span>
+            <div className="pointer-events-auto flex items-center gap-2">
+              {[
+                { label: t("hero.prev"), delta: -1, path: "M15 18l-6-6 6-6" },
+                { label: t("hero.next"), delta: 1, path: "M9 6l6 6-6 6" },
+              ].map((control) => (
+                <button
+                  key={control.delta}
+                  type="button"
+                  onClick={() => go(index + control.delta, control.delta as 1 | -1)}
+                  aria-label={control.label}
+                  className={`flex size-9 items-center justify-center rounded-full backdrop-blur-md transition duration-300 active:scale-90 sm:size-11 ${
+                    darkSlide
+                      ? "bg-white/10 text-white ring-1 ring-inset ring-white/20 hover:bg-white/20"
+                      : "bg-white/60 text-slate-900 ring-1 ring-inset ring-black/5 hover:bg-white dark:bg-white/10 dark:text-white dark:ring-white/15 dark:hover:bg-white/20"
+                  }`}
+                >
+                  <svg viewBox="0 0 24 24" className="size-4 sm:size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d={control.path} />
+                  </svg>
+                </button>
+              ))}
+            </div>
           </div>
         </>
       )}

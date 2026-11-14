@@ -451,19 +451,18 @@
       transform: none;
     }
   }
-  .hero-progress-fill {
-    transform: scaleX(1);
+  .hero-count {
+    display: inline-block;
+    animation: hero-count 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-  .hero-progress-fill.is-running {
-    animation: hero-progress-fill linear forwards;
-    will-change: transform;
-  }
-  @keyframes hero-progress-fill {
+  @keyframes hero-count {
     from {
-      transform: scaleX(0);
+      opacity: 0;
+      transform: translate3d(0, 40%, 0);
     }
     to {
-      transform: scaleX(1);
+      opacity: 1;
+      transform: none;
     }
   }
   .viewer-slide {
@@ -616,7 +615,7 @@
     .card-peek-backdrop,
     .card-peek-panel,
     .card-peek-image,
-    .hero-progress-fill.is-running,
+    .hero-count,
     .lightbox,
     .lightbox-slide,
     .stagger > *,

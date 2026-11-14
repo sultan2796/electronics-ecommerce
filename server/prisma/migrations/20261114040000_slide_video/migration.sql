@@ -1,0 +1,1 @@
+ALTER TABLE "Slide" ADD COLUMN "videoUrl" TEXT;

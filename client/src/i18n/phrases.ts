@@ -932,6 +932,8 @@ Göndərilən məktubların jurnalı|Журнал отправленных пи�
 Sayt parametrləri|Настройки сайта|Site settings
 Loqo, favicon, şəkil optimallaşdırması (yalnız admin verə bilər)|Логотип, фавикон, оптимизация изображений (выдаёт только админ)|Logo, favicon, image optimization (admin-only grant)
 Barmağı sürüşdürərək şəkilləri dəyişin|Ведите пальцем, чтобы листать фото|Slide your finger to switch photos
+Fon videosu (istəyə bağlı)|Фоновое видео (необязательно)|Background video (optional)
+.mp4 və ya .webm faylının birbaşa https linki. Video səssiz və təkrarlanan oynayır, şəkil isə yüklənənə qədər və qənaət rejimində göstərilir. Tövsiyə: 10–15 saniyə, 5 MB-dan kiçik.|Прямая https-ссылка на файл .mp4 или .webm. Видео играет без звука по кругу, изображение показывается до загрузки и в режиме экономии. Рекомендуется 10–15 секунд и до 5 МБ.|A direct https link to an .mp4 or .webm file. The video plays muted on loop; the image shows while it loads and in data-saver mode. Recommended: 10–15 seconds, under 5 MB.
 `;
 
 const months = [

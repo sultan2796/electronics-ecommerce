@@ -47,12 +47,12 @@ describe("HeroSlider", () => {
     expect(screen.getByRole("link", { name: "Al" })).toHaveAttribute("href", "/products");
   });
 
-  it("oxlar yoxdur, nöqtə və klaviatura ilə irəli-geri keçir, əvvəlki slayd çıxış animasiyası alır", () => {
+  it("oxlar və klaviatura ilə irəli-geri keçir, sayğac yenilənir, əvvəlki slayd çıxış animasiyası alır", () => {
     renderSlider();
-    expect(screen.queryByRole("button", { name: "Növbəti slayd" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Əvvəlki slayd" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "2-ci slayd" }));
+    expect(screen.queryByRole("progressbar")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Növbəti slayd" }));
     expect(activeTitle()).toBe("Noutbuk həftəsi");
+    expect(screen.getByLabelText("2 / 3")).toBeInTheDocument();
     expect(document.querySelector('.hero-slide[data-state="leaving"] h2')?.textContent).toBe("Qış endirimi");
     fireEvent.keyDown(screen.getByRole("region"), { key: "ArrowLeft" });
     fireEvent.keyDown(screen.getByRole("region"), { key: "ArrowLeft" });
@@ -79,11 +79,12 @@ describe("HeroSlider", () => {
     expect(activeTitle()).toBe("Noutbuk həftəsi");
   });
 
-  it("klaviatura oxları və nöqtələr işləyir", () => {
+  it("klaviatura və əvvəlki ox işləyir", () => {
     renderSlider();
     fireEvent.keyDown(screen.getByRole("region"), { key: "ArrowRight" });
     expect(activeTitle()).toBe("Noutbuk həftəsi");
-    fireEvent.click(screen.getByRole("button", { name: "3-ci slayd" }));
+    fireEvent.click(screen.getByRole("button", { name: "Əvvəlki slayd" }));
+    fireEvent.click(screen.getByRole("button", { name: "Əvvəlki slayd" }));
     expect(activeTitle()).toBe("Aksesuarlar");
     expect(screen.getByRole("link", { name: "Bax" })).toHaveAttribute("rel", "noopener noreferrer");
   });

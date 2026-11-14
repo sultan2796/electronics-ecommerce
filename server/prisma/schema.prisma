@@ -423,6 +423,7 @@ model Slide {
   subtitle   String?
   eyebrow    String?
   imageUrl   String
+  videoUrl   String?
   buttonText String?
   buttonLink String?
   sortOrder  Int      @default(0)

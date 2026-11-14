@@ -28,11 +28,23 @@ const imageUrl = z
   .max(500)
   .refine(isSafeUrl, "Şəkil ünvanı / ilə və ya https:// ilə başlamalıdır");
 
+const videoUrl = z
+  .string()
+  .trim()
+  .max(500)
+  .nullish()
+  .transform((value) => (value ? value : null))
+  .refine(
+    (value) => value === null || (isSafeUrl(value) && /^https:\/\/[^?#]+\.(mp4|webm)(\?[^\s]*)?$/i.test(value)),
+    "Video linki https:// ilə başlamalı və .mp4 və ya .webm faylı olmalıdır",
+  );
+
 export const slideSchema = z.object({
   title: z.string().trim().min(2, "Başlıq ən az 2 simvol olmalıdır").max(120),
   subtitle: optionalText(300),
   eyebrow: optionalText(60),
   imageUrl,
+  videoUrl,
   buttonText: optionalText(40),
   buttonLink: safeLink,
   isActive: z.boolean().default(true),
@@ -42,7 +54,7 @@ export const slideUpdateSchema = slideSchema.partial();
 
 export const slideOrderSchema = z.object({ ids: z.array(z.string().min(1)).min(1).max(50) });
 
-const publicSelect = { id: true, title: true, subtitle: true, eyebrow: true, imageUrl: true, buttonText: true, buttonLink: true } as const;
+const publicSelect = { id: true, title: true, subtitle: true, eyebrow: true, imageUrl: true, videoUrl: true, buttonText: true, buttonLink: true } as const;
 
 export const listActiveSlides = asyncHandler(async (_req, res) => {
   res.set("Cache-Control", "no-cache");

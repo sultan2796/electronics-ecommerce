@@ -8,13 +8,14 @@ import { extraService, fileToDataUrl } from "../../services/extra.service";
 import { slideService } from "../../services/slide.service";
 import { AdminSlide, SlideInput } from "../../types";
 
-const empty: SlideInput = { title: "", subtitle: "", eyebrow: "", imageUrl: "", buttonText: "", buttonLink: "/products", isActive: true };
+const empty: SlideInput = { title: "", subtitle: "", eyebrow: "", imageUrl: "", videoUrl: "", buttonText: "", buttonLink: "/products", isActive: true };
 
 const toForm = (slide: AdminSlide): SlideInput => ({
   title: slide.title,
   subtitle: slide.subtitle ?? "",
   eyebrow: slide.eyebrow ?? "",
   imageUrl: slide.imageUrl,
+  videoUrl: slide.videoUrl ?? "",
   buttonText: slide.buttonText ?? "",
   buttonLink: slide.buttonLink ?? "",
   isActive: slide.isActive,
@@ -26,6 +27,7 @@ const clean = (form: SlideInput): SlideInput => ({
   subtitle: form.subtitle?.trim() || null,
   eyebrow: form.eyebrow?.trim() || null,
   imageUrl: form.imageUrl.trim(),
+  videoUrl: form.videoUrl?.trim() || null,
   buttonText: form.buttonText?.trim() || null,
   buttonLink: form.buttonLink?.trim() || null,
 });
@@ -34,6 +36,9 @@ function SlidePreview({ form }: { form: SlideInput }) {
   return (
     <div className="relative aspect-[16/7] overflow-hidden rounded-2xl bg-[#0f172a]">
       {form.imageUrl && <img src={form.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-90" />}
+      {form.videoUrl && /^https:\/\/[^?#]+\.(mp4|webm)/i.test(form.videoUrl) && (
+        <video key={form.videoUrl} src={form.videoUrl} poster={form.imageUrl || undefined} muted loop playsInline autoPlay className="absolute inset-0 h-full w-full object-cover opacity-90" />
+      )}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/60 to-transparent" />
       <div className="relative flex h-full max-w-[70%] flex-col justify-center gap-2 p-5 text-white">
         {form.eyebrow && <span className="w-fit rounded-full border border-white/25 px-2 py-0.5 text-[10px] uppercase tracking-wider">{form.eyebrow}</span>}
@@ -235,6 +240,19 @@ export default function AdminSlides() {
             </label>
             <input className="input" required placeholder="https://... və ya /figma/hero.jpg" value={form.imageUrl} onChange={(e) => set("imageUrl", e.target.value)} />
           </div>
+          <label className="block space-y-1">
+            <span className="text-sm font-medium">Fon videosu (istəyə bağlı)</span>
+            <input
+              className="input"
+              maxLength={500}
+              placeholder="https://.../video.mp4"
+              value={form.videoUrl ?? ""}
+              onChange={(e) => set("videoUrl", e.target.value)}
+            />
+            <span className="block text-xs text-muted">
+              .mp4 və ya .webm faylının birbaşa https linki. Video səssiz və təkrarlanan oynayır, şəkil isə yüklənənə qədər və qənaət rejimində göstərilir. Tövsiyə: 10–15 saniyə, 5 MB-dan kiçik.
+            </span>
+          </label>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="block space-y-1">
               <span className="text-sm font-medium">Düymə mətni</span>
