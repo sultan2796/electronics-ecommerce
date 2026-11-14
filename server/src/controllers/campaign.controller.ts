@@ -54,12 +54,15 @@ const checkProducts = async (entries: CampaignInput["products"]) => {
   if (!entries?.length) return;
   const ids = [...new Set(entries.map((entry) => entry.productId))];
   if (ids.length !== entries.length) throw new AppError(400, "Eyni məhsul kampaniyaya iki dəfə əlavə edilə bilməz");
-  const products = await prisma.product.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, price: true } });
+  const products = await prisma.product.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, price: true, salePrice: true } });
   if (products.length !== ids.length) throw new AppError(400, "Seçilmiş məhsullardan bəziləri tapılmadı");
   for (const entry of entries) {
     const product = products.find((item) => item.id === entry.productId)!;
-    if (entry.specialPrice && new Prisma.Decimal(entry.specialPrice).gte(product.price)) {
-      throw new AppError(400, `${product.name} üçün xüsusi qiymət əsas qiymətdən aşağı olmalıdır`);
+    if (!entry.specialPrice) continue;
+    const special = new Prisma.Decimal(entry.specialPrice);
+    if (special.gte(product.price)) throw new AppError(400, `${product.name} üçün xüsusi qiymət əsas qiymətdən aşağı olmalıdır`);
+    if (product.salePrice && product.salePrice.lt(product.price) && special.gte(product.salePrice)) {
+      throw new AppError(400, `${product.name} artıq ${product.salePrice.toFixed(2)} ₼ endirimli qiymətə satılır, xüsusi qiymət ondan aşağı olmalıdır`);
     }
   }
 };
@@ -189,8 +192,11 @@ const showcaseProducts = async (campaign: { id: string; categoryId: string | nul
     isActive: true,
     ...(entries.length ? { id: { in: entries.map((entry) => entry.productId) } } : campaign.categoryId ? { categoryId: campaign.categoryId } : {}),
   };
-  const products = await prisma.product.findMany({ where, include: productInclude, orderBy: [{ stock: "desc" }, { createdAt: "desc" }], take: limit });
-  return products.slice(0, limit).map(withPricing);
+  const products = await prisma.product.findMany({ where, include: productInclude, orderBy: [{ stock: "desc" }, { createdAt: "desc" }], take: Math.max(60, limit * 3) });
+  return products
+    .map(withPricing)
+    .filter((product) => product.campaign?.id === campaign.id)
+    .slice(0, limit);
 };
 
 const publicCampaign = async (campaign: Prisma.CampaignGetPayload<object>, now: Date, limit = 12) => {

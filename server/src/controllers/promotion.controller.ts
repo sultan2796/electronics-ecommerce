@@ -64,14 +64,16 @@ export const listLivePromotions = asyncHandler(async (req, res) => {
     where: livePromotionWhere(placement, now),
     orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     select: publicSelect,
-    take: placement === PromotionPlacement.HERO_SIDE ? 2 : 6,
+    take: 12,
   });
   res.set("Cache-Control", "no-cache");
   res.json(
-    promotions.map(({ campaign, ...promotion }) => ({
-      ...promotion,
-      campaign: campaign ? { id: campaign.id, name: campaign.name, discountPercent: campaign.discountPercent, live: isLive(campaign, now) } : null,
-    })),
+    promotions
+      .filter((promotion) => !promotion.campaign || isLive(promotion.campaign, now))
+      .map(({ campaign, ...promotion }) => ({
+        ...promotion,
+        campaign: campaign ? { id: campaign.id, name: campaign.name, discountPercent: campaign.discountPercent, live: true } : null,
+      })),
   );
 });
 
@@ -79,9 +81,15 @@ export const recordPromotionEvents = asyncHandler(async (req, res) => {
   const { impressions, clicks } = req.body as z.infer<typeof promotionEventSchema>;
   const seen = [...new Set(impressions)];
   const clicked = [...new Set(clicks)];
+  const now = new Date();
+  const shown = (ids: string[]): Prisma.PromotionWhereInput => ({
+    id: { in: ids },
+    isActive: true,
+    AND: [{ OR: [{ startsAt: null }, { startsAt: { lte: now } }] }, { OR: [{ endsAt: null }, { endsAt: { gt: now } }] }],
+  });
   await prisma.$transaction([
-    ...(seen.length ? [prisma.promotion.updateMany({ where: { id: { in: seen }, isActive: true }, data: { impressions: { increment: 1 } } })] : []),
-    ...(clicked.length ? [prisma.promotion.updateMany({ where: { id: { in: clicked }, isActive: true }, data: { clicks: { increment: 1 } } })] : []),
+    ...(seen.length ? [prisma.promotion.updateMany({ where: shown(seen), data: { impressions: { increment: 1 } } })] : []),
+    ...(clicked.length ? [prisma.promotion.updateMany({ where: shown(clicked), data: { clicks: { increment: 1 } } })] : []),
   ]);
   res.status(204).end();
 });

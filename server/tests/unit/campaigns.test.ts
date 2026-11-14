@@ -163,8 +163,13 @@ describe("kampaniya API", () => {
     db.promotion.updateMany.mockResolvedValue({ count: 1 });
     const response = await request(app).post("/api/promotions/events").send({ impressions: ["a", "a", "b"], clicks: ["a"] });
     expect(response.status).toBe(204);
-    expect(db.promotion.updateMany).toHaveBeenCalledWith({ where: { id: { in: ["a", "b"] }, isActive: true }, data: { impressions: { increment: 1 } } });
-    expect(db.promotion.updateMany).toHaveBeenCalledWith({ where: { id: { in: ["a"] }, isActive: true }, data: { clicks: { increment: 1 } } });
+    const [first, second] = db.promotion.updateMany.mock.calls.map((call) => call[0]);
+    expect(first.where.id).toEqual({ in: ["a", "b"] });
+    expect(first.where.isActive).toBe(true);
+    expect(JSON.stringify(first.where.AND)).toContain("endsAt");
+    expect(first.data).toEqual({ impressions: { increment: 1 } });
+    expect(second.where.id).toEqual({ in: ["a"] });
+    expect(second.data).toEqual({ clicks: { increment: 1 } });
   });
 
   it("ictimai reklamlar vaxt və kampaniya filtrinə görə seçilir", async () => {
@@ -174,7 +179,7 @@ describe("kampaniya API", () => {
     const query = db.promotion.findMany.mock.calls[0][0];
     expect(query.where.placement).toBe("HERO_SIDE");
     expect(query.where.isActive).toBe(true);
-    expect(query.take).toBe(2);
+    expect(query.take).toBe(12);
   });
 
   it("yanlış yerləşdirmə rədd edilir", async () => {

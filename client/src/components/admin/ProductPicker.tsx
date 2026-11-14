@@ -80,7 +80,7 @@ export default function ProductPicker({
         </button>
       )}
       {open && query.trim().length >= 2 && (
-        <ul className="absolute inset-x-0 top-full z-30 mt-1 max-h-72 overflow-y-auto rounded-xl border border-line bg-surface p-1 shadow-lg" role="listbox">
+        <ul className="absolute inset-x-0 top-full z-30 mt-1 max-h-72 overflow-y-auto rounded-xl border border-line bg-surface p-1 shadow-sm" role="listbox">
           {loading && <li className="px-3 py-2 text-sm text-muted">Axtarılır...</li>}
           {!loading && visible.length === 0 && <li className="px-3 py-2 text-sm text-muted">Məhsul tapılmadı</li>}
           {!loading &&

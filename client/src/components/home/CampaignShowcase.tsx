@@ -51,7 +51,6 @@ export default function CampaignShowcase({
   return (
     <Reveal as="section" className="space-y-4">
       <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#17191e] via-[#101114] to-[#0a0b0d] text-white">
-        <div className="pointer-events-none absolute -left-20 -top-32 size-80 rounded-full bg-[radial-gradient(closest-side,rgba(242,102,43,0.16),transparent)]" />
         <div className="relative grid grid-cols-1 gap-6 p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
           <div className="min-w-0 space-y-3">
             <div className="flex flex-wrap items-center gap-2">
@@ -70,7 +69,7 @@ export default function CampaignShowcase({
           </div>
           <div className="flex items-center gap-5 md:flex-col md:items-end">
             {campaign.bannerUrl && (
-              <img src={campaign.bannerUrl} alt="" loading="lazy" decoding="async" className="hidden h-32 w-auto max-w-[260px] object-contain md:block lg:h-40" />
+              <img src={campaign.bannerUrl} alt="" loading="lazy" decoding="async" className="h-20 w-auto max-w-[160px] object-contain sm:h-28 md:h-32 md:max-w-[260px] lg:h-40" />
             )}
             {!full && (
               <Link

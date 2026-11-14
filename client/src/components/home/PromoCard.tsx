@@ -59,7 +59,6 @@ export default function PromoCard({ promo, size = "side", tracked = true, previe
         wide ? "min-h-[180px] flex-row items-center gap-4 p-6 sm:min-h-[200px] sm:gap-8 sm:p-8" : "min-h-[168px] flex-row items-stretch gap-3 p-5"
       }`}
     >
-      <div className="pointer-events-none absolute -right-16 -top-24 size-56 rounded-full bg-[radial-gradient(closest-side,rgba(201,148,92,0.18),transparent)]" />
       <div className={`relative z-10 flex min-w-0 flex-1 flex-col ${wide ? "justify-center gap-2" : "justify-between gap-3"}`}>
         <div className="space-y-1.5">
           {(promo.eyebrow || promo.badge) && (
@@ -84,7 +83,7 @@ export default function PromoCard({ promo, size = "side", tracked = true, previe
           alt=""
           loading="lazy"
           decoding="async"
-          className="max-h-full max-w-full object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.35)] transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+          className="max-h-full max-w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.06]"
         />
       </div>
     </div>
