@@ -895,6 +895,42 @@ Cavab gözləyən sual yoxdur.|Вопросов без ответа нет.|No q
 Sual yoxdur.|Вопросов нет.|No questions.
 Müştərilərin məhsul səhifəsində verdiyi suallar. Cavablanmış suallar məhsul səhifəsində görünür.|Вопросы покупателей со страниц товаров. Отвеченные вопросы видны на странице товара.|Customer questions from product pages. Answered questions are shown on the product page.
 Yeni sual · {}|Новый вопрос · {}|New question · {}
+İcazələr|Права доступа|Permissions
+İcazələr ({} dəyişiklik)|Права ({} изменений)|Permissions ({} changes)
+Rol əsas icazələri verir. Burada istifadəçiyə əlavə icazə verə və ya roldan gələn icazəni geri ala bilərsiniz. Dəyişiklik dərhal tətbiq olunur.|Роль задаёт базовые права. Здесь можно выдать дополнительные права или отозвать права роли. Изменения применяются сразу.|The role sets the base permissions. Here you can grant extra permissions or revoke ones from the role. Changes apply immediately.
+rol üzrə|по роли|from role
+geri alınıb|отозвано|revoked
+əlavə|добавлено|extra
+avtomatik|автоматически|automatic
+Admin panelə daxil ola biləcək|Получит доступ к админ-панели|Will have admin panel access
+Yalnız müştəri imkanları|Только возможности покупателя|Customer features only
+Admin bütün icazələrə malikdir|У администратора все права|Admins have every permission
+Bu icazəni yalnız admin verə bilər|Это право может выдать только администратор|Only an admin can grant this
+Müştərilər və sistem|Клиенты и система|Customers & system
+Admin panelə giriş|Доступ к админ-панели|Admin panel access
+İcmal, analitika və bildirişləri görür|Видит обзор, аналитику и уведомления|Sees overview, analytics and notifications
+Məhsulları idarə etmək|Управление товарами|Manage products
+Məhsul yaratmaq, redaktə, variantlar, slaydlar, kampaniyalar|Создание и правка товаров, варианты, слайды, кампании|Create and edit products, variants, slides, campaigns
+Anbar və stok|Склад и остатки|Inventory & stock
+Stok miqdarlarını dəyişmək|Изменение остатков|Change stock quantities
+Kateqoriya və brendlər|Категории и бренды|Categories & brands
+Kateqoriya və brend yaratmaq, dəyişmək|Создание и правка категорий и брендов|Create and edit categories and brands
+Kataloq idxalı|Импорт каталога|Catalog import
+Faylla toplu məhsul idxalı|Массовый импорт товаров из файла|Bulk product import from a file
+Sifarişlərə baxmaq|Просмотр заказов|View orders
+Sifarişlər və ödənişlər siyahısı|Список заказов и платежей|Orders and payments list
+Sifarişləri idarə etmək|Управление заказами|Manage orders
+Statusu dəyişmək, ləğv etmək, geri ödəniş qeydi|Смена статуса, отмена, отметка возврата|Change status, cancel, mark refunds
+Rəy və suallar|Отзывы и вопросы|Reviews & questions
+Rəyləri silmək, suallara cavab vermək|Удаление отзывов, ответы на вопросы|Delete reviews, answer questions
+Müştərilərə baxmaq|Просмотр клиентов|View customers
+Müştəri siyahısı və profilləri|Список и профили клиентов|Customer list and profiles
+İstifadəçiləri idarə etmək|Управление пользователями|Manage users
+Rol, blok və icazələr (yalnız admin verə bilər)|Роли, блокировка и права (выдаёт только админ)|Roles, blocking and permissions (admin-only grant)
+E-poçt jurnalı|Журнал писем|Email log
+Göndərilən məktubların jurnalı|Журнал отправленных писем|Log of sent emails
+Sayt parametrləri|Настройки сайта|Site settings
+Loqo, favicon, şəkil optimallaşdırması (yalnız admin verə bilər)|Логотип, фавикон, оптимизация изображений (выдаёт только админ)|Logo, favicon, image optimization (admin-only grant)
 `;
 
 const months = [

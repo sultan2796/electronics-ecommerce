@@ -1,7 +1,8 @@
 import { Prisma, Role } from "@prisma/client";
 import { avatarUrl } from "../services/avatar.service";
 import { prisma } from "../config/prisma";
-import { UserUpdateInput } from "../models/user.model";
+import { UserPermissionsInput, UserUpdateInput } from "../models/user.model";
+import { Permission, permissionsFor, rolePermissions } from "../config/permissions";
 import { AppError } from "../utils/AppError";
 import { asyncHandler } from "../utils/asyncHandler";
 import { currentUser } from "../utils/currentUser";
@@ -17,10 +18,16 @@ const userSelect = {
   createdAt: true,
   lastLoginAt: true,
   avatarId: true,
+  extraPermissions: true,
+  revokedPermissions: true,
   _count: { select: { orders: true } },
 } satisfies Prisma.UserSelect;
 
-const withAvatar = <T extends { avatarId: string | null }>({ avatarId, ...user }: T) => ({ ...user, avatarUrl: avatarUrl(avatarId) });
+const withAvatar = <T extends { avatarId: string | null; role: Role; extraPermissions: string[]; revokedPermissions: string[] }>({ avatarId, ...user }: T) => ({
+  ...user,
+  avatarUrl: avatarUrl(avatarId),
+  permissions: permissionsFor(user),
+});
 
 export const listUsers = asyncHandler(async (req, res) => {
   const { q, role, page, limit } = req.query as unknown as { q?: string; role?: Role; page: number; limit: number };
@@ -56,6 +63,9 @@ export const updateUser = asyncHandler(async (req, res) => {
 
   const target = await prisma.user.findUnique({ where: { id: targetId } });
   if (!target) throw new AppError(404, "İstifadəçi tapılmadı");
+  if (actor.role !== Role.ADMIN && (target.role === Role.ADMIN || role === Role.ADMIN)) {
+    throw new AppError(403, "Admin hesablarını yalnız admin idarə edə bilər");
+  }
 
   const losesAdmin = target.role === Role.ADMIN && ((role !== undefined && role !== Role.ADMIN) || isBlocked === true);
   if (losesAdmin) {
@@ -102,4 +112,29 @@ export const getUserDetail = asyncHandler(async (req, res) => {
     }),
   ]);
   res.json({ ...user, totalSpent: spent._sum.total ?? 0, orders: lastOrders });
+});
+
+const ADMIN_ONLY_GRANTS: Permission[] = ["users:write", "settings:write"];
+
+export const updateUserPermissions = asyncHandler(async (req, res) => {
+  const actor = currentUser(req);
+  const { extraPermissions, revokedPermissions } = req.body as UserPermissionsInput;
+  if (req.params.id === actor.id) throw new AppError(403, "Öz icazələrinizi dəyişə bilməzsiniz");
+  const target = await prisma.user.findUnique({ where: { id: req.params.id } });
+  if (!target) throw new AppError(404, "İstifadəçi tapılmadı");
+  if (target.role === Role.ADMIN) throw new AppError(409, "Adminin bütün icazələri var, onları dəyişmək olmaz");
+  const defaults = new Set<Permission>(rolePermissions[target.role]);
+  const extra = [...new Set(extraPermissions)].filter((permission) => !defaults.has(permission));
+  const revoked = [...new Set(revokedPermissions)].filter((permission) => defaults.has(permission));
+  if (actor.role !== Role.ADMIN) {
+    const forbidden = extra.find((permission) => ADMIN_ONLY_GRANTS.includes(permission) || !actor.permissions.includes(permission));
+    if (forbidden) throw new AppError(403, "Özünüzdə olmayan və ya yalnız adminə aid icazəni verə bilməzsiniz");
+  }
+  const updated = await prisma.user.update({
+    where: { id: target.id },
+    data: { extraPermissions: extra, revokedPermissions: revoked },
+    select: userSelect,
+  });
+  audit(req, "user.permissions", "User", target.id, { extra, revoked });
+  res.json(withAvatar(updated));
 });

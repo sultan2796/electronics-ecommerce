@@ -84,7 +84,7 @@ export const deleteReview = asyncHandler(async (req, res) => {
   const user = currentUser(req);
   const review = await prisma.review.findUnique({ where: { id: req.params.id } });
   if (!review) throw new AppError(404, "Rəy tapılmadı");
-  if (review.userId !== user.id && !hasPermission(user.role, "reviews:moderate")) {
+  if (review.userId !== user.id && !hasPermission(user, "reviews:moderate")) {
     throw new AppError(403, "Bu rəyi silmək üçün icazəniz yoxdur");
   }
   await prisma.$transaction(async (tx) => {

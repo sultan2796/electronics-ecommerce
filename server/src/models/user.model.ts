@@ -1,3 +1,4 @@
+import { allPermissions } from "../config/permissions";
 import { Role } from "@prisma/client";
 import { z } from "zod";
 
@@ -16,3 +17,10 @@ export const userUpdateSchema = z
   .refine((data) => data.role !== undefined || data.isBlocked !== undefined, { message: "Dəyişiklik göstərilməyib" });
 
 export type UserUpdateInput = z.infer<typeof userUpdateSchema>;
+
+export const userPermissionsSchema = z.object({
+  extraPermissions: z.array(z.enum(allPermissions)).max(allPermissions.length),
+  revokedPermissions: z.array(z.enum(allPermissions)).max(allPermissions.length),
+});
+
+export type UserPermissionsInput = z.infer<typeof userPermissionsSchema>;

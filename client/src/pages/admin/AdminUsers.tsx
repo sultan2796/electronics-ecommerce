@@ -1,3 +1,4 @@
+import PermissionsDialog from "../../components/admin/PermissionsDialog";
 import Avatar from "../../components/user/Avatar";
 import Select from "../../components/common/Select";
 import { FormEvent, useState } from "react";
@@ -42,6 +43,7 @@ export default function AdminUsers() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [permissionsFor, setPermissionsFor] = useState<AdminUser | null>(null);
   const users = useAsync(() => adminService.users({ q: q || undefined, role, page }), [q, role, page]);
 
   const setQuery = (next: Record<string, string>) => {
@@ -148,6 +150,13 @@ export default function AdminUsers() {
                             options={roles.map((value) => ({ value, label: roleLabels[value], hint: roleDescriptions[value] }))}
                           />
                         )}
+                        {canEdit && !isMe && (
+                          <button type="button" className="mt-1.5 block text-xs font-medium text-brand-600 hover:underline" onClick={() => setPermissionsFor(item)}>
+                            {item.extraPermissions?.length || item.revokedPermissions?.length
+                              ? `İcazələr (${(item.extraPermissions?.length ?? 0) + (item.revokedPermissions?.length ?? 0)} dəyişiklik)`
+                              : "İcazələr"}
+                          </button>
+                        )}
                       </td>
                       <td className="px-4 py-3">{item._count.orders}</td>
                       <td className="px-4 py-3 text-muted">{formatDate(item.createdAt)}</td>
@@ -180,6 +189,13 @@ export default function AdminUsers() {
         </>
       )}
       {detailId && <CustomerDrawer userId={detailId} onClose={() => setDetailId(null)} />}
+      {permissionsFor && (
+        <PermissionsDialog
+          user={permissionsFor}
+          onClose={() => setPermissionsFor(null)}
+          onSaved={(saved) => users.setData((current) => (current ? { ...current, items: current.items.map((item) => (item.id === saved.id ? { ...item, ...saved } : item)) } : current))}
+        />
+      )}
     </div>
   );
 }

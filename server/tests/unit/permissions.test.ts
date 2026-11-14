@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { allPermissions, hasPermission, permissionsFor } from "../../src/config/permissions";
+import { allPermissions, effectivePermissions, hasPermission, permissionsFor } from "../../src/config/permissions";
 
 describe("RBAC icazələri", () => {
   it("ADMIN bütün icazələrə malikdir", () => {
-    expect(permissionsFor("ADMIN")).toEqual([...allPermissions]);
+    expect(permissionsFor({ role: "ADMIN" })).toEqual([...allPermissions]);
   });
 
   it("CUSTOMER heç bir admin icazəsinə malik deyil", () => {
-    expect(permissionsFor("CUSTOMER")).toEqual([]);
+    expect(permissionsFor({ role: "CUSTOMER" })).toEqual([]);
     for (const permission of allPermissions) expect(hasPermission("CUSTOMER", permission)).toBe(false);
   });
 
@@ -30,8 +30,27 @@ describe("RBAC icazələri", () => {
   });
 
   it("permissionsFor surət qaytarır, orijinal siyahını dəyişmək olmur", () => {
-    const list = permissionsFor("SUPPORT");
+    const list = permissionsFor({ role: "SUPPORT" });
     list.push("users:write");
     expect(hasPermission("SUPPORT", "users:write")).toBe(false);
+  });
+});
+
+describe("fərdi icazələr", () => {
+  it("rola əlavə icazə verir, bəzilərini geri alır və panel girişini avtomatik açır", () => {
+    expect(effectivePermissions("CUSTOMER", ["orders:read"], [])).toEqual(["dashboard:read", "orders:read"]);
+    const support = effectivePermissions("SUPPORT", ["emails:read"], ["users:read"]);
+    expect(support).toContain("emails:read");
+    expect(support).not.toContain("users:read");
+    expect(effectivePermissions("CUSTOMER", ["bogus"], [])).toEqual([]);
+  });
+
+  it("admin icazələri geri alına bilməz", () => {
+    expect(effectivePermissions("ADMIN", [], ["users:write"])).toContain("users:write");
+  });
+
+  it("istifadəçiyə görə yoxlama rol əvəzinə effektiv icazələrdən istifadə edir", () => {
+    expect(hasPermission({ role: "CUSTOMER", permissions: ["orders:read"] }, "orders:read")).toBe(true);
+    expect(hasPermission({ role: "MANAGER", permissions: [] }, "products:write")).toBe(false);
   });
 });

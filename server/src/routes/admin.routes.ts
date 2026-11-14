@@ -10,7 +10,7 @@ import {
 } from "../controllers/admin.controller";
 import {
   getUserDetail,
-  listUsers, updateUser } from "../controllers/user.controller";
+  listUsers, updateUser, updateUserPermissions } from "../controllers/user.controller";
 import { listAllReviews } from "../controllers/review.controller";
 import { listEmails } from "../controllers/email.controller";
 import { adminReviewQuerySchema } from "../models/review.model";
@@ -21,7 +21,7 @@ import { validate } from "../middleware/validate";
 import { idParamSchema } from "../models/common.model";
 import { adminOrdersQuerySchema, catalogImportSchema, inventoryQuerySchema, orderStatusSchema } from "../models/order.model";
 import { stockUpdateSchema } from "../models/product.model";
-import { userQuerySchema, userUpdateSchema } from "../models/user.model";
+import { userQuerySchema, userUpdateSchema, userPermissionsSchema } from "../models/user.model";
 
 import { adminPaymentsQuerySchema, adminSearch, adminSearchQuerySchema, adminNotifications, listPayments, markPaymentRefunded, optimizeImagesSchema, optimizeStoredImages } from "../controllers/adminExtra.controller";
 
@@ -63,6 +63,7 @@ adminRouter.post("/import", requirePermission("catalog:import"), validate({ body
 adminRouter.get("/users", requirePermission("users:read"), validate({ query: userQuerySchema }), listUsers);
 adminRouter.get("/users/:id", requirePermission("users:read"), validate({ params: idParamSchema }), getUserDetail);
 adminRouter.patch("/users/:id", requirePermission("users:write"), validate({ params: idParamSchema, body: userUpdateSchema }), updateUser);
+adminRouter.put("/users/:id/permissions", requirePermission("users:write"), validate({ params: idParamSchema, body: userPermissionsSchema }), updateUserPermissions);
 adminRouter.get("/reviews", requirePermission("reviews:moderate"), validate({ query: adminReviewQuerySchema }), listAllReviews);
 adminRouter.get(
   "/emails",

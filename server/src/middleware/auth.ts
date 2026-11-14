@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { Permission, hasPermission } from "../config/permissions";
+import { Permission, hasPermission, permissionsFor } from "../config/permissions";
 import { prisma } from "../config/prisma";
 import { AppError } from "../utils/AppError";
 import { verifyAccessToken } from "../utils/jwt";
@@ -20,7 +20,7 @@ export const authenticate: RequestHandler = async (req, _res, next) => {
   }
 
   try {
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, role: true, isBlocked: true } });
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, role: true, isBlocked: true, extraPermissions: true, revokedPermissions: true } });
     if (!user) {
       next(new AppError(401, "İstifadəçi tapılmadı"));
       return;
@@ -29,7 +29,7 @@ export const authenticate: RequestHandler = async (req, _res, next) => {
       next(new AppError(403, "Hesabınız bloklanıb"));
       return;
     }
-    req.user = { id: user.id, role: user.role };
+    req.user = { id: user.id, role: user.role, permissions: permissionsFor(user) };
     next();
   } catch (error) {
     next(error);
@@ -44,8 +44,8 @@ export const optionalAuth: RequestHandler = async (req, _res, next) => {
   }
   try {
     const userId = verifyAccessToken(header.slice(7)).sub;
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, role: true, isBlocked: true } });
-    if (user && !user.isBlocked) req.user = { id: user.id, role: user.role };
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, role: true, isBlocked: true, extraPermissions: true, revokedPermissions: true } });
+    if (user && !user.isBlocked) req.user = { id: user.id, role: user.role, permissions: permissionsFor(user) };
   } catch {
     req.user = undefined;
   }
@@ -59,8 +59,8 @@ export const requirePermission =
       next(new AppError(401, "Giriş tələb olunur"));
       return;
     }
-    const role = req.user.role;
-    if (!required.every((permission) => hasPermission(role, permission))) {
+    const user = req.user;
+    if (!required.every((permission) => hasPermission(user, permission))) {
       next(new AppError(403, "Bu əməliyyat üçün icazəniz yoxdur"));
       return;
     }

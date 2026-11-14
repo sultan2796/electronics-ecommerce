@@ -71,6 +71,8 @@ model User {
   googleId      String?   @unique
   questions     ProductQuestion[] @relation("QuestionAuthor")
   answers       ProductQuestion[] @relation("QuestionAnswerer")
+  extraPermissions   String[] @default([])
+  revokedPermissions String[] @default([])
   avatarId      String?   @unique
   avatar        Upload?   @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: SetNull)
   auditLogs     AuditLog[]

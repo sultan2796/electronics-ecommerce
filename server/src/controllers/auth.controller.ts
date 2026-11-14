@@ -33,7 +33,7 @@ export const toPublicUser = (user: User) => ({
   points: user.points,
   avatarUrl: avatarUrl(user.avatarId),
   googleLinked: Boolean(user.googleId),
-  permissions: permissionsFor(user.role),
+  permissions: permissionsFor(user),
 });
 
 export const uploadAvatar = asyncHandler(async (req, res) => {

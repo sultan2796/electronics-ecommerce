@@ -100,7 +100,7 @@ export const listPayments = asyncHandler(async (req, res) => {
 
 export const adminSearch = asyncHandler(async (req, res) => {
   const { q } = req.query as unknown as z.infer<typeof adminSearchQuerySchema>;
-  const role = currentUser(req).role;
+  const role = currentUser(req);
   const contains = { contains: q, mode: "insensitive" as const };
   const [orders, products, users] = await Promise.all([
     hasPermission(role, "orders:read")
@@ -134,7 +134,7 @@ export const adminSearch = asyncHandler(async (req, res) => {
 type Notice = { id: string; kind: "order" | "stock" | "review" | "refund" | "email"; title: string; detail: string; to: string; createdAt: Date };
 
 export const adminNotifications = asyncHandler(async (req, res) => {
-  const role = currentUser(req).role;
+  const role = currentUser(req);
   const week = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const notices: Notice[] = [];
 

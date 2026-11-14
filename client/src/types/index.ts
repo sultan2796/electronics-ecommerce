@@ -38,6 +38,9 @@ export interface AdminUser {
   createdAt: string;
   lastLoginAt: string | null;
   avatarUrl?: string | null;
+  permissions?: Permission[];
+  extraPermissions?: Permission[];
+  revokedPermissions?: Permission[];
   _count: { orders: number };
 }
 

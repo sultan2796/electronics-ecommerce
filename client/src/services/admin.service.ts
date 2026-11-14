@@ -1,4 +1,4 @@
-import { PaymentStatus, Brand, AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role, AdminUserDetail } from "../types";
+import { Permission, PaymentStatus, Brand, AdminReview, AdminStats, EmailLogEntry, EmailStatus, AdminUser, Category, ImportResult, Order, OrderStatus, Paginated, Product, ProductPayload, Role, AdminUserDetail } from "../types";
 import { api } from "./api";
 
 export interface AdminPayment {
@@ -69,6 +69,8 @@ export const adminService = {
   user: (id: string) => api.get<AdminUserDetail>(`/admin/users/${id}`).then((r) => r.data),
   users: (params: { q?: string; role?: Role; page?: number }) =>
     api.get<Paginated<AdminUser> & { roleCounts: Partial<Record<Role, number>> }>("/admin/users", { params }).then((r) => r.data),
+  updatePermissions: (id: string, body: { extraPermissions: Permission[]; revokedPermissions: Permission[] }) =>
+    api.put<AdminUser>(`/admin/users/${id}/permissions`, body).then((r) => r.data),
   updateUser: (id: string, body: { role?: Role; isBlocked?: boolean }) =>
     api.patch<AdminUser>(`/admin/users/${id}`, body).then((r) => r.data),
   createCategory: (body: { name: string; slug: string }) => api.post<Category>("/categories", body).then((r) => r.data),

@@ -126,7 +126,7 @@ export const listMyOrders = asyncHandler(async (req, res) => {
 export const getOrder = asyncHandler(async (req, res) => {
   const user = currentUser(req);
   const order = await prisma.order.findUnique({ where: { id: req.params.id }, include: orderInclude });
-  if (!order || (order.userId !== user.id && !hasPermission(user.role, "orders:read"))) throw new AppError(404, "Sifariş tapılmadı");
+  if (!order || (order.userId !== user.id && !hasPermission(user, "orders:read"))) throw new AppError(404, "Sifariş tapılmadı");
   res.json(order);
 });
 
@@ -135,7 +135,7 @@ export const cancelOrder = asyncHandler(async (req, res) => {
 
   const order = await prisma.$transaction(async (tx) => {
     const existing = await tx.order.findUnique({ where: { id: req.params.id } });
-    if (!existing || (existing.userId !== user.id && !hasPermission(user.role, "orders:write"))) throw new AppError(404, "Sifariş tapılmadı");
+    if (!existing || (existing.userId !== user.id && !hasPermission(user, "orders:write"))) throw new AppError(404, "Sifariş tapılmadı");
     if (existing.status !== OrderStatus.PENDING) throw new AppError(409, "Yalnız gözləmədə olan sifariş ləğv edilə bilər");
     return restockAndCancel(tx, existing.id, OrderStatus.PENDING);
   });
