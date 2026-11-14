@@ -19,7 +19,7 @@ import { extraService } from "../services/extra.service";
 import { productService } from "../services/product.service";
 import { Category, Promotion } from "../types";
 import { emptyFilters } from "../utils/filters";
-import { fallbackImage } from "../components/product/ProductImage";
+import { Headphones, Laptop } from "lucide-react";
 
 const categoryOrder = ["smartphones", "laptops", "tablets", "mobile-accessories", "headsets", "earphones", "cables"];
 
@@ -62,8 +62,8 @@ export default function Home() {
     : sidePromos.loading
       ? []
       : [
-          { eyebrow: "Noutbuklar", title: "İş və oyun üçün güclü seçim", imageUrl: fallbackImage("laptops"), ctaText: "Bax", link: "/products?category=laptops", tracked: false },
-          { eyebrow: "Aksesuarlar", title: "Hər gün üçün vacib detallar", imageUrl: fallbackImage("earphones"), ctaText: "Bax", link: "/products?category=mobile-accessories", tracked: false },
+          { eyebrow: "Noutbuklar", title: "İş və oyun üçün güclü seçim", icon: Laptop, ctaText: "Bax", link: "/products?category=laptops", tracked: false },
+          { eyebrow: "Aksesuarlar", title: "Hər gün üçün vacib detallar", icon: Headphones, ctaText: "Bax", link: "/products?category=mobile-accessories", tracked: false },
         ];
 
   useEffect(() => {
@@ -81,10 +81,10 @@ export default function Home() {
         <HeroSlider products={featured.data ?? []} slides={slides.data ?? []} />
         <div className="no-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-1 lg:grid-rows-2">
           {sideCards.length === 0
-            ? [0, 1].map((key) => <div key={key} className="min-h-[168px] w-[86%] shrink-0 animate-pulse rounded-3xl bg-[#111317] sm:w-auto" />)
+            ? [0, 1].map((key) => <div key={key} className="min-h-[168px] w-[86%] shrink-0 animate-pulse rounded-3xl bg-chip sm:w-auto" />)
             : sideCards.slice(0, 2).map((promo, index) => (
                 <div key={promo.id ?? index} className="w-[86%] shrink-0 snap-start sm:w-auto">
-                  <PromoCard promo={promo} tracked={promo.tracked} />
+                  <PromoCard promo={promo} tone={index % 2 === 0 ? "warm" : "cool"} tracked={promo.tracked} />
                 </div>
               ))}
         </div>
@@ -110,10 +110,11 @@ export default function Home() {
 
         {bannerPromos.data && bannerPromos.data.length > 0 && (
           <Reveal as="section" className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {bannerPromos.data.slice(0, 4).map((promo) => (
+            {bannerPromos.data.slice(0, 4).map((promo, index) => (
               <PromoCard
                 key={promo.id}
                 promo={{ ...promo, badge: campaignBadge(promo) }}
+                tone={index % 2 === 0 ? "warm" : "cool"}
                 size="wide"
               />
             ))}

@@ -230,7 +230,7 @@ export default function AdminPromotions() {
                           key={promotion.id}
                           className={`flex flex-wrap items-center gap-4 rounded-2xl border p-3 ${editingId === promotion.id ? "border-brand-500 bg-brand-50/50 dark:bg-brand-500/10" : "border-line"} ${promotion.isActive ? "" : "opacity-60"}`}
                         >
-                          <img src={promotion.imageUrl} alt="" className="size-16 shrink-0 rounded-xl bg-[#111317] object-contain p-1.5" />
+                          <img src={promotion.imageUrl} alt="" className="size-16 shrink-0 rounded-xl bg-chip object-contain p-1.5" />
                           <div className="min-w-0 flex-1 basis-44 space-y-1">
                             <p className="truncate font-medium">{promotion.title}</p>
                             <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
@@ -300,7 +300,7 @@ export default function AdminPromotions() {
             )}
           </div>
 
-          <div className="rounded-2xl bg-[#0b0c0f] p-3">
+          <div className="rounded-2xl bg-chip/60 p-3">
             <PromoCard
               tracked={false}
               preview
