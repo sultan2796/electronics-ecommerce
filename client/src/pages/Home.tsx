@@ -1,3 +1,4 @@
+import CategoryTile from "../components/home/CategoryTile";
 import ProductSkeletonGrid from "../components/product/ProductSkeleton";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -86,17 +87,7 @@ export default function Home() {
             <SectionHeader title={t("home.categories")} />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
               {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  to={`/products?category=${category.slug}`}
-                  className="group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-line bg-surface p-4 text-center transition duration-300 hover:-translate-y-0.5 hover:border-brand-500/40 motion-reduce:hover:translate-y-0"
-                >
-                  <span className="flex size-16 items-center justify-center rounded-2xl bg-chip transition group-hover:bg-brand-50 dark:group-hover:bg-brand-500/10">
-                    <img src={fallbackImage(category.slug)} alt="" className="size-11 object-contain transition duration-500 group-hover:scale-110" />
-                  </span>
-                  <span className="text-sm font-medium text-ink">{category.name}</span>
-                  <span className="-mt-2 text-xs text-muted">{`${category._count?.products ?? 0} məhsul`}</span>
-                </Link>
+                <CategoryTile key={category.id} category={category} label={`${category._count?.products ?? 0} məhsul`} />
               ))}
             </div>
           </Reveal>

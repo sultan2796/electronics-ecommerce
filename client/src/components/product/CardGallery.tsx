@@ -117,13 +117,17 @@ export default function CardGallery({ images, alt, category, soldOut = false, so
         )}
 
         {count > 1 && !soldOut && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-2.5 flex justify-center gap-1" aria-hidden="true">
-            {slides.map((image, position) => (
-              <span
-                key={`${image}-dot-${position}`}
-                className={`h-1.5 rounded-full transition-all duration-300 ${position === index ? "w-4 bg-[#1d1d1f]/70" : "w-1.5 bg-[#1d1d1f]/20"}`}
-              />
-            ))}
+          <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center" aria-hidden="true">
+            <div className="flex w-[42%] max-w-[120px] gap-1">
+              {slides.map((image, position) => (
+                <span key={`${image}-bar-${position}`} className="relative h-[3px] flex-1 overflow-hidden rounded-full bg-[#1d1d1f]/[0.12]">
+                  <span
+                    className="absolute inset-y-0 left-0 rounded-full bg-[#1d1d1f]/75 transition-[width] duration-500 ease-out"
+                    style={{ width: position === index ? "100%" : position < index ? "100%" : "0%", opacity: position < index ? 0.35 : 1 }}
+                  />
+                </span>
+              ))}
+            </div>
           </div>
         )}
 
