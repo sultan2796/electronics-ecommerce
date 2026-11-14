@@ -84,12 +84,21 @@ export const orderStatusLabels: Record<OrderStatus, string> = {
 };
 
 export const orderStatusStyles: Record<OrderStatus, string> = {
-  PENDING: "bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300",
-  PAID: "bg-blue-100 dark:bg-blue-500/15 text-blue-800 dark:text-blue-300",
-  PROCESSING: "bg-indigo-100 dark:bg-indigo-500/15 text-indigo-800 dark:text-indigo-300",
-  SHIPPED: "bg-cyan-100 dark:bg-cyan-500/15 text-cyan-800 dark:text-cyan-300",
-  DELIVERED: "bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300",
-  CANCELLED: "bg-chip text-ink/70",
+  PENDING: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/20",
+  PAID: "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20 dark:bg-blue-400/10 dark:text-blue-300 dark:ring-blue-400/25",
+  PROCESSING: "bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-600/20 dark:bg-violet-400/10 dark:text-violet-300 dark:ring-violet-400/25",
+  SHIPPED: "bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-600/20 dark:bg-sky-400/10 dark:text-sky-300 dark:ring-sky-400/25",
+  DELIVERED: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20 dark:bg-emerald-400/10 dark:text-emerald-300 dark:ring-emerald-400/25",
+  CANCELLED: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/15 dark:bg-red-400/10 dark:text-red-300 dark:ring-red-400/20",
+};
+
+export const orderStatusDots: Record<OrderStatus, string> = {
+  PENDING: "bg-amber-500",
+  PAID: "bg-blue-500",
+  PROCESSING: "bg-violet-500",
+  SHIPPED: "bg-sky-500",
+  DELIVERED: "bg-emerald-500",
+  CANCELLED: "bg-red-500",
 };
 
 export const orderCode = (order: { id: string; orderNumber?: string | null }) =>

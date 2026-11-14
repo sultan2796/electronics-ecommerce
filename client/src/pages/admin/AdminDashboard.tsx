@@ -10,17 +10,10 @@ import { useAuth } from "../../context/AuthContext";
 import { useAsync } from "../../hooks/useAsync";
 import { adminService } from "../../services/admin.service";
 import { OrderStatus } from "../../types";
-import { formatDate, formatLongDate, formatPrice, orderStatusLabels, orderStatusStyles, orderCode } from "../../utils/format";
+import { formatDate, formatLongDate, formatPrice, orderStatusLabels, orderStatusStyles, orderCode, orderStatusDots } from "../../utils/format";
 import CatalogImport from "./CatalogImport";
 
-const statusBarColors: Record<OrderStatus, string> = {
-  PENDING: "bg-amber-400",
-  PAID: "bg-blue-500",
-  PROCESSING: "bg-indigo-500",
-  SHIPPED: "bg-cyan-500",
-  DELIVERED: "bg-emerald-500",
-  CANCELLED: "bg-slate-400",
-};
+const statusBarColors = orderStatusDots;
 
 export default function AdminDashboard() {
   const { can } = useAuth();
@@ -103,13 +96,26 @@ export default function AdminDashboard() {
             const count = stats.ordersByStatus[status] ?? 0;
             const width = stats.totalOrders ? (count / stats.totalOrders) * 100 : 0;
             return (
-              <Link key={status} to={`/admin/orders?status=${status}`} className="block space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className={`rounded-full px-2 py-0.5 ${orderStatusStyles[status]}`}>{orderStatusLabels[status]}</span>
-                  <span className="font-semibold">{count}</span>
+              <Link
+                key={status}
+                to={`/admin/orders?status=${status}`}
+                className="-mx-2 block space-y-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-chip/60"
+              >
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="flex items-center gap-2.5 font-medium text-ink/85">
+                    <span className={`size-2 rounded-full ${statusBarColors[status]}`} aria-hidden="true" />
+                    {orderStatusLabels[status]}
+                  </span>
+                  <span className="flex items-baseline gap-2 tabular-nums">
+                    <span className="text-xs text-muted">{`${Math.round(width)}%`}</span>
+                    <span className="min-w-[1.5rem] text-right font-semibold">{count}</span>
+                  </span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-chip">
-                  <div className={`h-full rounded-full ${statusBarColors[status]}`} style={{ width: `${width}%` }} />
+                <div className="h-1.5 overflow-hidden rounded-full bg-chip">
+                  <div
+                    className={`h-full rounded-full transition-[width] duration-700 ease-out ${statusBarColors[status]}`}
+                    style={{ width: `${count > 0 ? Math.max(width, 2) : 0}%` }}
+                  />
                 </div>
               </Link>
             );

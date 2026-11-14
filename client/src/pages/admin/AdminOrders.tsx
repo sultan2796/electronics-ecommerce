@@ -136,7 +136,7 @@ export default function AdminOrders() {
                     </td>
                     <td className="px-4 py-3 text-muted">{formatDate(order.createdAt)}</td>
                     <td className="px-4 py-3">
-                      {order.items.map((item) => (
+                      {(order.items ?? []).map((item) => (
                         <p key={item.id}>
                           {item.productName} × {item.quantity}
                         </p>
