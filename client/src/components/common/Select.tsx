@@ -61,12 +61,20 @@ export default function Select<T extends string>({
     return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
+  const [menuBox, setMenuBox] = useState<{ left: number; width: number } | null>(null);
+  const hasHints = options.some((option) => option.hint);
+
   useLayoutEffect(() => {
     if (!open || !rootRef.current) return;
     const rect = rootRef.current.getBoundingClientRect();
     setDropUp(window.innerHeight - rect.bottom < 280 && rect.top > 300);
+    const viewport = document.documentElement.clientWidth || window.innerWidth;
+    const width = Math.min(Math.max(rect.width, hasHints ? 288 : rect.width), viewport - 24);
+    const preferred = align === "right" ? rect.width - width : 0;
+    const left = Math.min(Math.max(preferred, 12 - rect.left), viewport - 12 - width - rect.left);
+    setMenuBox({ left, width });
     if (withSearch) searchRef.current?.focus();
-  }, [open, withSearch]);
+  }, [open, withSearch, align, hasHints]);
 
   useEffect(() => {
     if (!open || active < 0) return;
@@ -156,9 +164,10 @@ export default function Select<T extends string>({
 
       {open && (
         <div
-          className={`absolute z-50 min-w-full overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_20px_45px_-15px_rgba(15,23,42,0.35)] ${
+          className={`absolute z-50 overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_20px_45px_-15px_rgba(15,23,42,0.35)] ${
             dropUp ? "bottom-full mb-2" : "top-full mt-2"
-          } ${align === "right" ? "right-0" : "left-0"}`}
+          }`}
+          style={menuBox ? { left: menuBox.left, width: menuBox.width } : { left: 0, minWidth: "100%" }}
         >
           {withSearch && (
             <div className="border-b border-line p-2">
@@ -175,7 +184,7 @@ export default function Select<T extends string>({
               />
             </div>
           )}
-          <ul ref={listRef} id={`${id}-list`} role="listbox" aria-label={ariaLabel} className="max-h-64 overflow-y-auto p-1.5">
+          <ul ref={listRef} id={`${id}-list`} role="listbox" aria-label={ariaLabel} className="max-h-[min(22rem,60vh)] overflow-y-auto overscroll-contain p-1.5">
             {visible.length === 0 && <li className="px-3 py-2.5 text-sm text-muted">Nəticə yoxdur</li>}
             {visible.map((option, index) => {
               const isSelected = option.value === value;
@@ -189,12 +198,12 @@ export default function Select<T extends string>({
                   onMouseEnter={() => setActive(index)}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => choose(option)}
-                  className={`flex cursor-pointer items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm transition ${
+                  className={`flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
                     option.disabled ? "cursor-not-allowed opacity-40" : index === active ? "bg-chip text-ink" : "text-ink/80"
                   } ${isSelected ? "font-semibold text-ink" : ""}`}
                 >
                   {option.icon}
-                  <span className="flex-1">
+                  <span className="min-w-0 flex-1">
                     <span className="block">{option.label}</span>
                     {option.hint && <span className="block text-xs font-normal text-muted">{option.hint}</span>}
                   </span>
