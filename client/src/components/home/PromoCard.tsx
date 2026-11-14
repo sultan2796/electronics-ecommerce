@@ -18,20 +18,22 @@ export interface PromoContent {
 type Size = "side" | "wide";
 export type PromoTone = "warm" | "cool";
 
-const tones: Record<PromoTone, { card: string; eyebrow: string; medallion: string; iconColor: string; halo: string }> = {
+export const toneAt = (index: number): PromoTone => (index % 2 === 0 ? "warm" : "cool");
+
+const tones: Record<PromoTone, { card: string; eyebrow: string; medallion: string; iconColor: string; ringBorder: string }> = {
   warm: {
     card: "border-[#ecdcc8] bg-gradient-to-br from-[#fffaf4] via-[#fbf1e5] to-[#f5e6d3] hover:border-[#dfc7aa] dark:border-white/[0.08] dark:from-[#1b1915] dark:via-[#15140f] dark:to-[#0f0e0b] dark:hover:border-white/[0.16]",
-    eyebrow: "text-[#a8743e] dark:text-[#d1a26f]",
+    eyebrow: "text-[#8a5a2b] dark:text-[#d1a26f]",
     medallion: "from-white to-[#f7ebdc] ring-[#ead6bd] dark:from-[#2a2620] dark:to-[#1a1814] dark:ring-white/10",
     iconColor: "text-[#b07a45] dark:text-[#d9ad7c]",
-    halo: "border-[#e8d3b8] dark:border-white/[0.08]",
+    ringBorder: "border-[#e8d3b8] dark:border-white/[0.08]",
   },
   cool: {
     card: "border-[#dde3ec] bg-gradient-to-br from-[#f9fbfd] via-[#f1f4f8] to-[#e7ecf3] hover:border-[#c9d2de] dark:border-white/[0.08] dark:from-[#17191e] dark:via-[#121418] dark:to-[#0c0d10] dark:hover:border-white/[0.16]",
-    eyebrow: "text-[#5b6b82] dark:text-[#9fb0c8]",
+    eyebrow: "text-[#475569] dark:text-[#9fb0c8]",
     medallion: "from-white to-[#e9eef5] ring-[#d6dee9] dark:from-[#23262d] dark:to-[#16181d] dark:ring-white/10",
     iconColor: "text-[#3f4f66] dark:text-[#c3cfdf]",
-    halo: "border-[#d3dce8] dark:border-white/[0.08]",
+    ringBorder: "border-[#d3dce8] dark:border-white/[0.08]",
   },
 };
 
@@ -50,12 +52,11 @@ function PromoLink({ href, className, onClick, children }: { href: string; class
   );
 }
 
-function Medallion({ icon: Icon, tone, wide }: { icon: LucideIcon; tone: PromoTone; wide: boolean }) {
-  const style = tones[tone];
+function Medallion({ icon: Icon, style, wide }: { icon: LucideIcon; style: (typeof tones)[PromoTone]; wide: boolean }) {
   return (
     <span className={`relative flex items-center justify-center ${wide ? "size-32 sm:size-36" : "size-[104px]"}`} aria-hidden="true">
-      <span className={`absolute inset-0 rounded-full border ${style.halo}`} />
-      <span className={`absolute inset-[13%] rounded-full border border-dashed ${style.halo} transition-transform duration-[1200ms] ease-out group-hover:rotate-90`} />
+      <span className={`absolute inset-0 rounded-full border ${style.ringBorder}`} />
+      <span className={`absolute inset-[13%] rounded-full border border-dashed ${style.ringBorder} transition-transform duration-[1200ms] ease-out group-hover:rotate-90`} />
       <span className={`relative flex size-[64%] items-center justify-center rounded-full bg-gradient-to-b ring-1 ring-inset ${style.medallion} transition-transform duration-500 ease-out group-hover:scale-[1.06]`}>
         <Icon className={`size-[48%] ${style.iconColor}`} strokeWidth={1.4} />
       </span>
@@ -115,7 +116,7 @@ export default function PromoCard({
           )}
           <p className={`font-semibold leading-snug tracking-tight ${wide ? "text-xl sm:text-2xl" : "line-clamp-2 text-[17px]"}`}>{promo.title}</p>
           {promo.description && (
-            <p className={`text-ink/60 dark:text-white/60 ${wide ? "line-clamp-2 max-w-md text-sm" : "line-clamp-2 text-xs leading-relaxed"}`}>{promo.description}</p>
+            <p className={`text-ink/70 dark:text-white/65 ${wide ? "line-clamp-2 max-w-md text-sm" : "line-clamp-2 text-xs leading-relaxed"}`}>{promo.description}</p>
           )}
         </div>
         {showCta && (
@@ -137,7 +138,7 @@ export default function PromoCard({
             className="max-h-full max-w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.06]"
           />
         ) : promo.icon ? (
-          <Medallion icon={promo.icon} tone={tone} wide={wide} />
+          <Medallion icon={promo.icon} style={style} wide={wide} />
         ) : null}
       </div>
     </div>

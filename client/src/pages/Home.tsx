@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Alert from "../components/common/Alert";
 import Benefits from "../components/home/Benefits";
 import CampaignShowcase from "../components/home/CampaignShowcase";
-import PromoCard, { PromoContent } from "../components/home/PromoCard";
+import PromoCard, { PromoContent, toneAt } from "../components/home/PromoCard";
 import HeroSlider from "../components/home/HeroSlider";
 import { Reveal } from "../components/motion/Tilt";
 import { promotionService } from "../services/promotion.service";
@@ -19,7 +19,7 @@ import { extraService } from "../services/extra.service";
 import { productService } from "../services/product.service";
 import { Category, Promotion } from "../types";
 import { emptyFilters } from "../utils/filters";
-import { Headphones, Laptop } from "lucide-react";
+import { Cable, Laptop } from "lucide-react";
 
 const categoryOrder = ["smartphones", "laptops", "tablets", "mobile-accessories", "headsets", "earphones", "cables"];
 
@@ -63,7 +63,7 @@ export default function Home() {
       ? []
       : [
           { eyebrow: "Noutbuklar", title: "İş və oyun üçün güclü seçim", icon: Laptop, ctaText: "Bax", link: "/products?category=laptops", tracked: false },
-          { eyebrow: "Aksesuarlar", title: "Hər gün üçün vacib detallar", icon: Headphones, ctaText: "Bax", link: "/products?category=mobile-accessories", tracked: false },
+          { eyebrow: "Aksesuarlar", title: "Hər gün üçün vacib detallar", icon: Cable, ctaText: "Bax", link: "/products?category=mobile-accessories", tracked: false },
         ];
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function Home() {
             ? [0, 1].map((key) => <div key={key} className="min-h-[168px] w-[86%] shrink-0 animate-pulse rounded-3xl bg-chip sm:w-auto" />)
             : sideCards.slice(0, 2).map((promo, index) => (
                 <div key={promo.id ?? index} className="w-[86%] shrink-0 snap-start sm:w-auto">
-                  <PromoCard promo={promo} tone={index % 2 === 0 ? "warm" : "cool"} tracked={promo.tracked} />
+                  <PromoCard promo={promo} tone={toneAt(index)} tracked={promo.tracked} />
                 </div>
               ))}
         </div>
@@ -114,7 +114,7 @@ export default function Home() {
               <PromoCard
                 key={promo.id}
                 promo={{ ...promo, badge: campaignBadge(promo) }}
-                tone={index % 2 === 0 ? "warm" : "cool"}
+                tone={toneAt(index)}
                 size="wide"
               />
             ))}
